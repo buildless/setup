@@ -1,20 +1,55 @@
-name: 'The name of your action here'
-description: 'Provide a description here'
-author: 'Your name or organization here'
+name: 'Setup Buildless'
+description: 'Lightning-fast build caching for Github Actions with Buildless'
+author: 'Buildless'
 
-# Add your action's branding here. This will appear on the GitHub Marketplace.
 branding:
-  icon: 'heart'
-  color: 'red'
+  icon: box
+  color: purple
 
-# Define your inputs here.
 inputs:
-  milliseconds:
-    description: 'Your input description here'
-    required: true
-    default: '1000'
+  version:
+    description: 'Version'
+    required: false
+    default: 'latest'
 
-# Define your outputs here.
+  os:
+    description: 'OS'
+    required: false
+
+  arch:
+    description: 'Architecture'
+    required: false
+
+  target:
+    description: 'Custom install path'
+    required: false
+
+  force:
+    description: 'Force install'
+    required: false
+
+  export_path:
+    description: 'Export to Path'
+    required: false
+    default: 'true'
+
+  custom_url:
+    description: 'Custom Download URL'
+    required: false
+
+  token:
+    description: 'GitHub Token'
+    required: false
+
+  agent:
+    description: 'Enable Buildless Agent'
+    required: false
+    default: 'true'
+
+  apikey:
+    description: 'Buildless API key'
+    required: false
+
 outputs:
   time:
     description: 'Your output description here'

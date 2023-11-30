@@ -1,16 +1,16 @@
 {
   "name": "typescript-action",
-  "description": "GitHub Actions TypeScript template",
-  "version": "0.0.0",
-  "author": "",
+  "description": "Github Action to setup caching with Buildless",
+  "version": "1.0.0",
+  "author": "Buildless (https://less.build)",
   "private": true,
-  "homepage": "https://github.com/actions/typescript-action",
+  "homepage": "https://github.com/buildless/setup-buildless",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/actions/typescript-action.git"
+    "url": "git+https://github.com/buildless/setup-buildless.git"
   },
   "bugs": {
-    "url": "https://github.com/actions/typescript-action/issues"
+    "url": "https://github.com/buildless/setup-buildless/issues"
   },
   "keywords": [
     "actions",
@@ -36,11 +36,24 @@
     "all": "npm run format:write && npm run lint && npm run test && npm run coverage && npm run package"
   },
   "license": "MIT",
+  "jestSonar": {},
   "jest": {
     "preset": "ts-jest",
     "verbose": true,
     "clearMocks": true,
     "testEnvironment": "node",
+    "testResultsProcessor": "jest-sonar-reporter",
+    "setupFiles": [
+      "<rootDir>/.dev/test-env.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 20,
+        "functions": 20,
+        "lines": 40,
+        "statements": 20
+      }
+    },
     "moduleFileExtensions": [
       "js",
       "ts"
@@ -80,10 +93,39 @@
     "eslint-plugin-jsonc": "^2.10.0",
     "eslint-plugin-prettier": "^5.0.1",
     "jest": "^29.7.0",
+    "jest-sonar-reporter": "^2.0.0",
     "make-coverage-badge": "^1.2.0",
     "prettier": "^3.1.0",
     "prettier-eslint": "^16.1.2",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.2"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ],
+    "rules": {
+      "signed-off-by": [
+        2,
+        "always",
+        "Signed-off-by:"
+      ]
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "tabWidth": 2,
+    "useTabs": false,
+    "semi": false,
+    "singleQuote": true,
+    "quoteProps": "as-needed",
+    "jsxSingleQuote": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "bracketSameLine": true,
+    "arrowParens": "avoid",
+    "proseWrap": "always",
+    "htmlWhitespaceSensitivity": "css",
+    "endOfLine": "lf"
   }
 }

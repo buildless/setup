@@ -101,3 +101,19 @@ __tests__/runner/*
 .idea
 .vscode
 *.code-workspace
+
+# Turbo Build
+.turbo/cache
+.turbo-cookie
+
+# Local codebase stuff
+.dev/codebase
+
+# Local testing scratch space
+.dev/tmp/*
+!.dev/tmp/.gitkeep
+.dev/tool-cache/*
+!.dev/tool-cache/.gitkeep
+.dev/target/*
+!.dev/target/.gitkeep
+test-report.xml
