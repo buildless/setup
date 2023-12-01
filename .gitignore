@@ -117,3 +117,7 @@ __tests__/runner/*
 .dev/target/*
 !.dev/target/.gitkeep
 test-report.xml
+
+# Generated code
+gen/
+

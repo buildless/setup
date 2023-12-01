@@ -20,6 +20,21 @@ dependencies:
   '@actions/tool-cache':
     specifier: ^2.0.1
     version: registry.npmjs.org/@actions/tool-cache@2.0.1
+  '@bufbuild/buf':
+    specifier: ^1.28.1
+    version: registry.npmjs.org/@bufbuild/buf@1.28.1
+  '@bufbuild/protobuf':
+    specifier: ^1.5.0
+    version: registry.npmjs.org/@bufbuild/protobuf@1.5.0
+  '@bufbuild/protoc-gen-es':
+    specifier: ^1.5.0
+    version: registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0)
+  '@connectrpc/connect':
+    specifier: ^1.1.3
+    version: registry.npmjs.org/@connectrpc/connect@1.1.3(@bufbuild/protobuf@1.5.0)
+  '@connectrpc/protoc-gen-connect-es':
+    specifier: ^1.1.3
+    version: registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.3(@bufbuild/protoc-gen-es@1.5.0)(@connectrpc/connect@1.1.3)
   octokit:
     specifier: ^3.1.2
     version: registry.npmjs.org/octokit@3.1.2
@@ -578,6 +593,160 @@ packages:
     name: '@bcoe/v8-coverage'
     version: 0.2.3
     dev: true
+
+  registry.npmjs.org/@bufbuild/buf-darwin-arm64@1.28.1:
+    resolution: {integrity: sha512-nAyvwKkcd8qQTExCZo5MtSRhXLK7e3vzKFKHjXfkveRakSUST2HFlFZAHfErZimN4wBrPTN0V0hNRU8PPjkMpQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.28.1.tgz}
+    name: '@bufbuild/buf-darwin-arm64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf-darwin-x64@1.28.1:
+    resolution: {integrity: sha512-b0eT3xd3vX5a5lWAbo5h7FPuf9MsOJI4I39qs4TZnrlZ8BOuPfqzwzijiFf9UCwaX2vR1NQXexIoQ80Ci+fCHw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-x64/-/buf-darwin-x64-1.28.1.tgz}
+    name: '@bufbuild/buf-darwin-x64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf-linux-aarch64@1.28.1:
+    resolution: {integrity: sha512-p5h9bZCVLMh8No9/7k7ulXzsFx5P7Lu6DiUMjSJ6aBXPMYo6Xl7r/6L2cQkpsZ53HMtIxCgMYS9a7zoS4K8wIw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-aarch64/-/buf-linux-aarch64-1.28.1.tgz}
+    name: '@bufbuild/buf-linux-aarch64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf-linux-x64@1.28.1:
+    resolution: {integrity: sha512-fVJ3DiRigIso06jgEl+JNp59Y5t2pxDHd10d3SA4r+14sXbZ2J7Gy/wBqVXPry4x/jW567KKlvmhg7M5ZBgCQQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-x64/-/buf-linux-x64-1.28.1.tgz}
+    name: '@bufbuild/buf-linux-x64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf-win32-arm64@1.28.1:
+    resolution: {integrity: sha512-KJiRJpugQRK/jXC46Xjlb68UydWhCZj2jHdWLIwNtgXd1WTJ3LngChZV7Y6pPK08pwBAVz0JYeVbD5IlTCD4TQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-arm64/-/buf-win32-arm64-1.28.1.tgz}
+    name: '@bufbuild/buf-win32-arm64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf-win32-x64@1.28.1:
+    resolution: {integrity: sha512-vMnc+7OVCkmlRWQsgYHgUqiBPRIjD8XeoRyApJ07YZzGs7DkRH4LhvmacJbLd3wORylbn6gLz3pQa8J/M61mzg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-x64/-/buf-win32-x64-1.28.1.tgz}
+    name: '@bufbuild/buf-win32-x64'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  registry.npmjs.org/@bufbuild/buf@1.28.1:
+    resolution: {integrity: sha512-WRDagrf0uBjfV9s5eyrSPJDcdI4A5Q7JMCA4aMrHRR8fo/TTjniDBjJprszhaguqsDkn/LS4QIu92HVFZCrl9A==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf/-/buf-1.28.1.tgz}
+    name: '@bufbuild/buf'
+    version: 1.28.1
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@bufbuild/buf-darwin-arm64': registry.npmjs.org/@bufbuild/buf-darwin-arm64@1.28.1
+      '@bufbuild/buf-darwin-x64': registry.npmjs.org/@bufbuild/buf-darwin-x64@1.28.1
+      '@bufbuild/buf-linux-aarch64': registry.npmjs.org/@bufbuild/buf-linux-aarch64@1.28.1
+      '@bufbuild/buf-linux-x64': registry.npmjs.org/@bufbuild/buf-linux-x64@1.28.1
+      '@bufbuild/buf-win32-arm64': registry.npmjs.org/@bufbuild/buf-win32-arm64@1.28.1
+      '@bufbuild/buf-win32-x64': registry.npmjs.org/@bufbuild/buf-win32-x64@1.28.1
+    dev: false
+
+  registry.npmjs.org/@bufbuild/protobuf@1.5.0:
+    resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.5.0.tgz}
+    name: '@bufbuild/protobuf'
+    version: 1.5.0
+    dev: false
+
+  registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0):
+    resolution: {integrity: sha512-6dPFlw7jhKPNoJUb5+0MPDTMEEbym4AAQZP2sCo4/0J+T2SlAzq5kbuNx92x+SFkOI5V7/iNoPHrxr0TZZ9b2g==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoc-gen-es/-/protoc-gen-es-1.5.0.tgz}
+    id: registry.npmjs.org/@bufbuild/protoc-gen-es/1.5.0
+    name: '@bufbuild/protoc-gen-es'
+    version: 1.5.0
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protobuf': 1.5.0
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+    dependencies:
+      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+      '@bufbuild/protoplugin': registry.npmjs.org/@bufbuild/protoplugin@1.5.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  registry.npmjs.org/@bufbuild/protoplugin@1.5.0:
+    resolution: {integrity: sha512-b07uxUfWUHm91PrN7dMMSmO+2RH21kPo+EhczGDR3PDh2t80e4XCZhf3Z/6SM/+ajhVpbl/WNK+z645jsSnGPg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoplugin/-/protoplugin-1.5.0.tgz}
+    name: '@bufbuild/protoplugin'
+    version: 1.5.0
+    dependencies:
+      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+      '@typescript/vfs': registry.npmjs.org/@typescript/vfs@1.5.0
+      typescript: registry.npmjs.org/typescript@4.5.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  registry.npmjs.org/@connectrpc/connect@1.1.3(@bufbuild/protobuf@1.5.0):
+    resolution: {integrity: sha512-AXkbsLQe2Nm7VuoN5nqp05GEb9mPa/f5oFzDqTbHME4i8TghTrlY03uefbhuAq4wjsnfDnmuxHZvn6ndlgXmbg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/connect/-/connect-1.1.3.tgz}
+    id: registry.npmjs.org/@connectrpc/connect/1.1.3
+    name: '@connectrpc/connect'
+    version: 1.1.3
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.3.3
+    dependencies:
+      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+    dev: false
+
+  registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.3(@bufbuild/protoc-gen-es@1.5.0)(@connectrpc/connect@1.1.3):
+    resolution: {integrity: sha512-Irt1WM1o45KL0DNz8D8nraNfRrOyZfn7rzRsOyfrwbNzeVO1JV3rELFpARqGAvtVveYBoO9uwYtQ8TKLXsnrng==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/protoc-gen-connect-es/-/protoc-gen-connect-es-1.1.3.tgz}
+    id: registry.npmjs.org/@connectrpc/protoc-gen-connect-es/1.1.3
+    name: '@connectrpc/protoc-gen-connect-es'
+    version: 1.1.3
+    engines: {node: '>=16.0.0'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protoc-gen-es': ^1.3.3
+      '@connectrpc/connect': 1.1.3
+    peerDependenciesMeta:
+      '@bufbuild/protoc-gen-es':
+        optional: true
+      '@connectrpc/connect':
+        optional: true
+    dependencies:
+      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+      '@bufbuild/protoc-gen-es': registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0)
+      '@bufbuild/protoplugin': registry.npmjs.org/@bufbuild/protoplugin@1.5.0
+      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.3(@bufbuild/protobuf@1.5.0)
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   registry.npmjs.org/@eslint-community/eslint-utils@4.4.0(eslint@8.54.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz}
@@ -1687,6 +1856,16 @@ packages:
       eslint-visitor-keys: registry.npmjs.org/eslint-visitor-keys@3.4.3
     dev: true
 
+  registry.npmjs.org/@typescript/vfs@1.5.0:
+    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@typescript/vfs/-/vfs-1.5.0.tgz}
+    name: '@typescript/vfs'
+    version: 1.5.0
+    dependencies:
+      debug: registry.npmjs.org/debug@4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   registry.npmjs.org/@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.2.0.tgz}
     name: '@ungap/structured-clone'
@@ -2372,7 +2551,6 @@ packages:
         optional: true
     dependencies:
       ms: registry.npmjs.org/ms@2.1.2
-    dev: true
 
   registry.npmjs.org/dedent@1.5.1:
     resolution: {integrity: sha512-+LxW+KLWxu3HW3M2w2ympwtqPrqYRzU8fqi6Fhd18fBALe15blJPI/I4+UHveMVG6lJqB4JNd4UG0S5cnVHwIg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/dedent/-/dedent-1.5.1.tgz}
@@ -4882,7 +5060,6 @@ packages:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/ms/-/ms-2.1.2.tgz}
     name: ms
     version: 2.1.2
-    dev: true
 
   registry.npmjs.org/ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/ms/-/ms-2.1.3.tgz}
@@ -5931,6 +6108,14 @@ packages:
       for-each: registry.npmjs.org/for-each@0.3.3
       is-typed-array: registry.npmjs.org/is-typed-array@1.1.12
     dev: true
+
+  registry.npmjs.org/typescript@4.5.2:
+    resolution: {integrity: sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/typescript/-/typescript-4.5.2.tgz}
+    name: typescript
+    version: 4.5.2
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: false
 
   registry.npmjs.org/typescript@5.3.2:
     resolution: {integrity: sha512-6l+RyNy7oAHDfxC4FzSJcz9vnjTKxrLpDG5M2Vu4SHRVNg6xzqZp6LYSR9zjqQTu8DU/f5xwxUdADOkbrIX2gQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/typescript/-/typescript-5.3.2.tgz}
