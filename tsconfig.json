@@ -3,9 +3,9 @@
   "compilerOptions": {
     "target": "esnext",
     "module": "nodenext",
-    "rootDir": "./src",
+    "rootDir": ".",
     "moduleResolution": "nodenext",
-    "baseUrl": "./",
+    "baseUrl": "./src",
     "sourceMap": true,
     "outDir": "./dist",
     "noImplicitAny": true,
@@ -18,6 +18,5 @@
       "@api/*": ["gen/*"]
     }
   },
-  "include": ["src", "gen"],
   "exclude": ["./dist", "./node_modules", "./__tests__", "./coverage"]
 }

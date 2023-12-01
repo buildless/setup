@@ -73,6 +73,8 @@ export function notSupported(options: Options): null | Error {
       return null
     case 'darwin-aarch64':
       return null
+    case 'windows-amd64':
+      return null
     default:
       core.error(`Platform is not supported: ${spec}`)
       return new Error(`Platform not supported: ${spec}`)
@@ -97,10 +99,11 @@ export async function resolveExistingBinary(): Promise<string | null> {
 }
 
 /**
- * The main function for the action.
+ * The install function for the action.
+ *
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-export async function run(options?: Partial<Options>): Promise<void> {
+export async function install(options?: Partial<Options>): Promise<void> {
   try {
     // resolve effective plugin options
     core.info('Installing Buildless with GitHub Actions')
@@ -158,7 +161,16 @@ export async function run(options?: Partial<Options>): Promise<void> {
 
     // download the release tarball (resolving version if needed)
     const release = await downloadRelease(effectiveOptions)
+
+    core.startGroup(
+      `Setting up Buildless (version '${release.version.tag_name}')...`
+    )
     core.debug(`Release version: '${release.version.tag_name}'`)
+
+    const baseArgs = []
+    if (core.isDebug()) {
+      baseArgs.push('--verbose=true')
+    }
 
     // if instructed, add binary to the path
     if (effectiveOptions.export_path) {
@@ -192,5 +204,44 @@ export async function run(options?: Partial<Options>): Promise<void> {
   } catch (error) {
     // Fail the workflow run if an error occurs
     if (error instanceof Error) core.setFailed(error.message)
+  }
+}
+
+/**
+ * The cleanup function for the action.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+export async function postExecute(options?: Partial<Options>): Promise<void> {
+  core.info('Cleaning up Buildless Agent and resources...')
+}
+
+/**
+ * Wrapped main function with error handling.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+export async function entry(options?: Partial<Options>): Promise<void> {
+  try {
+    return await install(options)
+  } catch (err) {
+    core.warning(
+      'Buildless failed to install; this build may not be accelerated. Please see CI logs for more information.'
+    )
+  }
+}
+
+/**
+ * Wrapped cleanup entry function with error handling.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+export async function cleanup(options?: Partial<Options>): Promise<void> {
+  try {
+    return await postExecute(options)
+  } catch (err) {
+    core.notice(
+      'Cleanup stage for the Buildless action failed. Please see CI logs for more information.'
+    )
   }
 }

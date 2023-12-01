@@ -119,5 +119,4 @@ __tests__/runner/*
 test-report.xml
 
 # Generated code
-gen/
-
+src/gen/

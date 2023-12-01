@@ -14250,7 +14250,7 @@ module.exports = TokenExpiredError;
 
 /***/ }),
 
-/***/ 8358:
+/***/ 8517:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const semver = __nccwpck_require__(4392);
@@ -14307,7 +14307,7 @@ module.exports = function (time, iat) {
 /***/ 650:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(8358);
+const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(8517);
 const RSA_PSS_KEY_DETAILS_SUPPORTED = __nccwpck_require__(7284);
 
 const allowedAlgorithmsForKeys = {
@@ -45620,18 +45620,52 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.obtainVersion = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
+exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
-// async function execBuildless(bin: string, args?: string[]): Promise<void> {
-//   core.debug(`Executing: bin=${bin}, args=${args}`)
-//   await exec.exec(`"${bin}"`, args)
-// }
+class CliError extends Error {
+    result;
+    bin;
+    cmd;
+    args;
+    mainArgs;
+    constructor(result, bin, cmd, args, mainArgs) {
+        super('CLI call failed');
+        this.result = result;
+        this.bin = bin;
+        this.cmd = cmd;
+        this.args = args;
+        this.mainArgs = mainArgs;
+    }
+}
+async function execBuildless(bin, cmd, args = [], mainArgs = []) {
+    const subcommand = cmd.split(' ');
+    if (core.isDebug() && !mainArgs.includes(BuildlessArgument.VERBOSE)) {
+        mainArgs.push(BuildlessArgument.VERBOSE);
+    }
+    const effectiveArgs = (mainArgs || [])
+        .concat(subcommand)
+        .concat(args);
+    core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`);
+    const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs);
+    if (result.exitCode !== 0) {
+        throw new CliError(result, bin, cmd, args, mainArgs);
+    }
+    return result;
+}
 /**
  * Enumerates available commands which can be run with the Buildless CLI tool.
  */
 var BuildlessCommand;
 (function (BuildlessCommand) {
+    // Install the agent.
+    BuildlessCommand["AGENT_INSTALL"] = "agent install";
+    // Start the agent.
+    BuildlessCommand["AGENT_START"] = "agent start";
+    // Stop the agent.
+    BuildlessCommand["AGENT_STOP"] = "agent stop";
+    // Get current agent status.
+    BuildlessCommand["AGENT_STATUS"] = "agent status";
     // Print version and exit.
     BuildlessCommand["VERSION"] = "--version";
 })(BuildlessCommand || (exports.BuildlessCommand = BuildlessCommand = {}));
@@ -45643,6 +45677,62 @@ var BuildlessArgument;
     BuildlessArgument["DEBUG"] = "--debug=true";
     BuildlessArgument["VERBOSE"] = "--verbose=true";
 })(BuildlessArgument || (exports.BuildlessArgument = BuildlessArgument = {}));
+/**
+ * Ask the Buildless CLI to install the Buildless Agent.
+ *
+ * @param bin Path to the Buildless CLI tools binary.
+ * @return Promise which resolves to an answer about whether the agent installed.
+ */
+async function agentInstall(bin) {
+    core.debug(`Triggering agent install via CLI`);
+    return ((await execBuildless(bin, BuildlessCommand.AGENT_INSTALL, [
+        '--background=true'
+    ])).exitCode === 0);
+}
+exports.agentInstall = agentInstall;
+/**
+ * Ask the Buildless CLI for agent status.
+ *
+ * @param bin Path to the Buildless CLI tools binary.
+ * @return Promise which resolves to an answer about whether the agent installed.
+ */
+async function agentStatus(bin) {
+    core.debug(`Obtaining agent status via CLI`);
+    const result = (await execBuildless(bin, BuildlessCommand.AGENT_STATUS)).stdout
+        .trim()
+        .replaceAll('%0A', '')
+        .includes('installed, running, and ready');
+    if (result) {
+        core.debug('Agent is currently running');
+    }
+    else {
+        core.debug('Agent is not currently running');
+    }
+    return result;
+}
+exports.agentStatus = agentStatus;
+/**
+ * Ask the Buildless CLI to start the agent.
+ *
+ * @param bin Path to the Buildless CLI tools binary.
+ * @return Promise which resolves to an answer about whether the agent installed.
+ */
+async function agentStart(bin) {
+    core.debug(`Starting agent via CLI`);
+    return (await execBuildless(bin, BuildlessCommand.AGENT_START)).exitCode === 0;
+}
+exports.agentStart = agentStart;
+/**
+ * Ask the Buildless CLI to stop the agent.
+ *
+ * @param bin Path to the Buildless CLI tools binary.
+ * @return Promise which resolves to an answer about whether the agent installed.
+ */
+async function agentStop(bin) {
+    core.debug(`Stopping agent via CLI`);
+    return (await execBuildless(bin, BuildlessCommand.AGENT_STOP)).exitCode === 0;
+}
+exports.agentStop = agentStop;
 /**
  * Interrogate the specified binary to obtain the version.
  *
@@ -45667,12 +45757,61 @@ exports.obtainVersion = obtainVersion;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.GITHUB_DEFAULT_HEADERS = exports.GITHUB_API_VERSION = void 0;
+exports.TRANSPORT = exports.Arch = exports.OS = exports.RpcTransport = exports.BUILDLESS_AZR_ENDPOINT = exports.BUILDLESS_AGENT_ENDPOINT = exports.BUILDLESS_EDGE_ENDPOINT = exports.BUILDLESS_GLOBAL_ENDPOINT = exports.GITHUB_DEFAULT_HEADERS = exports.GITHUB_API_VERSION = void 0;
 // Version of the GitHub API to use.
 exports.GITHUB_API_VERSION = '2022-11-28';
 // Default headers to send on GitHub API requests.
 exports.GITHUB_DEFAULT_HEADERS = {
     'X-GitHub-Api-Version': exports.GITHUB_API_VERSION
+};
+// Global LB endpoint.
+exports.BUILDLESS_GLOBAL_ENDPOINT = 'https://global.less.build';
+// Global Edge service endpoint.
+exports.BUILDLESS_EDGE_ENDPOINT = 'https://edge.less.build';
+// Global Agent service endpoint.
+exports.BUILDLESS_AGENT_ENDPOINT = 'https://agent.less.build';
+// Azure CDN cache.
+exports.BUILDLESS_AZR_ENDPOINT = 'https://azr.less.build';
+// Transport modes.
+var RpcTransport;
+(function (RpcTransport) {
+    RpcTransport["CONNECT"] = "CONNECT";
+    RpcTransport["GRPC"] = "GRPC";
+})(RpcTransport || (exports.RpcTransport = RpcTransport = {}));
+/**
+ * Enumerates operating systems recognized by the action; presence in this enum does not
+ * guarantee support.
+ */
+var OS;
+(function (OS) {
+    // Darwin/macOS.
+    OS["MACOS"] = "darwin";
+    // Linux.
+    OS["LINUX"] = "linux";
+    // Windows.
+    OS["WINDOWS"] = "windows";
+})(OS || (exports.OS = OS = {}));
+/**
+ * Enumerates architectures recognized by the action; presence in this enum does not
+ * guarantee support.
+ */
+var Arch;
+(function (Arch) {
+    // AMD64 and x86_64.
+    Arch["AMD64"] = "amd64";
+    // ARM64 and aarch64.
+    Arch["ARM64"] = "aarch64";
+})(Arch || (exports.Arch = Arch = {}));
+// Default transport mode.
+exports.TRANSPORT = RpcTransport.GRPC;
+exports["default"] = {
+    githubApiVersion: exports.GITHUB_API_VERSION,
+    githubDefaultHeaders: exports.GITHUB_DEFAULT_HEADERS,
+    endpointGlobal: exports.BUILDLESS_GLOBAL_ENDPOINT,
+    endpointAgent: exports.BUILDLESS_AGENT_ENDPOINT,
+    endpointEdge: exports.BUILDLESS_EDGE_ENDPOINT,
+    endpointGlobalAzr: exports.BUILDLESS_AZR_ENDPOINT,
+    transport: exports.TRANSPORT
 };
 
 
@@ -45707,7 +45846,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.run = exports.resolveExistingBinary = exports.postInstall = exports.notSupported = void 0;
+exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.postInstall = exports.notSupported = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const io = __importStar(__nccwpck_require__(7053));
 const outputs_1 = __nccwpck_require__(219);
@@ -45767,6 +45906,8 @@ function notSupported(options) {
             return null;
         case 'darwin-aarch64':
             return null;
+        case 'windows-amd64':
+            return null;
         default:
             core.error(`Platform is not supported: ${spec}`);
             return new Error(`Platform not supported: ${spec}`);
@@ -45789,10 +45930,11 @@ async function resolveExistingBinary() {
 }
 exports.resolveExistingBinary = resolveExistingBinary;
 /**
- * The main function for the action.
+ * The install function for the action.
+ *
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-async function run(options) {
+async function install(options) {
     try {
         // resolve effective plugin options
         core.info('Installing Buildless with GitHub Actions');
@@ -45834,7 +45976,12 @@ async function run(options) {
         }
         // download the release tarball (resolving version if needed)
         const release = await (0, releases_1.downloadRelease)(effectiveOptions);
+        core.startGroup(`Setting up Buildless (version '${release.version.tag_name}')...`);
         core.debug(`Release version: '${release.version.tag_name}'`);
+        const baseArgs = [];
+        if (core.isDebug()) {
+            baseArgs.push('--verbose=true');
+        }
         // if instructed, add binary to the path
         if (effectiveOptions.export_path) {
             core.info(`Adding '${release.path}' to PATH`);
@@ -45866,7 +46013,44 @@ async function run(options) {
             core.setFailed(error.message);
     }
 }
-exports.run = run;
+exports.install = install;
+/**
+ * The cleanup function for the action.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+async function postExecute(options) {
+    core.info('Cleaning up Buildless Agent and resources...');
+}
+exports.postExecute = postExecute;
+/**
+ * Wrapped main function with error handling.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+async function entry(options) {
+    try {
+        return await install(options);
+    }
+    catch (err) {
+        core.warning('Buildless failed to install; this build may not be accelerated. Please see CI logs for more information.');
+    }
+}
+exports.entry = entry;
+/**
+ * Wrapped cleanup entry function with error handling.
+ *
+ * @returns {Promise<void>} Resolves when the action is complete.
+ */
+async function cleanup(options) {
+    try {
+        return await postExecute(options);
+    }
+    catch (err) {
+        core.notice('Cleanup stage for the Buildless action failed. Please see CI logs for more information.');
+    }
+}
+exports.cleanup = cleanup;
 
 
 /***/ }),
@@ -46056,7 +46240,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.downloadRelease = exports.resolveLatestVersion = exports.Arch = exports.OS = exports.ArchiveType = void 0;
+exports.downloadRelease = exports.resolveLatestVersion = exports.ArchiveType = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const octokit_1 = __nccwpck_require__(2757);
 const toolCache = __importStar(__nccwpck_require__(4152));
@@ -46076,30 +46260,6 @@ var ArchiveType;
     ArchiveType["ZIP"] = "zip";
 })(ArchiveType || (exports.ArchiveType = ArchiveType = {}));
 /**
- * Enumerates operating systems recognized by the action; presence in this enum does not
- * guarantee support.
- */
-var OS;
-(function (OS) {
-    // Darwin/macOS.
-    OS["MACOS"] = "darwin";
-    // Linux.
-    OS["LINUX"] = "linux";
-    // Windows.
-    OS["WINDOWS"] = "windows";
-})(OS || (exports.OS = OS = {}));
-/**
- * Enumerates architectures recognized by the action; presence in this enum does not
- * guarantee support.
- */
-var Arch;
-(function (Arch) {
-    // AMD64 and x86_64.
-    Arch["AMD64"] = "amd64";
-    // ARM64 and aarch64.
-    Arch["ARM64"] = "aarch64";
-})(Arch || (exports.Arch = Arch = {}));
-/**
  * Build a download URL for a Buildless release; if a custom URL is provided as part of the set of
  * `options`, use it instead.
  *
@@ -46111,7 +46271,7 @@ function buildDownloadUrl(options, version) {
     let ext = 'tgz';
     let archiveType = ArchiveType.GZIP;
     /* istanbul ignore next */
-    if (options.os === OS.WINDOWS) {
+    if (options.os === config_1.OS.WINDOWS) {
         ext = 'zip';
         archiveType = ArchiveType.ZIP;
     }
@@ -46135,7 +46295,7 @@ async function unpackRelease(archive, toolHome, archiveType, options) {
     let target;
     try {
         /* istanbul ignore next */
-        if (options.os === OS.WINDOWS) {
+        if (options.os === config_1.OS.WINDOWS) {
             core.debug(`Extracting as zip on Windows, from: ${archive}, to: ${toolHome}`);
             target = await toolCache.extractZip(archive, toolHome);
         }
@@ -46201,7 +46361,7 @@ async function maybeDownload(version, options) {
     core.info(`Installing from URL: ${url} (type: ${archiveType})`);
     let targetBin = `${options.target}/buildless`;
     /* istanbul ignore next */
-    if (options.os === OS.WINDOWS) {
+    if (options.os === config_1.OS.WINDOWS) {
         targetBin = `${options.target}\\buildless.exe`;
     }
     // build resulting tarball path and resolved tool info
@@ -46260,6 +46420,7 @@ async function maybeDownload(version, options) {
  * @param options Canonical suite of options to use for this action instance.
  */
 async function downloadRelease(options) {
+    core.startGroup(`Resolving Buildless release '${options.version || 'latest'}'`);
     if (options.custom_url) {
         // if we're using a custom URL, download it based on that token
         try {
@@ -46275,7 +46436,7 @@ async function downloadRelease(options) {
             let targetDir = options.target;
             targetDir = await unpackRelease(customArchive, targetDir, archiveType, options);
             /* istanbul ignore next */
-            const binPath = options.os === OS.WINDOWS
+            const binPath = options.os === config_1.OS.WINDOWS
                 ? `${targetDir}\\buildless.exe`
                 : `${targetDir}/buildless`;
             return {
@@ -46312,7 +46473,9 @@ async function downloadRelease(options) {
             };
         }
         // setup caching with the effective version and perform download
-        return maybeDownload(versionInfo, options);
+        const result = maybeDownload(versionInfo, options);
+        core.endGroup();
+        return result;
     }
 }
 exports.downloadRelease = downloadRelease;
@@ -49689,11 +49852,11 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /**
- * The entrypoint for the action.
+ * The cleanup entrypoint for the action.
  */
 const main_1 = __nccwpck_require__(575);
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-(0, main_1.run)();
+(0, main_1.cleanup)();
 
 })();
 

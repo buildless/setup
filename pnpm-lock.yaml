@@ -40,6 +40,9 @@ dependencies:
     version: registry.npmjs.org/octokit@3.1.2
 
 devDependencies:
+  '@connectrpc/connect-node':
+    specifier: ^1.1.3
+    version: registry.npmjs.org/@connectrpc/connect-node@1.1.3(@bufbuild/protobuf@1.5.0)(@connectrpc/connect@1.1.3)
   '@types/jest':
     specifier: ^29.5.10
     version: registry.npmjs.org/@types/jest@29.5.10
@@ -680,7 +683,6 @@ packages:
     resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.5.0.tgz}
     name: '@bufbuild/protobuf'
     version: 1.5.0
-    dev: false
 
   registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0):
     resolution: {integrity: sha512-6dPFlw7jhKPNoJUb5+0MPDTMEEbym4AAQZP2sCo4/0J+T2SlAzq5kbuNx92x+SFkOI5V7/iNoPHrxr0TZZ9b2g==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoc-gen-es/-/protoc-gen-es-1.5.0.tgz}
@@ -713,6 +715,21 @@ packages:
       - supports-color
     dev: false
 
+  registry.npmjs.org/@connectrpc/connect-node@1.1.3(@bufbuild/protobuf@1.5.0)(@connectrpc/connect@1.1.3):
+    resolution: {integrity: sha512-oq7Uk8XlLzC2+eHaxZTX189dhujD0/tK9plizxofsFHUnLquMSmzQQ2GzvTv4u6U05eZYc/crySmf86Sqpi1bA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/connect-node/-/connect-node-1.1.3.tgz}
+    id: registry.npmjs.org/@connectrpc/connect-node/1.1.3
+    name: '@connectrpc/connect-node'
+    version: 1.1.3
+    engines: {node: '>=16.0.0'}
+    peerDependencies:
+      '@bufbuild/protobuf': ^1.3.3
+      '@connectrpc/connect': 1.1.3
+    dependencies:
+      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.3(@bufbuild/protobuf@1.5.0)
+      undici: registry.npmjs.org/undici@5.28.2
+    dev: true
+
   registry.npmjs.org/@connectrpc/connect@1.1.3(@bufbuild/protobuf@1.5.0):
     resolution: {integrity: sha512-AXkbsLQe2Nm7VuoN5nqp05GEb9mPa/f5oFzDqTbHME4i8TghTrlY03uefbhuAq4wjsnfDnmuxHZvn6ndlgXmbg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/connect/-/connect-1.1.3.tgz}
     id: registry.npmjs.org/@connectrpc/connect/1.1.3
@@ -722,7 +739,6 @@ packages:
       '@bufbuild/protobuf': ^1.3.3
     dependencies:
       '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
-    dev: false
 
   registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.3(@bufbuild/protoc-gen-es@1.5.0)(@connectrpc/connect@1.1.3):
     resolution: {integrity: sha512-Irt1WM1o45KL0DNz8D8nraNfRrOyZfn7rzRsOyfrwbNzeVO1JV3rELFpARqGAvtVveYBoO9uwYtQ8TKLXsnrng==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/protoc-gen-connect-es/-/protoc-gen-connect-es-1.1.3.tgz}
@@ -799,7 +815,6 @@ packages:
     name: '@fastify/busboy'
     version: 2.1.0
     engines: {node: '>=14'}
-    dev: false
 
   registry.npmjs.org/@github/browserslist-config@1.0.0:
     resolution: {integrity: sha512-gIhjdJp/c2beaIWWIlsXdqXVRUz3r2BxBCpfz/F3JXHvSAQ1paMYjLH+maEATtENg+k5eLV7gA+9yPp762ieuw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@github/browserslist-config/-/browserslist-config-1.0.0.tgz}
@@ -6148,7 +6163,6 @@ packages:
     engines: {node: '>=14.0'}
     dependencies:
       '@fastify/busboy': registry.npmjs.org/@fastify/busboy@2.1.0
-    dev: false
 
   registry.npmjs.org/universal-github-app-jwt@1.1.1:
     resolution: {integrity: sha512-G33RTLrIBMFmlDV4u4CBF7dh71eWwykck4XgaxaIVeZKOYZRAAxvcGMRFTUclVY6xoUPQvO4Ne5wKGxYm/Yy9w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/universal-github-app-jwt/-/universal-github-app-jwt-1.1.1.tgz}

@@ -3,7 +3,7 @@ import { Octokit } from 'octokit'
 import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
 import type { BuildlessSetupActionOptions as Options } from './options'
-import { GITHUB_DEFAULT_HEADERS } from './config'
+import { GITHUB_DEFAULT_HEADERS, OS, Arch } from './config'
 import { obtainVersion } from './command'
 
 const downloadBase = 'https://dl.less.build'
@@ -49,33 +49,6 @@ export type BuildlessRelease = {
 
   // Deferred cleanup or after-action method.
   deferred?: () => Promise<void>
-}
-
-/**
- * Enumerates operating systems recognized by the action; presence in this enum does not
- * guarantee support.
- */
-export enum OS {
-  // Darwin/macOS.
-  MACOS = 'darwin',
-
-  // Linux.
-  LINUX = 'linux',
-
-  // Windows.
-  WINDOWS = 'windows'
-}
-
-/**
- * Enumerates architectures recognized by the action; presence in this enum does not
- * guarantee support.
- */
-export enum Arch {
-  // AMD64 and x86_64.
-  AMD64 = 'amd64',
-
-  // ARM64 and aarch64.
-  ARM64 = 'aarch64'
 }
 
 /**
@@ -281,6 +254,10 @@ async function maybeDownload(
 export async function downloadRelease(
   options: Options
 ): Promise<BuildlessRelease> {
+  core.startGroup(
+    `Resolving Buildless release '${options.version || 'latest'}'`
+  )
+
   if (options.custom_url) {
     // if we're using a custom URL, download it based on that token
     try {
@@ -339,6 +316,8 @@ export async function downloadRelease(
     }
 
     // setup caching with the effective version and perform download
-    return maybeDownload(versionInfo, options)
+    const result = maybeDownload(versionInfo, options)
+    core.endGroup()
+    return result
   }
 }
