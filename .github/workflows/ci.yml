@@ -37,7 +37,7 @@ jobs:
 
       - name: "Setup: Install Dependencies"
         id: install
-        run: pnpm install && pnpm install -g turbo
+        run: pnpm install && pnpm install -g turbo && pnpm run gen
   
       - name: Check Format
         id: npm-format-check
