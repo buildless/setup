@@ -45601,7 +45601,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.agentConfig = exports.agentConfigPathMap = exports.agentInstall = exports.agentStatus = exports.agentStop = exports.agentStart = void 0;
-const fs_1 = __importDefault(__nccwpck_require__(7147));
+const node_fs_1 = __importDefault(__nccwpck_require__(7561));
 const config_1 = __nccwpck_require__(5463);
 const command_1 = __nccwpck_require__(4561);
 var command_2 = __nccwpck_require__(4561);
@@ -45625,9 +45625,9 @@ let queriedForAgent = false;
  */
 async function resolveAgentConfig(os) {
     const path = exports.agentConfigPathMap[os];
-    if (path && fs_1.default.existsSync(path)) {
+    if (path && node_fs_1.default.existsSync(path)) {
         try {
-            const data = fs_1.default.readFileSync(path, 'utf8');
+            const data = node_fs_1.default.readFileSync(path, 'utf8');
             return JSON.parse(data);
         }
         catch (err) {
@@ -45691,10 +45691,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.setBinpath = exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
+exports.setBinpath = exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = exports.spawnInBackground = exports.execBuildless = void 0;
+const node_fs_1 = __importDefault(__nccwpck_require__(7561));
+const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const child_process_1 = __importDefault(__nccwpck_require__(2081));
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
+// Whether to spawn the agent directly (in Node), or through the CLI.
+const SPAWN_DIRECT = true;
 class CliError extends Error {
     result;
     bin;
@@ -45710,7 +45718,7 @@ class CliError extends Error {
         this.mainArgs = mainArgs;
     }
 }
-async function execBuildless(cmd, args = [], mainArgs = []) {
+async function execBin(cmd, args = [], mainArgs = [], spawnOptions = {}) {
     const bin = buildlessBin();
     const subcommand = cmd.split(' ');
     if (core.isDebug() && !mainArgs.includes(BuildlessArgument.VERBOSE)) {
@@ -45719,13 +45727,44 @@ async function execBuildless(cmd, args = [], mainArgs = []) {
     const effectiveArgs = (mainArgs || [])
         .concat(subcommand)
         .concat(args);
-    core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`);
-    const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs);
-    if (result.exitCode !== 0) {
-        throw new CliError(result, bin, cmd, args, mainArgs);
+    if (spawnOptions && spawnOptions.background) {
+        core.debug(`Background spawn: bin=${bin} args=${effectiveArgs}`);
+        const spawned = child_process_1.default.spawn(bin, effectiveArgs, {
+            stdio: 'ignore',
+            ...(spawnOptions?.spawnOptions || {}),
+            detached: true
+        });
+        const pid = spawned.pid;
+        if (!spawned || pid === undefined) {
+            throw new Error('Failed to launch child process, or PID was undefined');
+        }
+        spawned.unref();
+        return {
+            success: true,
+            pid
+        };
     }
-    return result;
+    else {
+        core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`);
+        const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs);
+        if (result.exitCode !== 0) {
+            throw new CliError({ ...result, success: false }, bin, cmd, args, mainArgs);
+        }
+        return { ...result, success: true };
+    }
 }
+async function execBuildless(cmd, args = [], mainArgs = []) {
+    // execute and return directly
+    return (await execBin(cmd, args, mainArgs));
+}
+exports.execBuildless = execBuildless;
+async function spawnInBackground(cmd, args = [], mainArgs = [], spawnOptions = {}) {
+    return (await execBin(cmd, args, mainArgs, {
+        background: true,
+        spawnOptions
+    }));
+}
+exports.spawnInBackground = spawnInBackground;
 let cachedBin = null;
 function buildlessBin() {
     if (!cachedBin)
@@ -45745,6 +45784,8 @@ var BuildlessCommand;
     BuildlessCommand["AGENT_STOP"] = "agent stop";
     // Get current agent status.
     BuildlessCommand["AGENT_STATUS"] = "agent status";
+    // Run the agent directly.
+    BuildlessCommand["AGENT_RUN"] = "agent run";
     // Print version and exit.
     BuildlessCommand["VERSION"] = "--version";
 })(BuildlessCommand || (exports.BuildlessCommand = BuildlessCommand = {}));
@@ -45755,7 +45796,25 @@ var BuildlessArgument;
 (function (BuildlessArgument) {
     BuildlessArgument["DEBUG"] = "--debug=true";
     BuildlessArgument["VERBOSE"] = "--verbose=true";
+    BuildlessArgument["BACKGROUND"] = "--background";
 })(BuildlessArgument || (exports.BuildlessArgument = BuildlessArgument = {}));
+function ensureTempParentExists(filepath) {
+    const parent = node_path_1.default.dirname(filepath);
+    if (!node_fs_1.default.existsSync(parent)) {
+        node_fs_1.default.mkdirSync(parent, {
+            recursive: true
+        });
+    }
+    return filepath;
+}
+function tempPathForOs(filename, prefix) {
+    if (process.platform === 'win32') {
+        const pathPrefix = prefix || 'C:\\ProgramData\\buildless';
+        return ensureTempParentExists(`${pathPrefix}\\${filename}`);
+    }
+    const pathPrefix = prefix || '/var/tmp';
+    return ensureTempParentExists(`${pathPrefix}/${filename}`);
+}
 /**
  * Ask the Buildless CLI to install the Buildless Agent.
  *
@@ -45763,6 +45822,13 @@ var BuildlessArgument;
  */
 async function agentInstall() {
     core.debug(`Triggering agent install via CLI`);
+    try {
+        // make sure temporary paths exist
+        tempPathForOs('agent.json');
+    }
+    catch (err) {
+        console.warn('Failed to query temp path for agent', err);
+    }
     return (await execBuildless(BuildlessCommand.AGENT_INSTALL)).exitCode === 0;
 }
 exports.agentInstall = agentInstall;
@@ -45793,7 +45859,25 @@ exports.agentStatus = agentStatus;
  */
 async function agentStart() {
     core.debug(`Starting agent via CLI`);
-    return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0;
+    if (SPAWN_DIRECT) {
+        try {
+            const out = node_fs_1.default.openSync(tempPathForOs('buildless-agent.out'), 'a');
+            const err = node_fs_1.default.openSync(tempPathForOs('buildless-agent.err'), 'a');
+            await spawnInBackground(BuildlessCommand.AGENT_RUN, [BuildlessArgument.BACKGROUND], [
+                BuildlessArgument.VERBOSE // always spawn with verbose mode active
+            ], {
+                stdio: ['ignore', out, err]
+            });
+            return true;
+        }
+        catch (err) {
+            console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err);
+            return false;
+        }
+    }
+    else {
+        return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0;
+    }
 }
 exports.agentStart = agentStart;
 /**
@@ -45932,7 +46016,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = void 0;
+exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = exports.setActionEffectiveOptions = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const io = __importStar(__nccwpck_require__(7053));
 const outputs_1 = __nccwpck_require__(219);
@@ -45942,9 +46026,43 @@ const config_1 = __nccwpck_require__(5463);
 const agent_1 = __nccwpck_require__(9013);
 const options_1 = __importStar(__nccwpck_require__(5932));
 const releases_1 = __nccwpck_require__(8634);
-function stringOption(option, defaultValue) {
+var AgentManagementMode;
+(function (AgentManagementMode) {
+    AgentManagementMode["MANAGED"] = "manaved";
+    AgentManagementMode["UNMANAGED"] = "unmanaged";
+    AgentManagementMode["INACTIVE"] = "inactive";
+})(AgentManagementMode || (AgentManagementMode = {}));
+var ActionState;
+(function (ActionState) {
+    ActionState["AGENT_PID"] = "agentPid";
+    ActionState["AGENT_CONFIG"] = "agentConfig";
+    ActionState["AGENT_MODE"] = "agentMode";
+    ActionState["BINPATH"] = "buildlessBinpath";
+})(ActionState || (ActionState = {}));
+let actionEffectiveOptions;
+function setActionEffectiveOptions(options) {
+    if (actionEffectiveOptions !== null) {
+        throw new Error('Cannot set effective options twice in one execution.');
+    }
+    const stringified = JSON.stringify(options, null, '  ');
+    core.debug(`Effective options: ${stringified}`);
+    actionEffectiveOptions = options;
+    return options;
+}
+exports.setActionEffectiveOptions = setActionEffectiveOptions;
+function stringOption(option, overrideValue, defaultValue) {
     const value = core.getInput(option);
-    core.debug(`Property value: ${option}=${value || defaultValue}`);
+    let valueSrc;
+    if (overrideValue) {
+        valueSrc = 'override';
+    }
+    else if (value) {
+        valueSrc = 'input';
+    }
+    else {
+        valueSrc = 'default';
+    }
+    core.debug(`Property value: ${option}=${overrideValue || value || defaultValue} (from: ${valueSrc})`);
     return value || defaultValue || undefined;
 }
 function getBooleanOption(booleanInputName) {
@@ -45983,7 +46101,7 @@ function getBooleanOption(booleanInputName) {
         return false;
     return false; // default to `false`
 }
-function booleanOption(option, defaultValue) {
+function booleanOption(option, overrideValue, defaultValue) {
     const value = getBooleanOption(option);
     /* istanbul ignore next */
     return value !== null && value !== undefined ? value : defaultValue;
@@ -46004,26 +46122,26 @@ function notSupported(options) {
 }
 exports.notSupported = notSupported;
 async function postInstall(bin, options) {
-    console.log('postinstall', bin, options);
+    const opts = JSON.stringify(options);
+    core.debug(`Installation completed at path: '${bin}' (options: ${opts})`);
     // nothing yet
 }
 exports.postInstall = postInstall;
 function buildEffectiveOptions(options) {
-    const effectiveOptions = options
-        ? (0, options_1.default)(options)
-        : (0, options_1.default)({
-            version: stringOption(options_1.OptionName.VERSION, 'latest'),
-            target: stringOption(options_1.OptionName.TARGET, 
-            /* istanbul ignore next */
-            process.env.BIN_HOME || options_1.defaults.target),
-            os: (0, options_1.normalizeOs)(stringOption(options_1.OptionName.OS, process.platform)),
-            arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, process.arch)),
-            agent: booleanOption(options_1.OptionName.AGENT, true),
-            export_path: booleanOption(options_1.OptionName.EXPORT_PATH, true),
-            token: stringOption(options_1.OptionName.TOKEN, process.env.GITHUB_TOKEN),
-            custom_url: stringOption(options_1.OptionName.CUSTOM_URL)
-        });
-    return effectiveOptions;
+    return setActionEffectiveOptions((0, options_1.default)({
+        version: stringOption(options_1.OptionName.VERSION, options?.version, 'latest'),
+        target: stringOption(options_1.OptionName.TARGET, options?.target, 
+        /* istanbul ignore next */
+        process.env.BIN_HOME || options_1.defaults.target),
+        os: (0, options_1.normalizeOs)(stringOption(options_1.OptionName.OS, options?.os, process.platform)),
+        arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, options?.arch, process.arch)),
+        agent: booleanOption(options_1.OptionName.AGENT, options?.agent, true),
+        force: booleanOption(options_1.OptionName.FORCE, options?.force, false),
+        cache: booleanOption(options_1.OptionName.CACHE, options?.cache, true),
+        export_path: booleanOption(options_1.OptionName.EXPORT_PATH, options?.export_path, true),
+        token: stringOption(options_1.OptionName.TOKEN, options?.token, process.env.GITHUB_TOKEN),
+        custom_url: stringOption(options_1.OptionName.CUSTOM_URL, options?.custom_url)
+    }));
 }
 exports.buildEffectiveOptions = buildEffectiveOptions;
 async function resolveExistingBinary() {
@@ -46039,9 +46157,11 @@ exports.resolveExistingBinary = resolveExistingBinary;
 /**
  * The install function for the action.
  *
+ * @param options Options to apply to the install process.
+ * @param withinAction Lets this code know it is not being installed from an action, but rather dispatched directly.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-async function install(options) {
+async function install(options, withinAction = true) {
     try {
         // resolve effective plugin options
         core.info('Installing Buildless with GitHub Actions');
@@ -46050,7 +46170,7 @@ async function install(options) {
         const targetOs = notSupported(effectiveOptions);
         if (targetOs instanceof Error) {
             core.setFailed(targetOs.message);
-            return;
+            throw targetOs;
         }
         // if the tool is already installed and the user didn't set `force`, we can bail
         if (!effectiveOptions.force) {
@@ -46060,12 +46180,15 @@ async function install(options) {
                 await postInstall(existing, effectiveOptions);
                 const version = await (0, command_1.obtainVersion)(existing);
                 /* istanbul ignore next */
-                if (version !== effectiveOptions.version ||
-                    effectiveOptions.version === 'latest') {
+                if ((version !== effectiveOptions.version ||
+                    effectiveOptions.version === 'latest') &&
+                    !effectiveOptions.force) {
                     core.warning(`Existing Buildless installation at version '${version}' was preserved`);
-                    core.setOutput(outputs_1.ActionOutputName.PATH, existing);
-                    core.setOutput(outputs_1.ActionOutputName.VERSION, version);
-                    return;
+                    if (withinAction) {
+                        core.setOutput(outputs_1.ActionOutputName.PATH, existing);
+                        core.setOutput(outputs_1.ActionOutputName.VERSION, version);
+                    }
+                    return existing;
                 }
             }
         }
@@ -46075,10 +46198,10 @@ async function install(options) {
         core.debug(`Release version: '${release.version.tag_name}'`);
         const baseArgs = [];
         if (core.isDebug()) {
-            baseArgs.push('--verbose=true');
+            baseArgs.push(command_1.BuildlessArgument.VERBOSE);
         }
         // if instructed, add binary to the path
-        if (effectiveOptions.export_path) {
+        if (effectiveOptions.export_path && withinAction) {
             core.info(`Adding '${release.path}' to PATH`);
             core.addPath(release.home);
         }
@@ -46102,59 +46225,89 @@ async function install(options) {
         (0, command_1.setBinpath)(binpath);
         // set up agent, if directed
         let agentEnabled = false;
-        if (effectiveOptions.agent) {
-            core.startGroup('Setting up Buildless Agent...');
-            core.debug('Triggering agent installation...');
-            let installFailed = false;
-            let startFailed = false;
-            try {
-                await (0, agent_1.agentInstall)();
+        let agentManaged = false; // set to true if `agentEnabled` is `true` and *we* started it in this run
+        if (effectiveOptions.agent && withinAction) {
+            const currentAgentStatus = await (0, agent_1.agentStatus)();
+            if (currentAgentStatus) {
+                // agent is already installed and running
+                core.debug('Buildless Agent is already installed and running; skipping installation.');
             }
-            catch (err) {
-                core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
-                installFailed = true;
-            }
-            if (!installFailed) {
-                core.debug('Agent installation complete. Starting agent...');
+            else {
+                core.startGroup('Setting up Buildless Agent...');
+                core.debug('Triggering agent installation...');
+                let installFailed = false;
+                let startFailed = false;
                 try {
-                    await (0, agent_1.agentStart)();
+                    await (0, agent_1.agentInstall)();
                 }
                 catch (err) {
-                    core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
-                    startFailed = true;
+                    core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
+                    installFailed = true;
                 }
+                if (!installFailed) {
+                    core.debug('Agent installation complete. Starting agent...');
+                    try {
+                        await (0, agent_1.agentStart)();
+                    }
+                    catch (err) {
+                        core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
+                        startFailed = true;
+                    }
+                }
+                if (!installFailed && !startFailed) {
+                    core.debug('Agent installed and started.');
+                    agentEnabled = true;
+                    agentManaged = true;
+                }
+                core.endGroup();
             }
-            if (!installFailed && !startFailed) {
-                core.debug('Agent installed and started.');
-                agentEnabled = true;
-            }
-            core.endGroup();
         }
         let activeAgent = null;
-        if (agentEnabled) {
-            await (0, wait_1.default)(1500); // give the agent 1.5s to start up
+        if (agentEnabled && agentManaged) {
+            if (agentManaged) {
+                await (0, wait_1.default)(1500); // give the agent 1.5s to start up
+            }
             try {
                 activeAgent = await (0, agent_1.agentConfig)(targetOs);
             }
             catch (err) {
-                core.notice("The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info.");
+                if (agentManaged) {
+                    core.notice("The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info.");
+                }
+                else {
+                    core.notice('Existing Buildless Agent could not be contacted; please see CI logs for more info.');
+                }
             }
             if (activeAgent) {
-                core.debug('Buildless Agent started and ready.');
-                core.saveState('agentPid', activeAgent.pid);
-                core.saveState('agentConfig', JSON.stringify(activeAgent));
+                if (agentManaged) {
+                    core.debug(`Buildless Agent started and ready (PID: ${activeAgent.pid}).`);
+                }
+                else {
+                    core.debug(`Using existing Buildless Agent (already running at PID ${activeAgent.pid}).`);
+                }
+                core.saveState(ActionState.AGENT_PID, activeAgent.pid);
+                core.saveState(ActionState.AGENT_CONFIG, JSON.stringify(activeAgent));
             }
         }
-        // mount outputs
-        core.saveState('buildlessBinpath', outputs.path);
-        core.setOutput(outputs_1.ActionOutputName.PATH, outputs.path);
-        core.setOutput(outputs_1.ActionOutputName.VERSION, version);
+        if (withinAction) {
+            // mount outputs
+            core.saveState(ActionState.BINPATH, outputs.path);
+            core.saveState(ActionState.AGENT_MODE, activeAgent
+                ? agentManaged
+                    ? AgentManagementMode.MANAGED
+                    : AgentManagementMode.UNMANAGED
+                : AgentManagementMode.INACTIVE);
+            core.setOutput(outputs_1.ActionOutputName.PATH, outputs.path);
+            core.setOutput(outputs_1.ActionOutputName.VERSION, version);
+        }
         core.info(`Buildless installed at version ${release.version.tag_name} 🎉`);
+        return binpath;
     }
     catch (error) {
         // Fail the workflow run if an error occurs
         if (error instanceof Error)
             core.setFailed(error.message);
+        throw error;
     }
 }
 exports.install = install;
@@ -46170,36 +46323,48 @@ async function postExecute(options) {
         return; // not supported, nothing to do
     }
     core.info(`Cleaning up Buildless Agent and resources...`);
-    const agentPid = core.getState('agentPid');
-    const activeAgent = await (0, agent_1.agentConfig)(targetOs);
-    if (agentPid) {
-        (0, command_1.setBinpath)(core.getState('buildlessBinpath'));
-        let errMessage = 'unknown';
-        try {
-            await (0, agent_1.agentStop)();
+    const agentMode = core.getState(ActionState.AGENT_MODE);
+    if (agentMode) {
+        const agentPid = core.getState(ActionState.AGENT_PID);
+        const cachedBinpath = core.getState(ActionState.BINPATH);
+        if (!cachedBinpath) {
+            core.error('Failed to resolve Buildless binpath in cleanup script. Please report this as a bug.');
+            return;
         }
-        catch (err) {
-            core.debug(`Agent failed to halt in time; killing at PID: '${agentPid}'...`);
-            let killFailed = false;
+        if (agentMode === AgentManagementMode.UNMANAGED) {
+            core.debug('Agent was running when we got here; skipping agent cleanup.');
+            return;
+        }
+        (0, command_1.setBinpath)(cachedBinpath);
+        const activeAgent = await (0, agent_1.agentConfig)(targetOs);
+        if (agentPid) {
+            let errMessage = 'unknown';
             try {
-                process.kill(activeAgent?.pid || parseInt(agentPid, 10));
+                await (0, agent_1.agentStop)();
             }
             catch (err) {
-                killFailed = true;
-                if (err instanceof Error) {
-                    errMessage = err.message;
+                core.debug(`Agent failed to halt in time; killing at PID: '${agentPid}'...`);
+                let killFailed = false;
+                try {
+                    process.kill(activeAgent?.pid || parseInt(agentPid, 10));
+                }
+                catch (err) {
+                    killFailed = true;
+                    if (err instanceof Error) {
+                        errMessage = err.message;
+                    }
+                }
+                if (killFailed) {
+                    core.debug(`Killing agent PID also failed. Giving up. Message: ${errMessage}`);
+                }
+                else {
+                    core.debug('Agent process killed.');
                 }
             }
-            if (killFailed) {
-                core.debug(`Killing agent PID also failed. Giving up. Message: ${errMessage}`);
-            }
-            else {
-                core.debug('Agent process killed.');
-            }
         }
-    }
-    else {
-        core.debug('No active agent; no cleanup to do.');
+        else {
+            core.debug('No active agent; no cleanup to do.');
+        }
     }
 }
 exports.postExecute = postExecute;
@@ -46209,8 +46374,9 @@ exports.postExecute = postExecute;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function entry(options) {
+    actionEffectiveOptions = null;
     try {
-        return await install(options);
+        await install(options || {}, true);
     }
     catch (err) {
         core.warning('Buildless failed to install; this build may not be accelerated. Please see CI logs for more information.');
@@ -46223,8 +46389,9 @@ exports.entry = entry;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function cleanup(options) {
+    actionEffectiveOptions = null;
     try {
-        return await postExecute(options);
+        await postExecute(options);
     }
     catch (err) {
         core.notice('Cleanup stage for the Buildless action failed. Please see CI logs for more information.');
@@ -46555,7 +46722,10 @@ async function maybeDownload(version, options) {
     }
     catch (err) {
         /* istanbul ignore next */
-        core.debug(`Failed to locate Buildless in tool cache: ${err}`);
+        core.debug(`Buildless not in tool cache: ${err}`);
+    }
+    if (toolDir) {
+        core.debug(`Buildless found in tool cache: ${toolDir}`);
     }
     /* istanbul ignore next */
     if (options.cache && toolDir) {
@@ -46581,7 +46751,7 @@ async function maybeDownload(version, options) {
             core.error(`Failed to download Buildless release: ${err}`);
             /* istanbul ignore next */
             if (err instanceof Error)
-                core.setFailed(err);
+                core.setFailed('Failed to download Buildless release at specified version');
             /* istanbul ignore next */
             throw err;
         }
@@ -46797,6 +46967,14 @@ module.exports = require("net");
 
 "use strict";
 module.exports = require("node:events");
+
+/***/ }),
+
+/***/ 7561:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:fs");
 
 /***/ }),
 

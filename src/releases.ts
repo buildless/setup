@@ -205,7 +205,10 @@ async function maybeDownload(
     toolDir = toolCache.find('buildless', version.tag_name, options.arch)
   } catch (err) {
     /* istanbul ignore next */
-    core.debug(`Failed to locate Buildless in tool cache: ${err}`)
+    core.debug(`Buildless not in tool cache: ${err}`)
+  }
+  if (toolDir) {
+    core.debug(`Buildless found in tool cache: ${toolDir}`)
   }
   /* istanbul ignore next */
   if (options.cache && toolDir) {
@@ -230,7 +233,10 @@ async function maybeDownload(
       /* istanbul ignore next */
       core.error(`Failed to download Buildless release: ${err}`)
       /* istanbul ignore next */
-      if (err instanceof Error) core.setFailed(err)
+      if (err instanceof Error)
+        core.setFailed(
+          'Failed to download Buildless release at specified version'
+        )
       /* istanbul ignore next */
       throw err
     }

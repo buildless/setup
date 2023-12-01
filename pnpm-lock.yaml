@@ -43,6 +43,9 @@ devDependencies:
   '@connectrpc/connect-node':
     specifier: ^1.1.3
     version: registry.npmjs.org/@connectrpc/connect-node@1.1.3(@bufbuild/protobuf@1.5.0)(@connectrpc/connect@1.1.3)
+  '@jest/globals':
+    specifier: ^29.7.0
+    version: registry.npmjs.org/@jest/globals@29.7.0
   '@types/jest':
     specifier: ^29.5.10
     version: registry.npmjs.org/@types/jest@29.5.10

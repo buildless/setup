@@ -1,4 +1,4 @@
-import fs from 'fs'
+import fs from 'node:fs'
 import { OS } from './config'
 import { agentStart, agentStop, agentStatus, agentInstall } from './command'
 export { agentStart, agentStop, agentStatus, agentInstall } from './command'

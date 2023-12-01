@@ -1,10 +1,30 @@
+import fs from 'node:fs'
+import path from 'node:path'
+import childProcess from 'child_process'
+
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
-interface ExecResult {
+// Whether to spawn the agent directly (in Node), or through the CLI.
+const SPAWN_DIRECT = true
+
+interface RunResult {
+  success: boolean
+}
+
+interface ExecResult extends RunResult {
   exitCode: number
   stderr: string
   stdout: string
+}
+
+interface BackgroundExecResult extends RunResult {
+  pid: number
+}
+
+interface SpawnOptions {
+  background?: boolean
+  spawnOptions?: object
 }
 
 type CliArgument = BuildlessArgument | string
@@ -32,11 +52,12 @@ class CliError extends Error {
   }
 }
 
-async function execBuildless(
+async function execBin(
   cmd: BuildlessCommand,
   args: CliArgument[] = [],
-  mainArgs: BuildlessArgument[] = []
-): Promise<ExecResult> {
+  mainArgs: BuildlessArgument[] = [],
+  spawnOptions: Partial<SpawnOptions> = {}
+): Promise<ExecResult | BackgroundExecResult> {
   const bin = buildlessBin()
   const subcommand = cmd.split(' ')
   if (core.isDebug() && !mainArgs.includes(BuildlessArgument.VERBOSE)) {
@@ -45,12 +66,58 @@ async function execBuildless(
   const effectiveArgs = ((mainArgs as string[]) || [])
     .concat(subcommand)
     .concat(args)
-  core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`)
-  const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs)
-  if (result.exitCode !== 0) {
-    throw new CliError(result, bin, cmd, args, mainArgs)
+
+  if (spawnOptions && spawnOptions.background) {
+    core.debug(`Background spawn: bin=${bin} args=${effectiveArgs}`)
+    const spawned = childProcess.spawn(bin, effectiveArgs, {
+      stdio: 'ignore',
+      ...(spawnOptions?.spawnOptions || {}),
+      detached: true
+    })
+    const pid = spawned.pid
+    if (!spawned || pid === undefined) {
+      throw new Error('Failed to launch child process, or PID was undefined')
+    }
+    spawned.unref()
+    return {
+      success: true,
+      pid
+    }
+  } else {
+    core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`)
+    const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs)
+    if (result.exitCode !== 0) {
+      throw new CliError(
+        { ...result, success: false },
+        bin,
+        cmd,
+        args,
+        mainArgs
+      )
+    }
+    return { ...result, success: true }
   }
-  return result
+}
+
+export async function execBuildless(
+  cmd: BuildlessCommand,
+  args: CliArgument[] = [],
+  mainArgs: BuildlessArgument[] = []
+): Promise<ExecResult> {
+  // execute and return directly
+  return (await execBin(cmd, args, mainArgs)) as ExecResult
+}
+
+export async function spawnInBackground(
+  cmd: BuildlessCommand,
+  args: CliArgument[] = [],
+  mainArgs: BuildlessArgument[] = [],
+  spawnOptions: object = {}
+): Promise<BackgroundExecResult> {
+  return (await execBin(cmd, args, mainArgs, {
+    background: true,
+    spawnOptions
+  })) as BackgroundExecResult
 }
 
 let cachedBin: string | null = null
@@ -76,6 +143,9 @@ export enum BuildlessCommand {
   // Get current agent status.
   AGENT_STATUS = 'agent status',
 
+  // Run the agent directly.
+  AGENT_RUN = 'agent run',
+
   // Print version and exit.
   VERSION = '--version'
 }
@@ -85,7 +155,27 @@ export enum BuildlessCommand {
  */
 export enum BuildlessArgument {
   DEBUG = '--debug=true',
-  VERBOSE = '--verbose=true'
+  VERBOSE = '--verbose=true',
+  BACKGROUND = '--background'
+}
+
+function ensureTempParentExists(filepath: string): string {
+  const parent = path.dirname(filepath)
+  if (!fs.existsSync(parent)) {
+    fs.mkdirSync(parent, {
+      recursive: true
+    })
+  }
+  return filepath
+}
+
+function tempPathForOs(filename: string, prefix?: string): string {
+  if (process.platform === 'win32') {
+    const pathPrefix = prefix || 'C:\\ProgramData\\buildless'
+    return ensureTempParentExists(`${pathPrefix}\\${filename}`)
+  }
+  const pathPrefix = prefix || '/var/tmp'
+  return ensureTempParentExists(`${pathPrefix}/${filename}`)
 }
 
 /**
@@ -95,6 +185,12 @@ export enum BuildlessArgument {
  */
 export async function agentInstall(): Promise<boolean> {
   core.debug(`Triggering agent install via CLI`)
+  try {
+    // make sure temporary paths exist
+    tempPathForOs('agent.json')
+  } catch (err) {
+    console.warn('Failed to query temp path for agent', err)
+  }
   return (await execBuildless(BuildlessCommand.AGENT_INSTALL)).exitCode === 0
 }
 
@@ -124,7 +220,29 @@ export async function agentStatus(): Promise<boolean> {
  */
 export async function agentStart(): Promise<boolean> {
   core.debug(`Starting agent via CLI`)
-  return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0
+  if (SPAWN_DIRECT) {
+    try {
+      const out = fs.openSync(tempPathForOs('buildless-agent.out'), 'a')
+      const err = fs.openSync(tempPathForOs('buildless-agent.err'), 'a')
+
+      await spawnInBackground(
+        BuildlessCommand.AGENT_RUN,
+        [BuildlessArgument.BACKGROUND],
+        [
+          BuildlessArgument.VERBOSE // always spawn with verbose mode active
+        ],
+        {
+          stdio: ['ignore', out, err]
+        }
+      )
+      return true
+    } catch (err) {
+      console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err)
+      return false
+    }
+  } else {
+    return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0
+  }
 }
 
 /**
