@@ -77,6 +77,7 @@ jobs:
     name: "Test: Install"
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
@@ -103,6 +104,7 @@ jobs:
     name: "Test: Path"
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
@@ -132,6 +134,7 @@ jobs:
     name: "Test: Agent"
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
@@ -162,6 +165,7 @@ jobs:
     name: "Test: No Agent"
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
@@ -192,6 +196,7 @@ jobs:
     name: "Test: Configuration"
     runs-on: ${{ matrix.os }}-latest
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu, macos, windows]
 
