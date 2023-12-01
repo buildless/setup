@@ -79,7 +79,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -106,7 +106,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -136,7 +136,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -167,7 +167,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -198,7 +198,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
+        os: [ubuntu-latest, macos-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
