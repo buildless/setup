@@ -1,10 +1,12 @@
-import { Transport, createPromiseClient } from '@connectrpc/connect'
-import { createConnectTransport } from '@connectrpc/connect-node'
-import { createGrpcTransport } from '@connectrpc/connect-node'
+import { Transport } from '@connectrpc/connect'
+import {
+  createConnectTransport,
+  createGrpcTransport
+} from '@connectrpc/connect-node'
 import { Empty } from '@bufbuild/protobuf'
 
-import { ClientConfig } from '@api/buildless/service/v1/buildless-v1_connect'
-import { AuthorizeRequest } from '@api/buildless/service/v1/buildless-v1_pb'
+import { ClientConfig } from './gen/buildless/service/v1/buildless-v1_connect'
+import { AuthorizeRequest } from './gen/buildless/service/v1/buildless-v1_pb'
 
 import {
   RpcTransport,

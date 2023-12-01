@@ -3,7 +3,7 @@ import { Octokit } from 'octokit'
 import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
 import type { BuildlessSetupActionOptions as Options } from './options'
-import { GITHUB_DEFAULT_HEADERS, OS, Arch } from './config'
+import { GITHUB_DEFAULT_HEADERS, OS } from './config'
 import { obtainVersion } from './command'
 
 const downloadBase = 'https://dl.less.build'

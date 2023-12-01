@@ -1,5 +1,3 @@
-import * as core from '@actions/core'
-import path from 'path'
 import fs from 'fs'
 import { OS } from './config'
 import { agentStart, agentStop, agentStatus, agentInstall } from './command'
@@ -60,6 +58,7 @@ async function resolveAgentConfig(os: OS): Promise<AgentConfig | null> {
  */
 export async function agentConfig(os: OS): Promise<AgentConfig | null> {
   if (activeAgent === null && !queriedForAgent) {
+    queriedForAgent = true
     activeAgent = await resolveAgentConfig(os)
   }
   return activeAgent

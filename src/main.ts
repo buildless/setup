@@ -213,7 +213,8 @@ export async function install(options?: Partial<Options>): Promise<void> {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function postExecute(options?: Partial<Options>): Promise<void> {
-  core.info('Cleaning up Buildless Agent and resources...')
+  const opts = JSON.stringify(options || {})
+  core.info(`Cleaning up Buildless Agent and resources... (options: ${opts})`)
 }
 
 /**
