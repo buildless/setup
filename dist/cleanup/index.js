@@ -45591,6 +45591,78 @@ try {
 
 /***/ }),
 
+/***/ 9013:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.agentConfig = exports.agentConfigPathMap = exports.agentInstall = exports.agentStatus = exports.agentStop = exports.agentStart = void 0;
+const fs_1 = __importDefault(__nccwpck_require__(7147));
+const config_1 = __nccwpck_require__(5463);
+const command_1 = __nccwpck_require__(4561);
+var command_2 = __nccwpck_require__(4561);
+Object.defineProperty(exports, "agentStart", ({ enumerable: true, get: function () { return command_2.agentStart; } }));
+Object.defineProperty(exports, "agentStop", ({ enumerable: true, get: function () { return command_2.agentStop; } }));
+Object.defineProperty(exports, "agentStatus", ({ enumerable: true, get: function () { return command_2.agentStatus; } }));
+Object.defineProperty(exports, "agentInstall", ({ enumerable: true, get: function () { return command_2.agentInstall; } }));
+// Maps each OS to the expected location of the agent JSON config.
+exports.agentConfigPathMap = {
+    [config_1.OS.WINDOWS]: 'C:\\ProgramData\\buildless\\buildless-agent.json',
+    [config_1.OS.LINUX]: '/var/tmp/buildless/buildless-agent.json',
+    [config_1.OS.MACOS]: '/var/tmp/buildless/buildless-agent.json'
+};
+let activeAgent;
+let queriedForAgent = false;
+/**
+ * Read any available agent configuration for the provided OS, or return `null`.
+ *
+ * @param os OS to read configuration for.
+ * @return Configuration (resolved from the known location), or `null`.
+ */
+async function resolveAgentConfig(os) {
+    const path = exports.agentConfigPathMap[os];
+    if (path && fs_1.default.existsSync(path)) {
+        try {
+            const data = fs_1.default.readFileSync(path, 'utf8');
+            return JSON.parse(data);
+        }
+        catch (err) {
+            console.error('Failed to read existing agent config:', err);
+            return null;
+        }
+    }
+    return null;
+}
+/**
+ * Read any available agent configuration for the provided OS, or return `null`;
+ * this version memoizes the first call to read the configuration.
+ *
+ * @param os OS to read configuration for.
+ * @return Configuration (resolved from the known location), or `null`.
+ */
+async function agentConfig(os) {
+    if (activeAgent === null && !queriedForAgent) {
+        queriedForAgent = true;
+        activeAgent = await resolveAgentConfig(os);
+    }
+    return activeAgent;
+}
+exports.agentConfig = agentConfig;
+exports["default"] = {
+    agentConfig,
+    agentStart: command_1.agentStart,
+    agentStop: command_1.agentStop,
+    agentStatus: command_1.agentStatus,
+    agentInstall: command_1.agentInstall
+};
+
+
+/***/ }),
+
 /***/ 4561:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -45620,7 +45692,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
+exports.setBinpath = exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
 class CliError extends Error {
@@ -45638,7 +45710,8 @@ class CliError extends Error {
         this.mainArgs = mainArgs;
     }
 }
-async function execBuildless(bin, cmd, args = [], mainArgs = []) {
+async function execBuildless(cmd, args = [], mainArgs = []) {
+    const bin = buildlessBin();
     const subcommand = cmd.split(' ');
     if (core.isDebug() && !mainArgs.includes(BuildlessArgument.VERBOSE)) {
         mainArgs.push(BuildlessArgument.VERBOSE);
@@ -45652,6 +45725,12 @@ async function execBuildless(bin, cmd, args = [], mainArgs = []) {
         throw new CliError(result, bin, cmd, args, mainArgs);
     }
     return result;
+}
+let cachedBin = null;
+function buildlessBin() {
+    if (!cachedBin)
+        throw new Error('cannot run command before binary is ready');
+    return cachedBin;
 }
 /**
  * Enumerates available commands which can be run with the Buildless CLI tool.
@@ -45680,25 +45759,22 @@ var BuildlessArgument;
 /**
  * Ask the Buildless CLI to install the Buildless Agent.
  *
- * @param bin Path to the Buildless CLI tools binary.
  * @return Promise which resolves to an answer about whether the agent installed.
  */
-async function agentInstall(bin) {
+async function agentInstall() {
     core.debug(`Triggering agent install via CLI`);
-    return ((await execBuildless(bin, BuildlessCommand.AGENT_INSTALL, [
-        '--background=true'
-    ])).exitCode === 0);
+    return ((await execBuildless(BuildlessCommand.AGENT_INSTALL, ['--background=true']))
+        .exitCode === 0);
 }
 exports.agentInstall = agentInstall;
 /**
  * Ask the Buildless CLI for agent status.
  *
- * @param bin Path to the Buildless CLI tools binary.
  * @return Promise which resolves to an answer about whether the agent installed.
  */
-async function agentStatus(bin) {
+async function agentStatus() {
     core.debug(`Obtaining agent status via CLI`);
-    const result = (await execBuildless(bin, BuildlessCommand.AGENT_STATUS)).stdout
+    const result = (await execBuildless(BuildlessCommand.AGENT_STATUS)).stdout
         .trim()
         .replaceAll('%0A', '')
         .includes('installed, running, and ready');
@@ -45714,32 +45790,31 @@ exports.agentStatus = agentStatus;
 /**
  * Ask the Buildless CLI to start the agent.
  *
- * @param bin Path to the Buildless CLI tools binary.
  * @return Promise which resolves to an answer about whether the agent installed.
  */
-async function agentStart(bin) {
+async function agentStart() {
     core.debug(`Starting agent via CLI`);
-    return (await execBuildless(bin, BuildlessCommand.AGENT_START)).exitCode === 0;
+    return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0;
 }
 exports.agentStart = agentStart;
 /**
  * Ask the Buildless CLI to stop the agent.
  *
- * @param bin Path to the Buildless CLI tools binary.
  * @return Promise which resolves to an answer about whether the agent installed.
  */
-async function agentStop(bin) {
+async function agentStop() {
     core.debug(`Stopping agent via CLI`);
-    return (await execBuildless(bin, BuildlessCommand.AGENT_STOP)).exitCode === 0;
+    return (await execBuildless(BuildlessCommand.AGENT_STOP)).exitCode === 0;
 }
 exports.agentStop = agentStop;
 /**
  * Interrogate the specified binary to obtain the version.
  *
- * @param bin Path to the Buildless CLI tools binary.
+ * @param pathOverride Specific binary to run.
  * @return Promise which resolves to the obtained version.
  */
-async function obtainVersion(bin) {
+async function obtainVersion(pathOverride) {
+    const bin = pathOverride || buildlessBin();
     core.debug(`Obtaining version of Buildless binary at: ${bin}`);
     return (await exec.getExecOutput(`"${bin}"`, [BuildlessCommand.VERSION])).stdout
         .trim()
@@ -45747,6 +45822,15 @@ async function obtainVersion(bin) {
         .replaceAll('Buildless ', '');
 }
 exports.obtainVersion = obtainVersion;
+/**
+ * Set the path to the Buildless binary for all subsequent commands.
+ *
+ * @param bin Binary path.
+ */
+function setBinpath(bin) {
+    cachedBin = bin;
+}
+exports.setBinpath = setBinpath;
 
 
 /***/ }),
@@ -45845,12 +45929,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.postInstall = exports.notSupported = void 0;
+exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const io = __importStar(__nccwpck_require__(7053));
 const outputs_1 = __nccwpck_require__(219);
 const command_1 = __nccwpck_require__(4561);
+const wait_1 = __importDefault(__nccwpck_require__(9787));
+const config_1 = __nccwpck_require__(5463);
+const agent_1 = __nccwpck_require__(9013);
 const options_1 = __importStar(__nccwpck_require__(5932));
 const releases_1 = __nccwpck_require__(8634);
 function stringOption(option, defaultValue) {
@@ -45903,11 +45993,11 @@ function notSupported(options) {
     const spec = `${options.os}-${options.arch}`;
     switch (spec) {
         case 'linux-amd64':
-            return null;
+            return config_1.OS.LINUX;
         case 'darwin-aarch64':
-            return null;
+            return config_1.OS.MACOS;
         case 'windows-amd64':
-            return null;
+            return config_1.OS.WINDOWS;
         default:
             core.error(`Platform is not supported: ${spec}`);
             return new Error(`Platform not supported: ${spec}`);
@@ -45919,6 +46009,23 @@ async function postInstall(bin, options) {
     // nothing yet
 }
 exports.postInstall = postInstall;
+function buildEffectiveOptions(options) {
+    const effectiveOptions = options
+        ? (0, options_1.default)(options)
+        : (0, options_1.default)({
+            version: stringOption(options_1.OptionName.VERSION, 'latest'),
+            target: stringOption(options_1.OptionName.TARGET, 
+            /* istanbul ignore next */
+            process.env.BIN_HOME || options_1.defaults.target),
+            os: (0, options_1.normalizeOs)(stringOption(options_1.OptionName.OS, process.platform)),
+            arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, process.arch)),
+            export_path: booleanOption(options_1.OptionName.EXPORT_PATH, true),
+            token: stringOption(options_1.OptionName.TOKEN, process.env.GITHUB_TOKEN),
+            custom_url: stringOption(options_1.OptionName.CUSTOM_URL)
+        });
+    return effectiveOptions;
+}
+exports.buildEffectiveOptions = buildEffectiveOptions;
 async function resolveExistingBinary() {
     try {
         return await io.which('buildless', true);
@@ -45938,23 +46045,11 @@ async function install(options) {
     try {
         // resolve effective plugin options
         core.info('Installing Buildless with GitHub Actions');
-        const effectiveOptions = options
-            ? (0, options_1.default)(options)
-            : (0, options_1.default)({
-                version: stringOption(options_1.OptionName.VERSION, 'latest'),
-                target: stringOption(options_1.OptionName.TARGET, 
-                /* istanbul ignore next */
-                process.env.BIN_HOME || options_1.defaults.target),
-                os: (0, options_1.normalizeOs)(stringOption(options_1.OptionName.OS, process.platform)),
-                arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, process.arch)),
-                export_path: booleanOption(options_1.OptionName.EXPORT_PATH, true),
-                token: stringOption(options_1.OptionName.TOKEN, process.env.GITHUB_TOKEN),
-                custom_url: stringOption(options_1.OptionName.CUSTOM_URL)
-            });
+        const effectiveOptions = buildEffectiveOptions(options);
         // make sure the requested version, platform, and os triple is supported
-        const supportErr = notSupported(effectiveOptions);
-        if (supportErr) {
-            core.setFailed(supportErr.message);
+        const targetOs = notSupported(effectiveOptions);
+        if (targetOs instanceof Error) {
+            core.setFailed(targetOs.message);
             return;
         }
         // if the tool is already installed and the user didn't set `force`, we can bail
@@ -46002,6 +46097,54 @@ async function install(options) {
         if (version !== release.version.tag_name) {
             core.warning(`Buildless version mismatch: expected '${release.version.tag_name}', but got '${version}'`);
         }
+        core.endGroup();
+        const binpath = outputs.path;
+        (0, command_1.setBinpath)(binpath);
+        // set up agent, if directed
+        let agentEnabled = false;
+        if (effectiveOptions.agent) {
+            core.startGroup('Setting up Buildless Agent...');
+            core.debug('Triggering agent installation...');
+            let installFailed = false;
+            let startFailed = false;
+            try {
+                await (0, agent_1.agentInstall)();
+            }
+            catch (err) {
+                core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
+                installFailed = true;
+            }
+            if (!installFailed) {
+                core.debug('Agent installation complete. Starting agent...');
+                try {
+                    await (0, agent_1.agentStart)();
+                }
+                catch (err) {
+                    core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
+                    startFailed = true;
+                }
+            }
+            if (!installFailed && !startFailed) {
+                core.debug('Agent installed and started.');
+                agentEnabled = true;
+            }
+            core.endGroup();
+        }
+        let activeAgent = null;
+        if (agentEnabled) {
+            await (0, wait_1.default)(1500); // give the agent 1.5s to start up
+            try {
+                activeAgent = await (0, agent_1.agentConfig)(targetOs);
+            }
+            catch (err) {
+                core.notice("The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info.");
+            }
+            if (activeAgent) {
+                core.debug('Buildless Agent started and ready.');
+                core.saveState('agentPid', activeAgent.pid);
+                core.saveState('agentConfig', JSON.stringify(activeAgent));
+            }
+        }
         // mount outputs
         core.setOutput(outputs_1.ActionOutputName.PATH, outputs.path);
         core.setOutput(outputs_1.ActionOutputName.VERSION, version);
@@ -46020,8 +46163,42 @@ exports.install = install;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function postExecute(options) {
-    const opts = JSON.stringify(options || {});
-    core.info(`Cleaning up Buildless Agent and resources... (options: ${opts})`);
+    const effectiveOptions = buildEffectiveOptions(options);
+    const targetOs = notSupported(effectiveOptions);
+    if (targetOs instanceof Error) {
+        return; // not supported, nothing to do
+    }
+    core.info(`Cleaning up Buildless Agent and resources...`);
+    const agentPid = core.getState('agentPid');
+    const activeAgent = await (0, agent_1.agentConfig)(targetOs);
+    if (activeAgent) {
+        let errMessage = 'unknown';
+        try {
+            await (0, agent_1.agentStop)();
+        }
+        catch (err) {
+            core.debug(`Agent failed to halt in time; killing at PID: '${agentPid}'...`);
+            let killFailed = false;
+            try {
+                process.kill(activeAgent.pid);
+            }
+            catch (err) {
+                killFailed = true;
+                if (err instanceof Error) {
+                    errMessage = err.message;
+                }
+            }
+            if (killFailed) {
+                core.debug(`Killing agent PID also failed. Giving up. Message: ${errMessage}`);
+            }
+            else {
+                core.debug('Agent process killed.');
+            }
+        }
+    }
+    else {
+        core.debug('No active agent; no cleanup to do.');
+    }
 }
 exports.postExecute = postExecute;
 /**
@@ -46481,6 +46658,30 @@ async function downloadRelease(options) {
     }
 }
 exports.downloadRelease = downloadRelease;
+
+
+/***/ }),
+
+/***/ 9787:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+/**
+ * Wait for a number of milliseconds.
+ * @param milliseconds The number of milliseconds to wait.
+ * @returns {Promise<string>} Resolves with 'done!' after the wait is over.
+ */
+async function wait(milliseconds) {
+    return new Promise(resolve => {
+        if (isNaN(milliseconds)) {
+            throw new Error('milliseconds not a number');
+        }
+        setTimeout(() => resolve(), milliseconds);
+    });
+}
+exports["default"] = wait;
 
 
 /***/ }),

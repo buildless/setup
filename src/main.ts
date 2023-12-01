@@ -4,7 +4,10 @@ import {
   ActionOutputName,
   BuildlessSetupActionOutputs as Outputs
 } from './outputs'
-import { obtainVersion } from './command'
+import { obtainVersion, setBinpath } from './command'
+import wait from './wait'
+import { OS } from './config'
+import { agentStart, agentStop, agentInstall, agentConfig } from './agent'
 
 import buildOptions, {
   OptionName,
@@ -66,15 +69,15 @@ function booleanOption(option: string, defaultValue: boolean): boolean {
   return value !== null && value !== undefined ? value : defaultValue
 }
 
-export function notSupported(options: Options): null | Error {
+export function notSupported(options: Options): OS | Error {
   const spec = `${options.os}-${options.arch}`
   switch (spec) {
     case 'linux-amd64':
-      return null
+      return OS.LINUX
     case 'darwin-aarch64':
-      return null
+      return OS.MACOS
     case 'windows-amd64':
-      return null
+      return OS.WINDOWS
     default:
       core.error(`Platform is not supported: ${spec}`)
       return new Error(`Platform not supported: ${spec}`)
@@ -87,6 +90,30 @@ export async function postInstall(
 ): Promise<void> {
   console.log('postinstall', bin, options)
   // nothing yet
+}
+
+export function buildEffectiveOptions(options?: Partial<Options>): Options {
+  const effectiveOptions: Options = options
+    ? buildOptions(options)
+    : buildOptions({
+        version: stringOption(OptionName.VERSION, 'latest'),
+        target: stringOption(
+          OptionName.TARGET,
+          /* istanbul ignore next */
+          process.env.BIN_HOME || defaults.target
+        ),
+        os: normalizeOs(
+          stringOption(OptionName.OS, process.platform) as string
+        ),
+        arch: normalizeArch(
+          stringOption(OptionName.ARCH, process.arch) as string
+        ),
+        export_path: booleanOption(OptionName.EXPORT_PATH, true),
+        token: stringOption(OptionName.TOKEN, process.env.GITHUB_TOKEN),
+        custom_url: stringOption(OptionName.CUSTOM_URL)
+      })
+
+  return effectiveOptions
 }
 
 export async function resolveExistingBinary(): Promise<string | null> {
@@ -107,30 +134,12 @@ export async function install(options?: Partial<Options>): Promise<void> {
   try {
     // resolve effective plugin options
     core.info('Installing Buildless with GitHub Actions')
-    const effectiveOptions: Options = options
-      ? buildOptions(options)
-      : buildOptions({
-          version: stringOption(OptionName.VERSION, 'latest'),
-          target: stringOption(
-            OptionName.TARGET,
-            /* istanbul ignore next */
-            process.env.BIN_HOME || defaults.target
-          ),
-          os: normalizeOs(
-            stringOption(OptionName.OS, process.platform) as string
-          ),
-          arch: normalizeArch(
-            stringOption(OptionName.ARCH, process.arch) as string
-          ),
-          export_path: booleanOption(OptionName.EXPORT_PATH, true),
-          token: stringOption(OptionName.TOKEN, process.env.GITHUB_TOKEN),
-          custom_url: stringOption(OptionName.CUSTOM_URL)
-        })
+    const effectiveOptions: Options = buildEffectiveOptions(options)
 
     // make sure the requested version, platform, and os triple is supported
-    const supportErr = notSupported(effectiveOptions)
-    if (supportErr) {
-      core.setFailed(supportErr.message)
+    const targetOs = notSupported(effectiveOptions)
+    if (targetOs instanceof Error) {
+      core.setFailed(targetOs.message)
       return
     }
 
@@ -196,6 +205,59 @@ export async function install(options?: Partial<Options>): Promise<void> {
         `Buildless version mismatch: expected '${release.version.tag_name}', but got '${version}'`
       )
     }
+    core.endGroup()
+
+    const binpath = outputs.path
+    setBinpath(binpath)
+
+    // set up agent, if directed
+    let agentEnabled = false
+    if (effectiveOptions.agent) {
+      core.startGroup('Setting up Buildless Agent...')
+      core.debug('Triggering agent installation...')
+      let installFailed = false
+      let startFailed = false
+      try {
+        await agentInstall()
+      } catch (err) {
+        core.notice(
+          'The Buildless Agent failed to install; please see CI logs for more info.'
+        )
+        installFailed = true
+      }
+      if (!installFailed) {
+        core.debug('Agent installation complete. Starting agent...')
+        try {
+          await agentStart()
+        } catch (err) {
+          core.notice(
+            'The Buildless Agent installed, but failed to start; please see CI logs for more info.'
+          )
+          startFailed = true
+        }
+      }
+      if (!installFailed && !startFailed) {
+        core.debug('Agent installed and started.')
+        agentEnabled = true
+      }
+      core.endGroup()
+    }
+    let activeAgent = null
+    if (agentEnabled) {
+      await wait(1500) // give the agent 1.5s to start up
+      try {
+        activeAgent = await agentConfig(targetOs)
+      } catch (err) {
+        core.notice(
+          "The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info."
+        )
+      }
+      if (activeAgent) {
+        core.debug('Buildless Agent started and ready.')
+        core.saveState('agentPid', activeAgent.pid)
+        core.saveState('agentConfig', JSON.stringify(activeAgent))
+      }
+    }
 
     // mount outputs
     core.setOutput(ActionOutputName.PATH, outputs.path)
@@ -213,8 +275,42 @@ export async function install(options?: Partial<Options>): Promise<void> {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function postExecute(options?: Partial<Options>): Promise<void> {
-  const opts = JSON.stringify(options || {})
-  core.info(`Cleaning up Buildless Agent and resources... (options: ${opts})`)
+  const effectiveOptions: Options = buildEffectiveOptions(options)
+  const targetOs = notSupported(effectiveOptions)
+  if (targetOs instanceof Error) {
+    return // not supported, nothing to do
+  }
+  core.info(`Cleaning up Buildless Agent and resources...`)
+  const agentPid = core.getState('agentPid')
+  const activeAgent = await agentConfig(targetOs)
+  if (activeAgent) {
+    let errMessage = 'unknown'
+    try {
+      await agentStop()
+    } catch (err) {
+      core.debug(
+        `Agent failed to halt in time; killing at PID: '${agentPid}'...`
+      )
+      let killFailed = false
+      try {
+        process.kill(activeAgent.pid)
+      } catch (err) {
+        killFailed = true
+        if (err instanceof Error) {
+          errMessage = err.message
+        }
+      }
+      if (killFailed) {
+        core.debug(
+          `Killing agent PID also failed. Giving up. Message: ${errMessage}`
+        )
+      } else {
+        core.debug('Agent process killed.')
+      }
+    }
+  } else {
+    core.debug('No active agent; no cleanup to do.')
+  }
 }
 
 /**
