@@ -46276,11 +46276,12 @@ function buildDownloadUrl(options, version) {
         ext = 'zip';
         archiveType = ArchiveType.ZIP;
     }
+    const arch = options.arch.replaceAll('aarch64', 'arm64');
     return {
         archiveType,
         url: new URL(
         // https://... / cli / (version) / (os)-(arch) / cli.(extension)
-        `${downloadBase}/${downloadPathV1}/${version.tag_name}/${options.os}-${options.arch}/cli.${ext}`)
+        `${downloadBase}/${downloadPathV1}/${version.tag_name}/${options.os}-${arch}/cli.${ext}`)
     };
 }
 /**
