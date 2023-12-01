@@ -1,6 +1,8 @@
 
 # GitHub Action: Setup Buildless
 
+[![CI](https://github.com/buildless/setup-buildless/actions/workflows/ci.yml/badge.svg)](https://github.com/buildless/setup-buildless/actions/workflows/ci.yml)
+
 This repository provides a [GitHub Action][0] to setup [Buildless][1] within your workflows. Supported features:
 
 - **Buildless CLI:** Install and authorize the Buildless CLI
