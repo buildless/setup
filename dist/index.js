@@ -46018,6 +46018,7 @@ function buildEffectiveOptions(options) {
             process.env.BIN_HOME || options_1.defaults.target),
             os: (0, options_1.normalizeOs)(stringOption(options_1.OptionName.OS, process.platform)),
             arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, process.arch)),
+            agent: booleanOption(options_1.OptionName.AGENT, true),
             export_path: booleanOption(options_1.OptionName.EXPORT_PATH, true),
             token: stringOption(options_1.OptionName.TOKEN, process.env.GITHUB_TOKEN),
             custom_url: stringOption(options_1.OptionName.CUSTOM_URL)
@@ -46145,6 +46146,7 @@ async function install(options) {
             }
         }
         // mount outputs
+        core.saveState('buildlessBinpath', outputs.path);
         core.setOutput(outputs_1.ActionOutputName.PATH, outputs.path);
         core.setOutput(outputs_1.ActionOutputName.VERSION, version);
         core.info(`Buildless installed at version ${release.version.tag_name} 🎉`);
@@ -46170,7 +46172,8 @@ async function postExecute(options) {
     core.info(`Cleaning up Buildless Agent and resources...`);
     const agentPid = core.getState('agentPid');
     const activeAgent = await (0, agent_1.agentConfig)(targetOs);
-    if (activeAgent) {
+    if (agentPid) {
+        (0, command_1.setBinpath)(core.getState('buildlessBinpath'));
         let errMessage = 'unknown';
         try {
             await (0, agent_1.agentStop)();
@@ -46179,7 +46182,7 @@ async function postExecute(options) {
             core.debug(`Agent failed to halt in time; killing at PID: '${agentPid}'...`);
             let killFailed = false;
             try {
-                process.kill(activeAgent.pid);
+                process.kill(activeAgent?.pid || parseInt(agentPid, 10));
             }
             catch (err) {
                 killFailed = true;

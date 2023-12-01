@@ -108,6 +108,7 @@ export function buildEffectiveOptions(options?: Partial<Options>): Options {
         arch: normalizeArch(
           stringOption(OptionName.ARCH, process.arch) as string
         ),
+        agent: booleanOption(OptionName.AGENT, true),
         export_path: booleanOption(OptionName.EXPORT_PATH, true),
         token: stringOption(OptionName.TOKEN, process.env.GITHUB_TOKEN),
         custom_url: stringOption(OptionName.CUSTOM_URL)
@@ -260,6 +261,7 @@ export async function install(options?: Partial<Options>): Promise<void> {
     }
 
     // mount outputs
+    core.saveState('buildlessBinpath', outputs.path)
     core.setOutput(ActionOutputName.PATH, outputs.path)
     core.setOutput(ActionOutputName.VERSION, version)
     core.info(`Buildless installed at version ${release.version.tag_name} 🎉`)
@@ -283,7 +285,8 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
   core.info(`Cleaning up Buildless Agent and resources...`)
   const agentPid = core.getState('agentPid')
   const activeAgent = await agentConfig(targetOs)
-  if (activeAgent) {
+  if (agentPid) {
+    setBinpath(core.getState('buildlessBinpath'))
     let errMessage = 'unknown'
     try {
       await agentStop()
@@ -293,7 +296,7 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
       )
       let killFailed = false
       try {
-        process.kill(activeAgent.pid)
+        process.kill(activeAgent?.pid || parseInt(agentPid, 10))
       } catch (err) {
         killFailed = true
         if (err instanceof Error) {
