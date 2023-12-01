@@ -1,10 +1,10 @@
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
 
-async function execBuildless(bin: string, args?: string[]): Promise<void> {
-  core.debug(`Executing: bin=${bin}, args=${args}`)
-  await exec.exec(`"${bin}"`, args)
-}
+// async function execBuildless(bin: string, args?: string[]): Promise<void> {
+//   core.debug(`Executing: bin=${bin}, args=${args}`)
+//   await exec.exec(`"${bin}"`, args)
+// }
 
 /**
  * Enumerates available commands which can be run with the Buildless CLI tool.

@@ -220,7 +220,7 @@ async function maybeDownload(
   // build resulting tarball path and resolved tool info
   let binPath: string = targetBin
   /* istanbul ignore next */
-  let binHome: string = options.target
+  const binHome: string = options.target
   let toolDir: string | null = null
 
   try {
@@ -258,7 +258,7 @@ async function maybeDownload(
     }
 
     core.debug(`Buildless release downloaded to: ${toolArchive}`)
-    binHome = await unpackRelease(toolArchive, binHome, archiveType, options)
+    await unpackRelease(toolArchive, binHome, archiveType, options)
   }
 
   return {
