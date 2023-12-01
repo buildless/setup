@@ -7,7 +7,6 @@ This repository provides a [GitHub Action][0] to setup [Buildless][1] within you
 
 - **Buildless CLI:** Install and authorize the Buildless CLI
 - **Buildless Agent:** Install and run the near-caching Buildless Agent
-- **GHA-compatible:** Drop-in replacement for `actions/cache` (it's just faster, and linked to your Buildless account)
 
 ## Usage
 
