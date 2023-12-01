@@ -75,11 +75,11 @@ jobs:
 
   test-action:
     name: "Test: Install"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -102,11 +102,11 @@ jobs:
 
   test-path:
     name: "Test: Path"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -132,11 +132,11 @@ jobs:
 
   test-agent:
     name: "Test: Agent"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -163,11 +163,11 @@ jobs:
 
   test-noagent:
     name: "Test: No Agent"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
@@ -194,11 +194,11 @@ jobs:
 
   test-config:
     name: "Test: Configuration"
-    runs-on: ${{ matrix.os }}-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu, macos, windows]
+        os: [ubuntu-latest, macos-13-xlarge, windows-latest]
 
     steps:
       - name: Harden Runner
