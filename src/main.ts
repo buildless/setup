@@ -114,7 +114,11 @@ function booleanOption(
 ): boolean {
   const value: boolean = getBooleanOption(option)
   /* istanbul ignore next */
-  return typeof overrideValue === 'boolean' ? overrideValue : (value !== null && value !== undefined ? value : defaultValue)
+  return typeof overrideValue === 'boolean'
+    ? overrideValue
+    : value !== null && value !== undefined
+      ? value
+      : defaultValue
 }
 
 export function notSupported(options: Options): OS | Error {
@@ -159,7 +163,11 @@ export function buildEffectiveOptions(options?: Partial<Options>): Options {
       ),
       agent: booleanOption(OptionName.AGENT, options?.agent, true),
       force: booleanOption(OptionName.FORCE, options?.force, false),
-      skip_cache: booleanOption(OptionName.SKIP_CACHE, options?.skip_cache, false),
+      skip_cache: booleanOption(
+        OptionName.SKIP_CACHE,
+        options?.skip_cache,
+        false
+      ),
       export_path: booleanOption(
         OptionName.EXPORT_PATH,
         options?.export_path,
