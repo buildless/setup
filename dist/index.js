@@ -45838,7 +45838,10 @@ async function run(options) {
         // if instructed, add binary to the path
         if (effectiveOptions.export_path) {
             core.info(`Adding '${release.path}' to PATH`);
-            core.addPath(release.path);
+            core.addPath(release.home);
+        }
+        else {
+            core.debug('Skipping add-binary-to-path step (turned off)');
         }
         // begin preparing outputs
         const outputs = {
@@ -46246,6 +46249,7 @@ async function maybeDownload(version, options) {
     }
     return {
         version,
+        home: binHome,
         path: binPath
     };
 }
@@ -46279,6 +46283,7 @@ async function downloadRelease(options) {
                     tag_name: await (0, command_1.obtainVersion)(binPath),
                     userProvided: true
                 },
+                home: targetDir,
                 path: binPath
             };
         }

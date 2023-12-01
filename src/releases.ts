@@ -44,6 +44,9 @@ export type BuildlessRelease = {
   // Path to the installed binary.
   path: string
 
+  // Folder holding the binary, which is appended to the PATH.
+  home: string
+
   // Deferred cleanup or after-action method.
   deferred?: () => Promise<void>
 }
@@ -264,6 +267,7 @@ async function maybeDownload(
 
   return {
     version,
+    home: binHome,
     path: binPath
   }
 }
@@ -309,6 +313,7 @@ export async function downloadRelease(
           tag_name: await obtainVersion(binPath),
           userProvided: true
         },
+        home: targetDir,
         path: binPath
       }
     } catch (err) {

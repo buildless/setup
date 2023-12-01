@@ -163,7 +163,9 @@ export async function run(options?: Partial<Options>): Promise<void> {
     // if instructed, add binary to the path
     if (effectiveOptions.export_path) {
       core.info(`Adding '${release.path}' to PATH`)
-      core.addPath(release.path)
+      core.addPath(release.home)
+    } else {
+      core.debug('Skipping add-binary-to-path step (turned off)')
     }
 
     // begin preparing outputs
