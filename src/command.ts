@@ -1,6 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import childProcess from 'child_process'
+import childProcess, { StdioOptions } from 'node:child_process'
 
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
@@ -24,9 +24,14 @@ interface BackgroundExecResult extends RunResult {
   pid: number
 }
 
+interface LowLevelSpawnOptions {
+  stdio?: StdioOptions
+  shell?: boolean
+}
+
 interface SpawnOptions {
   background?: boolean
-  spawnOptions?: object
+  spawnOptions?: LowLevelSpawnOptions
 }
 
 type CliArgument = BuildlessArgument | string
@@ -72,9 +77,13 @@ async function execBin(
   if (spawnOptions && spawnOptions.background) {
     core.debug(`Background spawn: bin=${bin} args=${effectiveArgs}`)
     const spawned = childProcess.spawn(bin, effectiveArgs, {
-      stdio: 'ignore',
-      ...(spawnOptions?.spawnOptions || {}),
-      detached: true
+      detached: true,
+      windowsHide: true,
+      stdio: spawnOptions?.spawnOptions?.stdio || 'ignore',
+      ...(spawnOptions?.spawnOptions || {})
+    })
+    spawned.on('error', err => {
+      console.error('Failed to start subprocess: ', err)
     })
     const pid = spawned.pid
     if (!spawned || pid === undefined) {
@@ -164,6 +173,7 @@ export enum BuildlessArgument {
 function ensureTempParentExists(filepath: string): string {
   const parent = path.dirname(filepath)
   if (!fs.existsSync(parent)) {
+    core.debug(`Creating temporary directory: ${parent}`)
     fs.mkdirSync(parent, {
       recursive: true
     })
@@ -186,7 +196,6 @@ function tempPathForOs(filename: string, prefix?: string): string {
  * @return Promise which resolves to an answer about whether the agent installed.
  */
 export async function agentInstall(): Promise<boolean> {
-  core.debug(`Triggering agent install via CLI`)
   try {
     // make sure temporary paths exist
     tempPathForOs('agent.json')
@@ -218,8 +227,12 @@ export async function agentStatus(): Promise<boolean> {
 async function spawnDirect(): Promise<number> {
   core.debug('Starting Buildless Agent via background spawn')
   try {
-    const out = fs.openSync(tempPathForOs('buildless-agent.out'), 'a')
-    const err = fs.openSync(tempPathForOs('buildless-agent.err'), 'a')
+    const outpath = tempPathForOs('buildless-agent.out')
+    const errpath = tempPathForOs('buildless-agent.out')
+    core.debug(`Agent outfiles: out=${outpath} err=${errpath}`)
+
+    const out = fs.openSync(outpath, 'a')
+    const err = fs.openSync(errpath, 'a')
 
     const spawnedAgent = await spawnInBackground(
       BuildlessCommand.AGENT_RUN,
@@ -228,6 +241,7 @@ async function spawnDirect(): Promise<number> {
         BuildlessArgument.VERBOSE // always spawn with verbose mode active
       ],
       {
+        shell: true,
         stdio: ['ignore', out, err]
       }
     )
@@ -247,7 +261,7 @@ async function spawnViaCli(): Promise<number> {
   core.debug('Starting Buildless Agent via CLI')
   const started = await execBuildless(BuildlessCommand.AGENT_START)
   if (started.exitCode === 0) {
-    await wait(1500) // give the agent 1.5s to start up
+    await wait(2000) // give the agent time to start up
 
     // then resolve config
     const config = await agentConfig()

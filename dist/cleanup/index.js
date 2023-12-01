@@ -45699,7 +45699,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setBinpath = exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = exports.spawnInBackground = exports.execBuildless = void 0;
 const node_fs_1 = __importDefault(__nccwpck_require__(7561));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
-const child_process_1 = __importDefault(__nccwpck_require__(2081));
+const node_child_process_1 = __importDefault(__nccwpck_require__(7718));
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
 const wait_1 = __importDefault(__nccwpck_require__(9787));
@@ -45732,10 +45732,14 @@ async function execBin(cmd, args = [], mainArgs = [], spawnOptions = {}) {
         .concat(args);
     if (spawnOptions && spawnOptions.background) {
         core.debug(`Background spawn: bin=${bin} args=${effectiveArgs}`);
-        const spawned = child_process_1.default.spawn(bin, effectiveArgs, {
-            stdio: 'ignore',
-            ...(spawnOptions?.spawnOptions || {}),
-            detached: true
+        const spawned = node_child_process_1.default.spawn(bin, effectiveArgs, {
+            detached: true,
+            windowsHide: true,
+            stdio: spawnOptions?.spawnOptions?.stdio || 'ignore',
+            ...(spawnOptions?.spawnOptions || {})
+        });
+        spawned.on('error', err => {
+            console.error('Failed to start subprocess: ', err);
         });
         const pid = spawned.pid;
         if (!spawned || pid === undefined) {
@@ -45804,6 +45808,7 @@ var BuildlessArgument;
 function ensureTempParentExists(filepath) {
     const parent = node_path_1.default.dirname(filepath);
     if (!node_fs_1.default.existsSync(parent)) {
+        core.debug(`Creating temporary directory: ${parent}`);
         node_fs_1.default.mkdirSync(parent, {
             recursive: true
         });
@@ -45824,7 +45829,6 @@ function tempPathForOs(filename, prefix) {
  * @return Promise which resolves to an answer about whether the agent installed.
  */
 async function agentInstall() {
-    core.debug(`Triggering agent install via CLI`);
     try {
         // make sure temporary paths exist
         tempPathForOs('agent.json');
@@ -45858,11 +45862,15 @@ exports.agentStatus = agentStatus;
 async function spawnDirect() {
     core.debug('Starting Buildless Agent via background spawn');
     try {
-        const out = node_fs_1.default.openSync(tempPathForOs('buildless-agent.out'), 'a');
-        const err = node_fs_1.default.openSync(tempPathForOs('buildless-agent.err'), 'a');
+        const outpath = tempPathForOs('buildless-agent.out');
+        const errpath = tempPathForOs('buildless-agent.out');
+        core.debug(`Agent outfiles: out=${outpath} err=${errpath}`);
+        const out = node_fs_1.default.openSync(outpath, 'a');
+        const err = node_fs_1.default.openSync(errpath, 'a');
         const spawnedAgent = await spawnInBackground(BuildlessCommand.AGENT_RUN, [BuildlessArgument.BACKGROUND], [
             BuildlessArgument.VERBOSE // always spawn with verbose mode active
         ], {
+            shell: true,
             stdio: ['ignore', out, err]
         });
         if (!spawnedAgent.success) {
@@ -45879,7 +45887,7 @@ async function spawnViaCli() {
     core.debug('Starting Buildless Agent via CLI');
     const started = await execBuildless(BuildlessCommand.AGENT_START);
     if (started.exitCode === 0) {
-        await (0, wait_1.default)(1500); // give the agent 1.5s to start up
+        await (0, wait_1.default)(2000); // give the agent time to start up
         // then resolve config
         const config = await (0, agent_1.agentConfig)();
         if (!config) {
@@ -46200,6 +46208,82 @@ async function resolveExistingBinary() {
     }
 }
 exports.resolveExistingBinary = resolveExistingBinary;
+async function setupAgentIfNeeded(options, withinAction, targetOs) {
+    let agentEnabled = false;
+    let agentManaged = false;
+    if (options.agent && withinAction) {
+        const currentAgentStatus = await (0, agent_1.agentStatus)();
+        if (currentAgentStatus) {
+            // agent is already installed and running
+            core.debug('Buildless Agent is already installed and running; skipping installation.');
+        }
+        else {
+            core.startGroup('Setting up Buildless Agent...');
+            core.debug('Triggering agent installation...');
+            let installFailed = false;
+            let startFailed = false;
+            try {
+                await (0, agent_1.agentInstall)();
+            }
+            catch (err) {
+                core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
+                installFailed = true;
+            }
+            let pid = -1;
+            if (!installFailed) {
+                core.debug('Agent installation complete. Starting agent...');
+                try {
+                    pid = await (0, agent_1.agentStart)();
+                }
+                catch (err) {
+                    core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
+                    startFailed = true;
+                }
+            }
+            if (!installFailed && !startFailed) {
+                const cfg = await (0, agent_1.agentConfig)();
+                if (!cfg) {
+                    console.warn(`Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`);
+                }
+                else {
+                    core.debug(`Agent installed and started at PID: ${pid}.`);
+                }
+                agentEnabled = true;
+                agentManaged = true;
+            }
+            core.endGroup();
+        }
+    }
+    let activeAgent = null;
+    if (agentEnabled && agentManaged) {
+        try {
+            activeAgent = await (0, agent_1.agentConfig)(targetOs);
+        }
+        catch (err) {
+            if (agentManaged) {
+                core.notice("The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info.");
+            }
+            else {
+                core.notice('Existing Buildless Agent could not be contacted; please see CI logs for more info.');
+            }
+        }
+        if (activeAgent) {
+            if (agentManaged) {
+                core.debug(`Buildless Agent started and ready (PID: ${activeAgent.pid}).`);
+            }
+            else {
+                core.debug(`Using existing Buildless Agent (already running at PID ${activeAgent.pid}).`);
+            }
+            core.saveState(ActionState.AGENT_PID, activeAgent.pid);
+            core.saveState(ActionState.AGENT_CONFIG, JSON.stringify(activeAgent));
+        }
+    }
+    return {
+        agentEnabled,
+        agentManaged,
+        activeAgent
+    };
+}
 /**
  * The install function for the action.
  *
@@ -46218,6 +46302,8 @@ async function install(options, withinAction = true) {
             core.setFailed(targetOs.message);
             throw targetOs;
         }
+        // begin preparing outputs
+        let outputs = null;
         // if the tool is already installed and the user didn't set `force`, we can bail
         if (!effectiveOptions.force) {
             const existing = await resolveExistingBinary();
@@ -46229,129 +46315,67 @@ async function install(options, withinAction = true) {
                 if ((version !== effectiveOptions.version ||
                     effectiveOptions.version === 'latest') &&
                     !effectiveOptions.force) {
-                    core.warning(`Existing Buildless installation at version '${version}' was preserved`);
+                    core.info(`Existing Buildless installation at version '${version}' was preserved`);
                     if (withinAction) {
                         core.setOutput(outputs_1.ActionOutputName.PATH, existing);
                         core.setOutput(outputs_1.ActionOutputName.VERSION, version);
                     }
-                    return existing;
+                    (0, command_1.setBinpath)(existing);
+                    outputs = {
+                        path: existing,
+                        version
+                    };
                 }
             }
         }
-        // download the release tarball (resolving version if needed)
-        const release = await (0, releases_1.downloadRelease)(effectiveOptions);
-        core.startGroup(`Setting up Buildless (version '${release.version.tag_name}')...`);
-        core.debug(`Release version: '${release.version.tag_name}'`);
-        const baseArgs = [];
-        if (core.isDebug()) {
-            baseArgs.push(command_1.BuildlessArgument.VERBOSE);
-        }
-        // if instructed, add binary to the path
-        if (effectiveOptions.export_path && withinAction) {
-            core.info(`Adding '${release.home}' to PATH`);
-            core.addPath(release.home);
-        }
-        else {
-            core.debug('Skipping add-binary-to-path step (turned off)');
-        }
-        // begin preparing outputs
-        const outputs = {
-            path: release.path,
-            version: effectiveOptions.version
-        };
-        // verify installed version
-        await postInstall(release.path, effectiveOptions);
-        const version = await (0, command_1.obtainVersion)(release.path);
-        /* istanbul ignore next */
-        if (version !== release.version.tag_name) {
-            core.warning(`Buildless version mismatch: expected '${release.version.tag_name}', but got '${version}'`);
-        }
-        core.endGroup();
-        const binpath = outputs.path;
-        (0, command_1.setBinpath)(binpath);
-        // set up agent, if directed
-        let agentEnabled = false;
-        let agentManaged = false; // set to true if `agentEnabled` is `true` and *we* started it in this run
-        if (effectiveOptions.agent && withinAction) {
-            const currentAgentStatus = await (0, agent_1.agentStatus)();
-            if (currentAgentStatus) {
-                // agent is already installed and running
-                core.debug('Buildless Agent is already installed and running; skipping installation.');
+        if (outputs === null) {
+            // download the release tarball (resolving version if needed)
+            const release = await (0, releases_1.downloadRelease)(effectiveOptions);
+            core.startGroup(`Setting up Buildless (version '${release.version.tag_name}')...`);
+            core.debug(`Release version: '${release.version.tag_name}'`);
+            const baseArgs = [];
+            if (core.isDebug()) {
+                baseArgs.push(command_1.BuildlessArgument.VERBOSE);
+            }
+            // if instructed, add binary to the path
+            if (effectiveOptions.export_path && withinAction) {
+                core.info(`Adding '${release.home}' to PATH`);
+                core.addPath(release.home);
             }
             else {
-                core.startGroup('Setting up Buildless Agent...');
-                core.debug('Triggering agent installation...');
-                let installFailed = false;
-                let startFailed = false;
-                try {
-                    await (0, agent_1.agentInstall)();
-                }
-                catch (err) {
-                    core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
-                    installFailed = true;
-                }
-                let pid = -1;
-                if (!installFailed) {
-                    core.debug('Agent installation complete. Starting agent...');
-                    try {
-                        pid = await (0, agent_1.agentStart)();
-                    }
-                    catch (err) {
-                        core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
-                        startFailed = true;
-                    }
-                }
-                if (!installFailed && !startFailed) {
-                    const cfg = await (0, agent_1.agentConfig)();
-                    if (!cfg) {
-                        console.warn(`Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`);
-                    }
-                    else {
-                        core.debug(`Agent installed and started at PID: ${pid}.`);
-                    }
-                    agentEnabled = true;
-                    agentManaged = true;
-                }
-                core.endGroup();
+                core.debug('Skipping add-binary-to-path step (turned off)');
             }
+            // begin preparing outputs
+            outputs = {
+                path: release.path,
+                version: effectiveOptions.version
+            };
+            // verify installed version
+            await postInstall(release.path, effectiveOptions);
+            const version = await (0, command_1.obtainVersion)(release.path);
+            /* istanbul ignore next */
+            if (version !== release.version.tag_name) {
+                core.warning(`Buildless version mismatch: expected '${release.version.tag_name}', but got '${version}'`);
+            }
+            core.endGroup();
+            const binpath = outputs.path;
+            (0, command_1.setBinpath)(binpath);
         }
-        let activeAgent = null;
-        if (agentEnabled && agentManaged) {
-            try {
-                activeAgent = await (0, agent_1.agentConfig)(targetOs);
-            }
-            catch (err) {
-                if (agentManaged) {
-                    core.notice("The Buildless Agent installed and started, but then didn't start up in time; please see CI logs for more info.");
-                }
-                else {
-                    core.notice('Existing Buildless Agent could not be contacted; please see CI logs for more info.');
-                }
-            }
-            if (activeAgent) {
-                if (agentManaged) {
-                    core.debug(`Buildless Agent started and ready (PID: ${activeAgent.pid}).`);
-                }
-                else {
-                    core.debug(`Using existing Buildless Agent (already running at PID ${activeAgent.pid}).`);
-                }
-                core.saveState(ActionState.AGENT_PID, activeAgent.pid);
-                core.saveState(ActionState.AGENT_CONFIG, JSON.stringify(activeAgent));
-            }
-        }
+        // set up agent, if directed (`agentManaged` is set to true of *we* started it in this run)
+        const { agentEnabled, agentManaged, activeAgent } = await setupAgentIfNeeded(effectiveOptions, withinAction, targetOs);
         if (withinAction) {
             // mount outputs
             core.saveState(ActionState.BINPATH, outputs.path);
-            core.saveState(ActionState.AGENT_MODE, activeAgent
+            core.saveState(ActionState.AGENT_MODE, agentEnabled && activeAgent
                 ? agentManaged
                     ? AgentManagementMode.MANAGED
                     : AgentManagementMode.UNMANAGED
                 : AgentManagementMode.INACTIVE);
             core.setOutput(outputs_1.ActionOutputName.PATH, outputs.path);
-            core.setOutput(outputs_1.ActionOutputName.VERSION, version);
+            core.setOutput(outputs_1.ActionOutputName.VERSION, outputs.version);
         }
-        core.info(`Buildless installed at version ${release.version.tag_name} 🎉`);
-        return binpath;
+        core.info(`Buildless installed at version ${outputs.version} 🎉`);
+        return outputs.path;
     }
     catch (error) {
         // Fail the workflow run if an error occurs
@@ -47008,6 +47032,14 @@ module.exports = require("https");
 
 "use strict";
 module.exports = require("net");
+
+/***/ }),
+
+/***/ 7718:
+/***/ ((module) => {
+
+"use strict";
+module.exports = require("node:child_process");
 
 /***/ }),
 
