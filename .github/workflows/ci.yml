@@ -74,7 +74,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-action:
-    name: "Test: Actions (Base)"
+    name: "Test: Install"
     runs-on: ubuntu-latest
 
     steps:
@@ -97,7 +97,7 @@ jobs:
         run: echo "${{ steps.test-action.outputs.path }}"
 
   test-path:
-    name: "Test: Actions (Path)"
+    name: "Test: Path"
     runs-on: ubuntu-latest
 
     steps:
@@ -121,6 +121,86 @@ jobs:
 
       - name: "Test: Binary on PATH"
         run: buildless --help
+
+  test-agent:
+    name: "Test: Agent"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Test: Local Action"
+        id: test-action
+        uses: ./
+        with:
+          agent: true
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
+      - name: "Test: Agent Running"
+        run: test "Agent is installed, running, and ready." = "$(buildless agent status)"
+
+  test-noagent:
+    name: "Test: No Agent"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Test: Local Action"
+        id: test-action
+        uses: ./
+        with:
+          agent: false
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
+      - name: "Test: Agent Not Installed"
+        run: test "Agent is not installed." = "$(buildless agent status)"
+
+  test-config:
+    name: "Test: Configuration"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Test: Local Action"
+        id: test-action
+        uses: ./
+        with: {}
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
+      - name: "Test: Show"
+        run: buildless show
 
   check-dist:
     name: "Test: Dist"
