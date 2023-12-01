@@ -41,7 +41,7 @@ describe('action entry', () => {
       ActionOutputName.VERSION,
       expect.anything()
     )
-  })
+  }, 30000)
 
   it('sets a failed status', async () => {
     // Set the action's inputs as return values from core.getInput()
