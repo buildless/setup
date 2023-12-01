@@ -14250,7 +14250,7 @@ module.exports = TokenExpiredError;
 
 /***/ }),
 
-/***/ 8517:
+/***/ 8358:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const semver = __nccwpck_require__(4392);
@@ -14307,7 +14307,7 @@ module.exports = function (time, iat) {
 /***/ 650:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
-const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(8517);
+const ASYMMETRIC_KEY_DETAILS_SUPPORTED = __nccwpck_require__(8358);
 const RSA_PSS_KEY_DETAILS_SUPPORTED = __nccwpck_require__(7284);
 
 const allowedAlgorithmsForKeys = {
@@ -49852,11 +49852,11 @@ var exports = __webpack_exports__;
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 /**
- * The cleanup entrypoint for the action.
+ * The entrypoint for the action.
  */
 const main_1 = __nccwpck_require__(575);
 // eslint-disable-next-line @typescript-eslint/no-floating-promises
-(0, main_1.cleanup)();
+(0, main_1.entry)();
 
 })();
 

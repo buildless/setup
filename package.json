@@ -33,7 +33,7 @@
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
     "package": "pnpm run package:main && pnpm run package:cleanup",
     "package:main": "ncc build src/index.ts --license licenses.txt",
-    "package:cleanup": "ncc build src/cleanup.ts",
+    "package:cleanup": "ncc build src/cleanup.ts -o dist/cleanup",
     "package:watch": "pnpm run package -- --watch",
     "test": "jest",
     "all": "pnpm run format:write && pnpm run lint && pnpm run test && pnpm run coverage && pnpm run package"
