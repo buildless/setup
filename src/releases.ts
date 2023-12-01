@@ -7,7 +7,7 @@ import { GITHUB_DEFAULT_HEADERS } from './config'
 import { obtainVersion } from './command'
 
 const downloadBase = 'https://dl.less.build'
-const downloadPathV1 = 'cli/'
+const downloadPathV1 = 'cli'
 
 /**
  * Version info resolved for a release of Buildless.
@@ -107,8 +107,8 @@ function buildDownloadUrl(
   return {
     archiveType,
     url: new URL(
-      // https://... / cli/v1/snapshot / (os)-(arch) / buildless.(extension)
-      `${downloadBase}/${downloadPathV1}/${options.os}-${options.arch}/${version.tag_name}/buildless.${ext}`
+      // https://... / cli / (version) / (os)-(arch) / cli.(extension)
+      `${downloadBase}/${downloadPathV1}/${version.tag_name}/${options.os}-${options.arch}/cli.${ext}`
     )
   }
 }
@@ -174,6 +174,7 @@ export async function resolveLatestVersion(
 ): Promise<BuildlessVersionInfo> {
   /* istanbul ignore next */
   const octokit = token ? github.getOctokit(token) : new Octokit({})
+  core.debug(`Fetching latest CLI releases...`)
   const latest = await octokit.request(
     'GET /repos/{owner}/{repo}/releases/latest',
     {

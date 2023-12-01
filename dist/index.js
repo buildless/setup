@@ -46060,7 +46060,7 @@ const github = __importStar(__nccwpck_require__(651));
 const config_1 = __nccwpck_require__(5463);
 const command_1 = __nccwpck_require__(4561);
 const downloadBase = 'https://dl.less.build';
-const downloadPathV1 = 'cli/';
+const downloadPathV1 = 'cli';
 /**
  * Release archive type.
  */
@@ -46114,8 +46114,8 @@ function buildDownloadUrl(options, version) {
     return {
         archiveType,
         url: new URL(
-        // https://... / cli/v1/snapshot / (os)-(arch) / buildless.(extension)
-        `${downloadBase}/${downloadPathV1}/${options.os}-${options.arch}/${version.tag_name}/buildless.${ext}`)
+        // https://... / cli / (version) / (os)-(arch) / cli.(extension)
+        `${downloadBase}/${downloadPathV1}/${version.tag_name}/${options.os}-${options.arch}/cli.${ext}`)
     };
 }
 /**
@@ -46166,6 +46166,7 @@ async function unpackRelease(archive, toolHome, archiveType, options) {
 async function resolveLatestVersion(token) {
     /* istanbul ignore next */
     const octokit = token ? github.getOctokit(token) : new octokit_1.Octokit({});
+    core.debug(`Fetching latest CLI releases...`);
     const latest = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
         owner: 'buildless',
         repo: 'cli',
