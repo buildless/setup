@@ -95,10 +95,7 @@ export enum BuildlessArgument {
  */
 export async function agentInstall(): Promise<boolean> {
   core.debug(`Triggering agent install via CLI`)
-  return (
-    (await execBuildless(BuildlessCommand.AGENT_INSTALL, ['--background=true']))
-      .exitCode === 0
-  )
+  return (await execBuildless(BuildlessCommand.AGENT_INSTALL)).exitCode === 0
 }
 
 /**

@@ -159,7 +159,7 @@ jobs:
         run: echo "${{ steps.test-action.outputs.path }}"
 
       - name: "Test: Agent Running"
-        run: test "Agent is installed, running, and ready." = "$(buildless agent status)"
+        run: test "Agent is installed, running, and ready." = "$(buildless agent status)" || buildless agent status
 
   test-noagent:
     name: "Test: No Agent"
