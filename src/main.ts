@@ -5,7 +5,6 @@ import {
   BuildlessSetupActionOutputs as Outputs
 } from './outputs'
 import { BuildlessArgument, obtainVersion, setBinpath } from './command'
-import wait from './wait'
 import { OS } from './config'
 import {
   agentStart,
@@ -258,7 +257,7 @@ export async function install(
 
     // if instructed, add binary to the path
     if (effectiveOptions.export_path && withinAction) {
-      core.info(`Adding '${release.path}' to PATH`)
+      core.info(`Adding '${release.home}' to PATH`)
       core.addPath(release.home)
     } else {
       core.debug('Skipping add-binary-to-path step (turned off)')
@@ -308,10 +307,11 @@ export async function install(
           )
           installFailed = true
         }
+        let pid = -1
         if (!installFailed) {
           core.debug('Agent installation complete. Starting agent...')
           try {
-            await agentStart()
+            pid = await agentStart()
           } catch (err) {
             core.notice(
               'The Buildless Agent installed, but failed to start; please see CI logs for more info.'
@@ -320,7 +320,14 @@ export async function install(
           }
         }
         if (!installFailed && !startFailed) {
-          core.debug('Agent installed and started.')
+          const cfg = await agentConfig()
+          if (!cfg) {
+            console.warn(
+              `Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`
+            )
+          } else {
+            core.debug(`Agent installed and started at PID: ${pid}.`)
+          }
           agentEnabled = true
           agentManaged = true
         }
@@ -330,9 +337,6 @@ export async function install(
 
     let activeAgent = null
     if (agentEnabled && agentManaged) {
-      if (agentManaged) {
-        await wait(1500) // give the agent 1.5s to start up
-      }
       try {
         activeAgent = await agentConfig(targetOs)
       } catch (err) {

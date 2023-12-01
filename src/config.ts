@@ -54,6 +54,22 @@ export enum Arch {
 // Default transport mode.
 export const TRANSPORT: RpcTransport = RpcTransport.GRPC
 
+/**
+ * Resolve the OS instance for the current (host) operating system.
+ *
+ * @returns Current OS enum instance.
+ */
+export function currentOs(): OS {
+  switch (process.platform) {
+    case 'darwin':
+      return OS.MACOS
+    case 'win32':
+      return OS.WINDOWS
+    default:
+      return OS.LINUX
+  }
+}
+
 export default {
   githubApiVersion: GITHUB_API_VERSION,
   githubDefaultHeaders: GITHUB_DEFAULT_HEADERS,

@@ -45641,10 +45641,11 @@ async function resolveAgentConfig(os) {
  * Read any available agent configuration for the provided OS, or return `null`;
  * this version memoizes the first call to read the configuration.
  *
- * @param os OS to read configuration for.
+ * @param target OS to read configuration for.
  * @return Configuration (resolved from the known location), or `null`.
  */
-async function agentConfig(os) {
+async function agentConfig(target) {
+    const os = target || (0, config_1.currentOs)();
     if (activeAgent === null && !queriedForAgent) {
         queriedForAgent = true;
         activeAgent = await resolveAgentConfig(os);
@@ -45701,6 +45702,8 @@ const node_path_1 = __importDefault(__nccwpck_require__(9411));
 const child_process_1 = __importDefault(__nccwpck_require__(2081));
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
+const wait_1 = __importDefault(__nccwpck_require__(9787));
+const agent_1 = __nccwpck_require__(9013);
 // Whether to spawn the agent directly (in Node), or through the CLI.
 const SPAWN_DIRECT = true;
 class CliError extends Error {
@@ -45852,31 +45855,58 @@ async function agentStatus() {
     return result;
 }
 exports.agentStatus = agentStatus;
-/**
- * Ask the Buildless CLI to start the agent.
- *
- * @return Promise which resolves to an answer about whether the agent installed.
- */
-async function agentStart() {
-    core.debug(`Starting agent via CLI`);
-    if (SPAWN_DIRECT) {
-        try {
-            const out = node_fs_1.default.openSync(tempPathForOs('buildless-agent.out'), 'a');
-            const err = node_fs_1.default.openSync(tempPathForOs('buildless-agent.err'), 'a');
-            await spawnInBackground(BuildlessCommand.AGENT_RUN, [BuildlessArgument.BACKGROUND], [
-                BuildlessArgument.VERBOSE // always spawn with verbose mode active
-            ], {
-                stdio: ['ignore', out, err]
-            });
-            return true;
+async function spawnDirect() {
+    core.debug('Starting Buildless Agent via background spawn');
+    try {
+        const out = node_fs_1.default.openSync(tempPathForOs('buildless-agent.out'), 'a');
+        const err = node_fs_1.default.openSync(tempPathForOs('buildless-agent.err'), 'a');
+        const spawnedAgent = await spawnInBackground(BuildlessCommand.AGENT_RUN, [BuildlessArgument.BACKGROUND], [
+            BuildlessArgument.VERBOSE // always spawn with verbose mode active
+        ], {
+            stdio: ['ignore', out, err]
+        });
+        if (!spawnedAgent.success) {
+            console.error(`Agent spawn completed but reported failure. Please see logs in debug mode.`);
         }
-        catch (err) {
-            console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err);
-            return false;
+        return spawnedAgent.pid;
+    }
+    catch (err) {
+        console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err);
+        throw err;
+    }
+}
+async function spawnViaCli() {
+    core.debug('Starting Buildless Agent via CLI');
+    const started = await execBuildless(BuildlessCommand.AGENT_START);
+    if (started.exitCode === 0) {
+        await (0, wait_1.default)(1500); // give the agent 1.5s to start up
+        // then resolve config
+        const config = await (0, agent_1.agentConfig)();
+        if (!config) {
+            console.error(`CLI reported that agent started, but could not resolve config.`);
+            throw new Error('Agent started but could not resolve configuration');
+        }
+        else {
+            core.debug(`Started agent via CLI at PID ${config.pid}`);
+            return config.pid;
         }
     }
     else {
-        return (await execBuildless(BuildlessCommand.AGENT_START)).exitCode === 0;
+        console.error(`CLI reported that agent failed to start (exit code: ${started.exitCode})`);
+        throw new Error('Agent failed to start via CLI');
+    }
+}
+/**
+ * Ask the Buildless CLI to start the agent.
+ *
+ * @return Promise which resolves to the agent PID.
+ */
+async function agentStart() {
+    if (SPAWN_DIRECT) {
+        return await spawnDirect();
+    }
+    else {
+        return await spawnViaCli();
     }
 }
 exports.agentStart = agentStart;
@@ -45924,7 +45954,7 @@ exports.setBinpath = setBinpath;
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.TRANSPORT = exports.Arch = exports.OS = exports.RpcTransport = exports.BUILDLESS_AZR_ENDPOINT = exports.BUILDLESS_AGENT_ENDPOINT = exports.BUILDLESS_EDGE_ENDPOINT = exports.BUILDLESS_GLOBAL_ENDPOINT = exports.GITHUB_DEFAULT_HEADERS = exports.GITHUB_API_VERSION = void 0;
+exports.currentOs = exports.TRANSPORT = exports.Arch = exports.OS = exports.RpcTransport = exports.BUILDLESS_AZR_ENDPOINT = exports.BUILDLESS_AGENT_ENDPOINT = exports.BUILDLESS_EDGE_ENDPOINT = exports.BUILDLESS_GLOBAL_ENDPOINT = exports.GITHUB_DEFAULT_HEADERS = exports.GITHUB_API_VERSION = void 0;
 // Version of the GitHub API to use.
 exports.GITHUB_API_VERSION = '2022-11-28';
 // Default headers to send on GitHub API requests.
@@ -45971,6 +46001,22 @@ var Arch;
 })(Arch || (exports.Arch = Arch = {}));
 // Default transport mode.
 exports.TRANSPORT = RpcTransport.GRPC;
+/**
+ * Resolve the OS instance for the current (host) operating system.
+ *
+ * @returns Current OS enum instance.
+ */
+function currentOs() {
+    switch (process.platform) {
+        case 'darwin':
+            return OS.MACOS;
+        case 'win32':
+            return OS.WINDOWS;
+        default:
+            return OS.LINUX;
+    }
+}
+exports.currentOs = currentOs;
 exports["default"] = {
     githubApiVersion: exports.GITHUB_API_VERSION,
     githubDefaultHeaders: exports.GITHUB_DEFAULT_HEADERS,
@@ -46012,16 +46058,12 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = exports.setActionEffectiveOptions = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const io = __importStar(__nccwpck_require__(7053));
 const outputs_1 = __nccwpck_require__(219);
 const command_1 = __nccwpck_require__(4561);
-const wait_1 = __importDefault(__nccwpck_require__(9787));
 const config_1 = __nccwpck_require__(5463);
 const agent_1 = __nccwpck_require__(9013);
 const options_1 = __importStar(__nccwpck_require__(5932));
@@ -46206,7 +46248,7 @@ async function install(options, withinAction = true) {
         }
         // if instructed, add binary to the path
         if (effectiveOptions.export_path && withinAction) {
-            core.info(`Adding '${release.path}' to PATH`);
+            core.info(`Adding '${release.home}' to PATH`);
             core.addPath(release.home);
         }
         else {
@@ -46248,10 +46290,11 @@ async function install(options, withinAction = true) {
                     core.notice('The Buildless Agent failed to install; please see CI logs for more info.');
                     installFailed = true;
                 }
+                let pid = -1;
                 if (!installFailed) {
                     core.debug('Agent installation complete. Starting agent...');
                     try {
-                        await (0, agent_1.agentStart)();
+                        pid = await (0, agent_1.agentStart)();
                     }
                     catch (err) {
                         core.notice('The Buildless Agent installed, but failed to start; please see CI logs for more info.');
@@ -46259,7 +46302,13 @@ async function install(options, withinAction = true) {
                     }
                 }
                 if (!installFailed && !startFailed) {
-                    core.debug('Agent installed and started.');
+                    const cfg = await (0, agent_1.agentConfig)();
+                    if (!cfg) {
+                        console.warn(`Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`);
+                    }
+                    else {
+                        core.debug(`Agent installed and started at PID: ${pid}.`);
+                    }
                     agentEnabled = true;
                     agentManaged = true;
                 }
@@ -46268,9 +46317,6 @@ async function install(options, withinAction = true) {
         }
         let activeAgent = null;
         if (agentEnabled && agentManaged) {
-            if (agentManaged) {
-                await (0, wait_1.default)(1500); // give the agent 1.5s to start up
-            }
             try {
                 activeAgent = await (0, agent_1.agentConfig)(targetOs);
             }

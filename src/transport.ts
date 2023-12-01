@@ -28,8 +28,8 @@ const connectTransport = createConnectTransport(transportSettings as any)
  *
  * @returns RPC transport to use.
  */
-export function obtainTransport(): Transport {
-  switch (activeTransport) {
+export function obtainTransport(override?: RpcTransport): Transport {
+  switch (override || activeTransport) {
     case RpcTransport.CONNECT:
       return connectTransport
     case RpcTransport.GRPC:
