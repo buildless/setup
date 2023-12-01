@@ -97,7 +97,7 @@ jobs:
         run: echo "${{ steps.test-action.outputs.path }}"
 
   test-path:
-    name: "Test: Actions (PATH)"
+    name: "Test: Actions (Path)"
     runs-on: ubuntu-latest
 
     steps:
