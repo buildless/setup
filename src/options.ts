@@ -168,7 +168,7 @@ export default function buildOptions(
       os: normalizeOs(opts?.os || defaults.os),
       arch: normalizeArch(opts?.arch || defaults.arch),
       apikey: opts?.apikey || process.env.BUILDLESS_API_KEY || undefined,
-      agent: typeof opts?.agent === 'boolean' ? opts.agent : true,
+      agent: typeof opts?.agent === 'boolean' ? opts.agent : true
     }
   } satisfies BuildlessSetupActionOptions
 }

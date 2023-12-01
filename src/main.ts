@@ -1,6 +1,9 @@
 import * as core from '@actions/core'
 import * as io from '@actions/io'
-import { ActionOutputName, BuildlessSetupActionOutputs as Outputs } from './outputs'
+import {
+  ActionOutputName,
+  BuildlessSetupActionOutputs as Outputs
+} from './outputs'
 import { obtainVersion } from './command'
 
 import buildOptions, {
@@ -96,9 +99,7 @@ export async function resolveExistingBinary(): Promise<string | null> {
  * The main function for the action.
  * @returns {Promise<void>} Resolves when the action is complete.
  */
-export async function run(
-  options?: Partial<Options>
-): Promise<void> {
+export async function run(options?: Partial<Options>): Promise<void> {
   try {
     // resolve effective plugin options
     core.info('Installing Buildless with GitHub Actions')

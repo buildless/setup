@@ -30,7 +30,9 @@ export enum BuildlessArgument {
  */
 export async function obtainVersion(bin: string): Promise<string> {
   core.debug(`Obtaining version of Buildless binary at: ${bin}`)
-  return (await exec.getExecOutput(`"${bin}"`, [BuildlessCommand.VERSION])).stdout
+  return (
+    await exec.getExecOutput(`"${bin}"`, [BuildlessCommand.VERSION])
+  ).stdout
     .trim()
     .replaceAll('%0A', '')
 }
