@@ -1,5 +1,5 @@
 import fs from 'node:fs'
-import { OS } from './config'
+import { OS, currentOs } from './config'
 import { agentStart, agentStop, agentStatus, agentInstall } from './command'
 export { agentStart, agentStop, agentStatus, agentInstall } from './command'
 
@@ -53,10 +53,11 @@ async function resolveAgentConfig(os: OS): Promise<AgentConfig | null> {
  * Read any available agent configuration for the provided OS, or return `null`;
  * this version memoizes the first call to read the configuration.
  *
- * @param os OS to read configuration for.
+ * @param target OS to read configuration for.
  * @return Configuration (resolved from the known location), or `null`.
  */
-export async function agentConfig(os: OS): Promise<AgentConfig | null> {
+export async function agentConfig(target?: OS): Promise<AgentConfig | null> {
+  const os = target || currentOs()
   if (activeAgent === null && !queriedForAgent) {
     queriedForAgent = true
     activeAgent = await resolveAgentConfig(os)
