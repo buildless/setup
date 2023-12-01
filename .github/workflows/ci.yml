@@ -133,6 +133,7 @@ jobs:
   test-agent:
     name: "Test: Agent"
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
@@ -148,8 +149,26 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
-      - name: "Fixup: Directory"
-        run: mkdir -p /var/tmp/buildless
+      - name: "Fixup: Directory (Linux/macOS)"
+        shell: bash
+        if: matrix.os != 'windows-latest'
+        run: rm -fr /var/tmp/buildless && mkdir -p /var/tmp/buildless
+
+      - name: "Fixup: Directory (Windows)"
+        shell: bash
+        if: matrix.os == 'windows-latest'
+        run: rmdir /c/ProgramData/buildless && mkdir /c/ProgramData/buildless
+
+      - name: "Test: Install CLI"
+        id: test-action-install
+        uses: ./
+        with:
+          agent: false
+
+      - name: "Test: Agent Not Installed"
+        run: |
+          ls -la /tmp/ /var/tmp/buildless/
+          test "Agent is not installed." = "$(buildless agent status)" || buildless --verbose=true agent status
 
       - name: "Test: Local Action"
         id: test-action
@@ -162,7 +181,77 @@ jobs:
         run: echo "${{ steps.test-action.outputs.path }}"
 
       - name: "Test: Agent Running"
-        run: test "Agent is installed, running, and ready." = "$(buildless agent status)" || buildless agent status
+        run: |
+          ls -la /tmp/ /var/tmp/buildless/
+          test "Agent is installed, running, and ready." = "$(buildless agent status)" || buildless --verbose=true agent status
+
+      - name: "Diagnostic: Run Agent in Foreground (Linux)"
+        if: (success() || failure()) && matrix.os == 'ubuntu-latest'
+        run: |
+          echo ''
+          ps -aux | grep buildless
+          echo ''
+          buildless --verbose=true agent run --no-background
+
+      - name: "Diagnostic: Run Agent in Foreground (macOS)"
+        if: (success() || failure()) && matrix.os == 'macos-13-xlarge'
+        run: |
+          echo ''
+          ps -A | grep buildless
+          echo ''
+          buildless --verbose=true agent run --no-background
+
+      - name: "Report: Agent State (Linux)"
+        if: (success() || failure()) && matrix.os == 'ubuntu-latest'
+        run: |
+          if [ -f "/var/tmp/buildless/buildless-agent.json" ]; then
+              echo 'Agent configuration:' && cat /var/tmp/buildless/buildless-agent.json | jq
+              echo ''
+              echo 'Contents of tmp path:'
+              ls -la /var/tmp/buildless
+              echo ''
+              echo 'Agent process:'
+              ps -aux | grep buildless
+          else
+              echo 'No agent configuration found. Contents of tmp path:'
+              ls -la /var/tmp/buildless
+          fi
+
+      - name: "Report: Agent State (macOS)"
+        if: (success() || failure()) && matrix.os == 'macos-13-xlarge'
+        run: |
+          if [ -f "/var/tmp/buildless/buildless-agent.json" ]; then
+              echo 'Agent configuration:' && cat /var/tmp/buildless/buildless-agent.json | jq
+              echo ''
+              echo 'Contents of tmp path:'
+              ls -la /var/tmp/buildless
+              echo ''
+              echo 'Agent process:'
+              ps -A | grep buildless
+          else
+              echo 'No agent configuration found. Contents of tmp path:'
+              ls -la /var/tmp/buildless
+          fi
+  
+      - name: "Report: Agent State (Windows)"
+        if: (success() || failure()) && matrix.os == 'windows-latest'
+        shell: bash
+        run: |
+          if [ -f "/c/ProgramData/buildless/buildless-agent.json" ]; then
+              echo 'Agent configuration:' && cat /c/ProgramData/buildless/buildless-agent.json | jq
+              echo ''
+              echo 'Contents of tmp path:'
+              ls -la /c/ProgramData/buildless
+              echo ''
+              echo 'Agent process:'
+              ps -aux | grep buildless
+          else
+            echo 'No agent configuration found. Contents of tmp path:'
+            ls -la /c/ProgramData/buildless
+            echo ''
+            echo 'Agent process:'
+            ps -aux | grep buildless
+          fi
 
   test-noagent:
     name: "Test: No Agent"
