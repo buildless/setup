@@ -45653,7 +45653,8 @@ async function obtainVersion(bin) {
     core.debug(`Obtaining version of Buildless binary at: ${bin}`);
     return (await exec.getExecOutput(`"${bin}"`, [BuildlessCommand.VERSION])).stdout
         .trim()
-        .replaceAll('%0A', '');
+        .replaceAll('%0A', '')
+        .replaceAll('Buildless ', '');
 }
 exports.obtainVersion = obtainVersion;
 

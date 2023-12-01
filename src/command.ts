@@ -35,4 +35,5 @@ export async function obtainVersion(bin: string): Promise<string> {
   ).stdout
     .trim()
     .replaceAll('%0A', '')
+    .replaceAll('Buildless ', '')
 }
