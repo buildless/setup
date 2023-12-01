@@ -50,9 +50,19 @@ inputs:
     description: 'Buildless API key'
     required: false
 
+  tenant:
+    description: 'Buildless Tenant'
+    required: false
+
+  project:
+    description: 'Buildless Project'
+    required: false
+
 outputs:
-  time:
-    description: 'Your output description here'
+  path:
+    description: 'Path to Buildless'
+  agentConfig:
+    description: 'Agent Configuration'
 
 runs:
   using: node20

@@ -9,7 +9,7 @@ if (!process.env.RUNNER_TEMP) {
         __dirname,
         'tmp'
     )
-    process.env.ELIDE_HOME = path.resolve(
+    process.env.BIN_HOME = path.resolve(
         __dirname,
         'target'
     )
