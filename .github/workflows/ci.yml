@@ -148,6 +148,9 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
+      - name: "Fixup: Directory"
+        run: mkdir -p /var/tmp/buildless
+
       - name: "Test: Local Action"
         id: test-action
         uses: ./
