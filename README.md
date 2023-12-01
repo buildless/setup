@@ -34,15 +34,15 @@ Sign up for a [Buildless Cloud][1] account to obtain an API key. It's free to st
 
 The full suite of available options are below.
 
-| Option        | Type         | Default                                                     | Description                                  |
-| ------------- | ------------ | ----------------------------------------------------------- | -------------------------------------------- |
-| `version`     | `string`     | `latest`                                                    | Version to install; defaults to `latest`     |
-| `os`          | `string`     | (Current)                                                   | OS to target; defaults to current platform   |
-| `arch`        | `string`     | (Current)                                                   | Arch to target; defaults to current platform |
-| `agent`       | `boolean`    | `true`                                                      | Install and start the Buildless Agent        |
-| `apikey`      | `string`     | `${{ env.BUILDLESS_API_KEY || secrets.BUILDLESS_API_KEY }}` | Perform a self-test after installing         |
-| `token`       | `string`     | `${{ env.GITHUB_TOKEN }}`                                   | GitHub token to use for fetching assets      |
-| `export_path` | `boolean`    | `true`                                                      | Whether to install Buildless onto the `PATH` |
+| Option        | Type         | Default                        | Description                                  |
+| ------------- | ------------ | ------------------------------ | -------------------------------------------- |
+| `version`     | `string`     | `latest`                       | Version to install; defaults to `latest`     |
+| `os`          | `string`     | (Current)                      | OS to target; defaults to current platform   |
+| `arch`        | `string`     | (Current)                      | Arch to target; defaults to current platform |
+| `agent`       | `boolean`    | `true`                         | Install and start the Buildless Agent        |
+| `apikey`      | `string`     | `${{ env.BUILDLESS_API_KEY }}` | Perform a self-test after installing         |
+| `token`       | `string`     | `${{ env.GITHUB_TOKEN }}`      | GitHub token to use for fetching assets      |
+| `export_path` | `boolean`    | `true`                         | Whether to install Buildless onto the `PATH` |
 
 **Options for `os`** (support varies)
 - `darwin`, `mac`, `macos`
