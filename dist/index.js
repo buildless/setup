@@ -45623,10 +45623,10 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.obtainVersion = exports.BuildlessArgument = exports.BuildlessCommand = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
-async function execBuildless(bin, args) {
-    core.debug(`Executing: bin=${bin}, args=${args}`);
-    await exec.exec(`"${bin}"`, args);
-}
+// async function execBuildless(bin: string, args?: string[]): Promise<void> {
+//   core.debug(`Executing: bin=${bin}, args=${args}`)
+//   await exec.exec(`"${bin}"`, args)
+// }
 /**
  * Enumerates available commands which can be run with the Buildless CLI tool.
  */
@@ -45773,6 +45773,7 @@ function notSupported(options) {
 }
 exports.notSupported = notSupported;
 async function postInstall(bin, options) {
+    console.log('postinstall', bin, options);
     // nothing yet
 }
 exports.postInstall = postInstall;
@@ -46201,7 +46202,7 @@ async function maybeDownload(version, options) {
     // build resulting tarball path and resolved tool info
     let binPath = targetBin;
     /* istanbul ignore next */
-    let binHome = options.target;
+    const binHome = options.target;
     let toolDir = null;
     try {
         toolDir = toolCache.find('buildless', version.tag_name, options.arch);
@@ -46239,7 +46240,7 @@ async function maybeDownload(version, options) {
             throw err;
         }
         core.debug(`Buildless release downloaded to: ${toolArchive}`);
-        binHome = await unpackRelease(toolArchive, binHome, archiveType, options);
+        await unpackRelease(toolArchive, binHome, archiveType, options);
     }
     return {
         version,

@@ -79,7 +79,10 @@ export function notSupported(options: Options): null | Error {
   }
 }
 
-export async function postInstall(bin: string, options: Options): Promise<void> {
+export async function postInstall(
+  bin: string,
+  options: Options
+): Promise<void> {
   console.log('postinstall', bin, options)
   // nothing yet
 }
