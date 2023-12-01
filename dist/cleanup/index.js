@@ -46104,7 +46104,11 @@ function getBooleanOption(booleanInputName) {
 function booleanOption(option, overrideValue, defaultValue) {
     const value = getBooleanOption(option);
     /* istanbul ignore next */
-    return value !== null && value !== undefined ? value : defaultValue;
+    return typeof overrideValue === 'boolean'
+        ? overrideValue
+        : value !== null && value !== undefined
+            ? value
+            : defaultValue;
 }
 function notSupported(options) {
     const spec = `${options.os}-${options.arch}`;
@@ -46137,7 +46141,7 @@ function buildEffectiveOptions(options) {
         arch: (0, options_1.normalizeArch)(stringOption(options_1.OptionName.ARCH, options?.arch, process.arch)),
         agent: booleanOption(options_1.OptionName.AGENT, options?.agent, true),
         force: booleanOption(options_1.OptionName.FORCE, options?.force, false),
-        cache: booleanOption(options_1.OptionName.CACHE, options?.cache, true),
+        skip_cache: booleanOption(options_1.OptionName.SKIP_CACHE, options?.skip_cache, false),
         export_path: booleanOption(options_1.OptionName.EXPORT_PATH, options?.export_path, true),
         token: stringOption(options_1.OptionName.TOKEN, options?.token, process.env.GITHUB_TOKEN),
         custom_url: stringOption(options_1.OptionName.CUSTOM_URL, options?.custom_url)
@@ -46423,7 +46427,7 @@ var OptionName;
     OptionName["OS"] = "os";
     OptionName["ARCH"] = "arch";
     OptionName["EXPORT_PATH"] = "export_path";
-    OptionName["CACHE"] = "cache";
+    OptionName["SKIP_CACHE"] = "skip_cache";
     OptionName["CUSTOM_URL"] = "custom_url";
     OptionName["TOKEN"] = "token";
     OptionName["TENANT"] = "tenant";
@@ -46452,7 +46456,7 @@ const defaultTarget = process.platform === 'win32' ? exports.windowsDefaultPath 
  */
 exports.defaults = {
     version: 'latest',
-    cache: true,
+    skip_cache: false,
     export_path: true,
     force: false,
     agent: true,
@@ -46527,8 +46531,7 @@ function buildOptions(opts) {
             // force-normalize the OS and arch
             os: normalizeOs(opts?.os || exports.defaults.os),
             arch: normalizeArch(opts?.arch || exports.defaults.arch),
-            apikey: opts?.apikey || process.env.BUILDLESS_API_KEY || undefined,
-            agent: typeof opts?.agent === 'boolean' ? opts.agent : true
+            apikey: opts?.apikey || process.env.BUILDLESS_API_KEY || undefined
         }
     };
 }
@@ -46728,15 +46731,15 @@ async function maybeDownload(version, options) {
         core.debug(`Buildless found in tool cache: ${toolDir}`);
     }
     /* istanbul ignore next */
-    if (options.cache && toolDir) {
+    if (!options.skip_cache && toolDir) {
         // we have an existing cached copy of buildless
-        core.debug('Caching enabled and cached Buildless release found; using it');
+        core.debug('Tool caching enabled and cached Buildless release found; using it');
         binPath = toolDir;
     }
     else {
         /* istanbul ignore next */
-        if (!options.cache) {
-            core.debug('Cache disabled; forcing a fetch of the specified Buildless release');
+        if (!options.skip_cache) {
+            core.debug('Tool cache disabled; forcing a fetch of the specified Buildless release');
         }
         else {
             core.debug('Cache enabled but no hit was found; downloading release');
