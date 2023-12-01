@@ -16,6 +16,10 @@ ignorePatterns:
 
 parser: '@typescript-eslint/parser'
 
+settings:
+  "import/resolver":
+    typescript: {}
+
 parserOptions:
   ecmaVersion: 2023
   sourceType: module

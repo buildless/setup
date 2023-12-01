@@ -46020,7 +46020,8 @@ exports.install = install;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function postExecute(options) {
-    core.info('Cleaning up Buildless Agent and resources...');
+    const opts = JSON.stringify(options || {});
+    core.info(`Cleaning up Buildless Agent and resources... (options: ${opts})`);
 }
 exports.postExecute = postExecute;
 /**

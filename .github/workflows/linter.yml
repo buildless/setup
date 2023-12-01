@@ -45,7 +45,7 @@ jobs:
 
       - name: "Setup: Install Dependencies"
         id: install
-        run: pnpm install
+        run: pnpm install && pnpm run gen
   
       - name: Lint Code Base
         id: super-linter
