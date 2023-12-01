@@ -98,7 +98,7 @@ export const defaults: BuildlessSetupActionOptions = {
   project: undefined,
   os: normalizeOs(process.platform),
   arch: normalizeArch(process.arch),
-  target: defaultTarget,
+  target: defaultTarget
 }
 
 /**
@@ -167,7 +167,7 @@ export default function buildOptions(
       // force-normalize the OS and arch
       os: normalizeOs(opts?.os || defaults.os),
       arch: normalizeArch(opts?.arch || defaults.arch),
-      apikey: opts?.apikey || process.env.BUILDLESS_API_KEY || undefined,
+      apikey: opts?.apikey || process.env.BUILDLESS_API_KEY || undefined
     }
   } satisfies BuildlessSetupActionOptions
 }

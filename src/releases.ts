@@ -213,7 +213,9 @@ async function maybeDownload(
   /* istanbul ignore next */
   if (!options.skip_cache && toolDir) {
     // we have an existing cached copy of buildless
-    core.debug('Tool caching enabled and cached Buildless release found; using it')
+    core.debug(
+      'Tool caching enabled and cached Buildless release found; using it'
+    )
     binPath = toolDir
   } else {
     /* istanbul ignore next */
