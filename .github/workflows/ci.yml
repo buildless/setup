@@ -9,6 +9,55 @@ on:
       - 'releases/*'
 
 jobs:
+  lint-code:
+    name: "Check: Lint"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: read
+      statuses: write
+
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Setup: PNPM"
+        uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
+        with:
+          version: 8.9.0
+      - name: "Setup: Node"
+        id: setup-node
+        uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
+        with:
+          node-version: 20
+          cache: pnpm
+      - name: "Setup: Install Dependencies"
+        id: install
+        run: pnpm install && pnpm run gen
+      - name: "Check: Linter"
+        id: super-linter
+        uses: super-linter/super-linter/slim@3213b9ea991e2d45d760ea8a76aaebad8a2bdb1a # v5.4.0
+        env:
+          DEFAULT_BRANCH: main
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TYPESCRIPT_DEFAULT_STYLE: prettier
+          VALIDATE_JSCPD: false
+
+  lint-action:
+    name: "Check: Action Lint"
+    permissions:
+      contents: read
+      checks: write
+      pull-requests: read
+      id-token: write
+    uses: elide-dev/build-infra/.github/workflows/lint.action.yml@main
+
   test-typescript:
     name: "Test: Unit Tests"
     runs-on: ubuntu-latest
@@ -60,8 +109,7 @@ jobs:
         with:
           args: >
             -Dsonar.organization=buildless
-            -Dsonar.projectKey=buildless_setup-buildless
-            -Dsonar.python.coverage.reportPaths=coverage.xml
+            -Dsonar.projectKey=buildless_setup
             -Dsonar.sources=src/
             -Dsonar.tests=__tests__/
             -Dsonar.verbose=true
@@ -91,10 +139,9 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
-      - name: "Test: Local Action"
+      - name: "Test: Buildless Action"
         id: test-action
         uses: ./
-        with: {}
 
       - name: "Test: Print Output"
         id: output
@@ -118,10 +165,9 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
-      - name: "Test: Local Action"
+      - name: "Test: Buildless Action"
         id: test-action
         uses: ./
-        with: {}
 
       - name: "Test: Print Output"
         id: output
@@ -170,7 +216,7 @@ jobs:
           ls -la /tmp/ /var/tmp/buildless/
           test "Agent is not installed." = "$(buildless agent status)" || buildless --verbose=true agent status
 
-      - name: "Test: Local Action"
+      - name: "Test: Buildless Action"
         id: test-action
         uses: ./
         with:
@@ -271,7 +317,7 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
-      - name: "Test: Local Action"
+      - name: "Test: Buildless Action"
         id: test-action
         uses: ./
         with:
@@ -284,8 +330,8 @@ jobs:
       - name: "Test: Agent Not Installed"
         run: test "Agent is not installed." = "$(buildless agent status)"
 
-  test-config:
-    name: "Test: Configuration"
+  test-smoketest:
+    name: "Test: Smoke Test"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -302,17 +348,33 @@ jobs:
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
 
-      - name: "Test: Local Action"
+      - name: "Test: Buildless Action"
         id: test-action
         uses: ./
-        with: {}
+        with:
+          agent: false
 
       - name: "Test: Print Output"
         id: output
         run: echo "${{ steps.test-action.outputs.path }}"
 
+      - name: "Test: Help"
+        run: buildless --help
+
+      - name: "Test: Version"
+        run: buildless --version
+
       - name: "Test: Show"
-        run: buildless show
+        run: buildless --verbose=true show
+
+      - name: "Test: Status"
+        run: buildless --verbose=true status
+
+      - name: "Test: Agent Status"
+        run: buildless --verbose=true status
+
+      - name: "Test: Legal"
+        run: buildless legal
 
   check-dist:
     name: "Test: Dist"
