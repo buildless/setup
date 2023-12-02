@@ -1,0 +1,8 @@
+self-hosted-runner:
+  labels:
+    - macos-13-xlarge
+
+config-variables:
+  - DEFAULT_RUNNER
+  - JOB_NAME
+  - ENVIRONMENT_STAGE

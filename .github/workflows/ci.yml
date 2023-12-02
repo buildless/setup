@@ -189,7 +189,7 @@ jobs:
         if: (success() || failure()) && matrix.os == 'ubuntu-latest'
         run: |
           echo ''
-          ps -aux | grep buildless
+          ps -aux | pgrep buildless
           echo ''
           buildless --verbose=true agent run --no-background
 
@@ -197,7 +197,7 @@ jobs:
         if: (success() || failure()) && matrix.os == 'macos-13-xlarge'
         run: |
           echo ''
-          ps -A | grep buildless
+          ps -A | pgrep buildless
           echo ''
           buildless --verbose=true agent run --no-background
 
@@ -211,7 +211,7 @@ jobs:
               ls -la /var/tmp/buildless
               echo ''
               echo 'Agent process:'
-              ps -aux | grep buildless
+              ps -aux | pgrep buildless
           else
               echo 'No agent configuration found. Contents of tmp path:'
               ls -la /var/tmp/buildless
@@ -227,7 +227,7 @@ jobs:
               ls -la /var/tmp/buildless
               echo ''
               echo 'Agent process:'
-              ps -A | grep buildless
+              ps -A | pgrep buildless
           else
               echo 'No agent configuration found. Contents of tmp path:'
               ls -la /var/tmp/buildless
@@ -244,13 +244,13 @@ jobs:
               ls -la /c/ProgramData/buildless
               echo ''
               echo 'Agent process:'
-              ps -aux | grep buildless
+              ps -aux | pgrep buildless
           else
             echo 'No agent configuration found. Contents of tmp path:'
             ls -la /c/ProgramData/buildless
             echo ''
             echo 'Agent process:'
-            ps -aux | grep buildless
+            ps -aux | pgrep buildless
           fi
 
   test-noagent:
