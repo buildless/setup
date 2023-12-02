@@ -1,4 +1,4 @@
-name: CodeQL
+name: "Check: CodeQL"
 
 on:
   push:
@@ -32,28 +32,24 @@ jobs:
           - TypeScript
 
     steps:
-      - name: Harden Runner
+      - name: "Setup: Harden Runner"
         uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
         with:
           egress-policy: audit
-
-      - name: Checkout
+      - name: "Setup: Checkout"
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
-
-      - name: Initialize CodeQL
+      - name: "Setup: Initialize CodeQL"
         id: initialize
         uses: github/codeql-action/init@0116bc2df50751f9724a2e35ef1f24d22f90e4e1 # v2.22.3
         with:
           languages: ${{ matrix.language }}
           source-root: src
-
-      - name: Autobuild
+      - name: "Build: Autobuild"
         id: autobuild
         continue-on-error: true
         uses: github/codeql-action/autobuild@0116bc2df50751f9724a2e35ef1f24d22f90e4e1 # v2.22.3
-
-      - name: Perform CodeQL Analysis
+      - name: "Check: Perform CodeQL Analysis"
         id: analyze
         continue-on-error: true
         uses: github/codeql-action/analyze@0116bc2df50751f9724a2e35ef1f24d22f90e4e1 # v2.22.3

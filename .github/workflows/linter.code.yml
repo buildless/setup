@@ -1,4 +1,4 @@
-name: Lint
+name: "Check: Code Lint"
 
 on:
   pull_request:
@@ -22,11 +22,10 @@ jobs:
       statuses: write
 
     steps:
-      - name: Harden Runner
+      - name: "Setup: Harden Runner"
         uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
         with:
           egress-policy: audit
-
       - name: "Setup: Checkout"
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
@@ -35,19 +34,16 @@ jobs:
         uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
         with:
           version: 8.9.0
-
       - name: "Setup: Node"
         id: setup-node
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
         with:
           node-version: 20
           cache: pnpm
-
       - name: "Setup: Install Dependencies"
         id: install
         run: pnpm install && pnpm run gen
-  
-      - name: Lint Code Base
+      - name: "Check: Linter"
         id: super-linter
         uses: super-linter/super-linter/slim@3213b9ea991e2d45d760ea8a76aaebad8a2bdb1a # v5.4.0
         env:

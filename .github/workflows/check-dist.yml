@@ -1,4 +1,4 @@
-name: Check Dist
+name: "Check: Distribution"
 
 on:
   workflow_dispatch: {}
@@ -17,34 +17,28 @@ jobs:
       statuses: write
 
     steps:
-      - name: Harden Runner
+      - name: "Setup: Harden Runner"
         uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
         with:
           egress-policy: audit
-
       - name: "Setup: Checkout"
         id: checkout
         uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
-
       - name: "Setup: PNPM"
         uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
         with:
           version: 8.9.0
-
       - name: "Setup: Node"
         uses: actions/setup-node@5e21ff4d9bc1a8cf6de233a3057d20ec6b3fb69d # v3.8.1
         with:
           node-version: 20
           cache: pnpm
-
       - name: "Setup: Install Dependencies"
         id: install
         run: pnpm install && pnpm install -g turbo
-
       - name: "Build: Bundle"
         id: build
         run: turbo build --token ${{ secrets.BUILDLESS_APIKEY }} --no-daemon --remote-only
-
       - name: "Check: Compare Expected and Actual Directories"
         id: diff
         run: |
@@ -53,7 +47,6 @@ jobs:
             git diff --ignore-space-at-eol --text dist/
             exit 1
           fi
-
       - name: "Build: Upload Artifact"
         uses: actions/upload-artifact@a8a3f3ad30e3422c9c7b888a15615d19a852ae32 # v3.1.3
         if: ${{ failure() && steps.diff.conclusion == 'failure' }}
