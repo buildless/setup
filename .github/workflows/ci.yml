@@ -251,7 +251,7 @@ jobs:
         if: (success() || failure()) && matrix.os == 'ubuntu-latest'
         run: |
           if [ -f "/var/tmp/buildless/buildless-agent.json" ]; then
-              echo 'Agent configuration:' && cat /var/tmp/buildless/buildless-agent.json | jq
+              echo 'Agent configuration:' && jq < /var/tmp/buildless/buildless-agent.json
               echo ''
               echo 'Contents of tmp path:'
               ls -la /var/tmp/buildless
@@ -267,7 +267,7 @@ jobs:
         if: (success() || failure()) && matrix.os == 'macos-13-xlarge'
         run: |
           if [ -f "/var/tmp/buildless/buildless-agent.json" ]; then
-              echo 'Agent configuration:' && cat /var/tmp/buildless/buildless-agent.json | jq
+              echo 'Agent configuration:' && jq < /var/tmp/buildless/buildless-agent.json
               echo ''
               echo 'Contents of tmp path:'
               ls -la /var/tmp/buildless
@@ -284,7 +284,7 @@ jobs:
         shell: bash
         run: |
           if [ -f "/c/ProgramData/buildless/buildless-agent.json" ]; then
-              echo 'Agent configuration:' && cat /c/ProgramData/buildless/buildless-agent.json | jq
+              echo 'Agent configuration:' && jq < /var/tmp/buildless/buildless-agent.json
               echo ''
               echo 'Contents of tmp path:'
               ls -la /c/ProgramData/buildless
