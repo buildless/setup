@@ -56,4 +56,4 @@ jobs:
     name: "Check: Action Lint"
     permissions:
       contents: read
-    uses: elide-dev/build-infra/.github/workflows/lint.action.yml
+    uses: elide-dev/build-infra/.github/workflows/lint.action.yml@main
