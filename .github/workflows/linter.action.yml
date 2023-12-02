@@ -1,0 +1,19 @@
+name: "Check: Action Lint"
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches-ignore:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    name: "Check: Action Lint"
+    permissions:
+      contents: read
+    uses: elide-dev/build-infra/.github/workflows/lint.action.yml
