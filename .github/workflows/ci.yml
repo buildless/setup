@@ -316,7 +316,7 @@ jobs:
 
   check-dist:
     name: "Test: Dist"
-    uses: ./.github/workflows/check-dist.yml
+    uses: ./.github/workflows/check.dist.yml
     secrets: inherit
     permissions:
       contents: read
