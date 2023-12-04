@@ -46869,6 +46869,8 @@ function notSupported(options) {
             return config_1.OS.LINUX;
         case 'darwin-aarch64':
             return config_1.OS.MACOS;
+        case 'darwin-amd64':
+            return config_1.OS.MACOS;
         case 'windows-amd64':
             return config_1.OS.WINDOWS;
         default:
