@@ -46126,6 +46126,32 @@ function setActionEffectiveOptions(options) {
     return options;
 }
 exports.setActionEffectiveOptions = setActionEffectiveOptions;
+function jsonOption(option, overrideValue, defaultValue) {
+    try {
+        core.debug(`Decoding JSON option '${option}'`);
+        const jsonValue = core.getInput(option);
+        if (jsonValue) {
+            core.debug(`JSON value: ${jsonValue}`);
+            const value = JSON.parse(jsonValue);
+            let valueSrc;
+            if (overrideValue) {
+                valueSrc = 'override';
+            }
+            else if (value) {
+                valueSrc = 'input';
+            }
+            else {
+                valueSrc = 'default';
+            }
+            core.debug(`Property value: ${option}=${overrideValue || value || defaultValue} (from: ${valueSrc})`);
+            return value || defaultValue || undefined;
+        }
+    }
+    catch (err) {
+        core.debug(`Failed to parse JSON option '${option}': ${err}`);
+    }
+    return undefined;
+}
 function stringOption(option, overrideValue, defaultValue) {
     const value = core.getInput(option);
     let valueSrc;
@@ -46209,6 +46235,7 @@ async function postInstall(bin, options) {
 exports.postInstall = postInstall;
 function buildEffectiveOptions(options) {
     return setActionEffectiveOptions((0, options_1.default)({
+        context: jsonOption(options_1.OptionName.CONTEXT, options?.context, {}),
         version: stringOption(options_1.OptionName.VERSION, options?.version, 'latest'),
         target: stringOption(options_1.OptionName.TARGET, options?.target, 
         /* istanbul ignore next */
@@ -46532,6 +46559,7 @@ var OptionName;
     OptionName["APIKEY"] = "apikey";
     OptionName["AGENT"] = "agent";
     OptionName["FORCE"] = "force";
+    OptionName["CONTEXT"] = "context";
 })(OptionName || (exports.OptionName = OptionName = {}));
 /**
  * Default install prefix on Windows.
@@ -46561,7 +46589,8 @@ exports.defaults = {
     project: undefined,
     os: normalizeOs(process.platform),
     arch: normalizeArch(process.arch),
-    target: defaultTarget
+    target: defaultTarget,
+    context: {}
 };
 /**
  * Normalize the provided OS name or token into a recognized token.
@@ -46691,10 +46720,18 @@ const core = __importStar(__nccwpck_require__(6813));
 const octokit_1 = __nccwpck_require__(2757);
 const toolCache = __importStar(__nccwpck_require__(4152));
 const github = __importStar(__nccwpck_require__(651));
+const http = __importStar(__nccwpck_require__(1945));
 const config_1 = __nccwpck_require__(5463);
 const command_1 = __nccwpck_require__(4561);
+const cliApiBase = 'https://cli.less.build';
 const downloadBase = 'https://dl.less.build';
 const downloadPathV1 = 'cli';
+const userAgentSegments = ['Buildless/GithubActions/v1'];
+const userAgent = userAgentSegments.join(' ');
+const httpClient = new http.HttpClient(userAgent, [], {
+    allowRetries: true,
+    maxRetries: 3
+});
 /**
  * Release archive type.
  */
@@ -46775,25 +46812,50 @@ async function unpackRelease(archive, toolHome, archiveType, options) {
  * @param token GitHub token active for this workflow step.
  */
 async function resolveLatestVersion(token) {
-    /* istanbul ignore next */
-    const octokit = token ? github.getOctokit(token) : new octokit_1.Octokit({});
-    core.debug(`Fetching latest CLI releases...`);
-    const latest = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
-        owner: 'buildless',
-        repo: 'cli',
-        headers: config_1.GITHUB_DEFAULT_HEADERS
-    });
-    /* istanbul ignore next */
-    if (!latest) {
-        throw new Error('Failed to fetch the latest Buildless version');
-    }
-    /* istanbul ignore next */
-    const name = latest.data?.name || undefined;
-    return {
-        name,
-        tag_name: latest.data.tag_name,
-        userProvided: false
+    const githubFallback = async () => {
+        /* istanbul ignore next */
+        const octokit = token ? github.getOctokit(token) : new octokit_1.Octokit({});
+        core.debug(`Fetching latest CLI releases...`);
+        const latest = await octokit.request('GET /repos/{owner}/{repo}/releases/latest', {
+            owner: 'buildless',
+            repo: 'cli',
+            headers: config_1.GITHUB_DEFAULT_HEADERS
+        });
+        /* istanbul ignore next */
+        if (!latest) {
+            throw new Error('Failed to fetch the latest Buildless version');
+        }
+        /* istanbul ignore next */
+        const name = latest.data?.name || undefined;
+        return {
+            name,
+            tag_name: latest.data.tag_name,
+            userProvided: false
+        };
     };
+    try {
+        // try downloading first via CLI API
+        const reqHeaders = {
+            [http.Headers.Accept]: http.MediaTypes.ApplicationJson
+        };
+        const jsonObj = await httpClient.getJson(`${cliApiBase}/version`, reqHeaders);
+        const info = jsonObj.result;
+        if (jsonObj.statusCode === 200 && info) {
+            core.debug(`Fetched latest version via CLI API: ${info.version}`);
+            return {
+                tag_name: info.version,
+                userProvided: false
+            };
+        }
+        else {
+            core.debug(`Failed to fetch latest version via CLI API; got status: ${jsonObj.statusCode}.`);
+        }
+    }
+    catch (err) {
+        const msg = err?.message || '(none)';
+        core.debug(`Failed to fetch latest version via CLI API; falling back to Github API. Error: "${msg}".`);
+    }
+    return githubFallback();
 }
 exports.resolveLatestVersion = resolveLatestVersion;
 /**
