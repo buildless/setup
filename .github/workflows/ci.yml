@@ -49,6 +49,8 @@ jobs:
           TYPESCRIPT_DEFAULT_STYLE: prettier
           VALIDATE_JSCPD: false
           VALIDATE_GITHUB_ACTIONS: false
+          VALIDATE_MARKDOWN: false
+          VALIDATE_YAML: false
 
   lint-action:
     name: "Check: Action Lint"
