@@ -50,38 +50,6 @@ export function setActionEffectiveOptions(options: Options): Options {
   return options
 }
 
-function jsonOption<T>(
-  option: string,
-  overrideValue: T | null | undefined,
-  defaultValue?: T
-): T | undefined {
-  try {
-    core.debug(`Decoding JSON option '${option}'`)
-    const jsonValue = core.getInput(option)
-    if (jsonValue) {
-      core.debug(`JSON value: ${jsonValue}`)
-      const value: T = JSON.parse(jsonValue) as T
-      let valueSrc: string
-      if (overrideValue) {
-        valueSrc = 'override'
-      } else if (value) {
-        valueSrc = 'input'
-      } else {
-        valueSrc = 'default'
-      }
-      core.debug(
-        `Property value: ${option}=${
-          overrideValue || value || defaultValue
-        } (from: ${valueSrc})`
-      )
-      return value || defaultValue || undefined
-    }
-  } catch (err) {
-    core.debug(`Failed to parse JSON option '${option}': ${err}`)
-  }
-  return undefined
-}
-
 function stringOption(
   option: string,
   overrideValue: string | null | undefined,
@@ -180,7 +148,6 @@ export async function postInstall(
 export function buildEffectiveOptions(options?: Partial<Options>): Options {
   return setActionEffectiveOptions(
     buildOptions({
-      context: jsonOption(OptionName.CONTEXT, options?.context, {}),
       version: stringOption(OptionName.VERSION, options?.version, 'latest'),
       target: stringOption(
         OptionName.TARGET,
@@ -522,6 +489,7 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
  */
 export async function entry(options?: Partial<Options>): Promise<void> {
   actionEffectiveOptions = null
+  core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`)
 
   try {
     await install(options || {}, true)
@@ -539,6 +507,7 @@ export async function entry(options?: Partial<Options>): Promise<void> {
  */
 export async function cleanup(options?: Partial<Options>): Promise<void> {
   actionEffectiveOptions = null
+  core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`)
 
   try {
     await postExecute(options)
