@@ -2,6 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import * as io from '@actions/io'
 import childProcess, { StdioOptions } from 'node:child_process'
+import { v4 as uuidv4 } from 'uuid'
 
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
@@ -234,7 +235,7 @@ export async function agentInstall(): Promise<boolean> {
   const isLinux = process.platform !== 'win32' && process.platform !== 'darwin'
   if (isLinux) {
     // @TODO fix: write a service ID which is temporary
-    fs.writeFileSync('/var/tmp/buildless/buildless-service.id', 'ephemeral-gha')
+    fs.writeFileSync('/var/tmp/buildless/buildless-service.id', uuidv4())
     return true
   } else {
     return (
