@@ -56,7 +56,7 @@ The full suite of available options are below.
 **Full configuration sample with defaults**
 ```yaml
   - name: "Setup: Buildless"
-    uses: buildless/setup-buildless@v1
+    uses: buildless/setup@v1
     with:
       version: latest
       os: linux
