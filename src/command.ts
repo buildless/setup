@@ -99,12 +99,17 @@ async function execBin(
   } else {
     if (spawnOptions.sudo) {
       core.debug(`Executing with sudo rights: bin=${bin} args=${effectiveArgs}`)
-      const sudobin = await io.which("sudo")
+      const sudobin = await io.which('sudo')
       if (!sudobin) {
-        core.notice('Buildless cannot execute the agent service without sudo rights.')
+        core.notice(
+          'Buildless cannot execute the agent service without sudo rights.'
+        )
       }
-      const sudoargs = ["${bin}"]
-      const result = await exec.getExecOutput(sudobin, sudoargs.concat(effectiveArgs))
+      const sudoargs = ['${bin}']
+      const result = await exec.getExecOutput(
+        sudobin,
+        sudoargs.concat(effectiveArgs)
+      )
       if (result.exitCode !== 0) {
         throw new CliError(
           { ...result, success: false },
@@ -136,7 +141,7 @@ export async function execBuildless(
   cmd: BuildlessCommand,
   args: CliArgument[] = [],
   mainArgs: BuildlessArgument[] = [],
-  sudo: boolean = false,
+  sudo = false
 ): Promise<ExecResult> {
   // execute and return directly
   return (await execBin(cmd, args, mainArgs, { sudo })) as ExecResult
@@ -226,13 +231,16 @@ export async function agentInstall(): Promise<boolean> {
     console.warn('Failed to query temp path for agent', err)
   }
   // if we are running on linux, we need sudo rights
-  const isLinux = (process.platform !== 'win32' && process.platform !== 'darwin')
+  const isLinux = process.platform !== 'win32' && process.platform !== 'darwin'
   if (isLinux) {
     // @TODO fix: write a service ID which is temporary
     fs.writeFileSync('/var/tmp/buildless/buildless-service.id', 'ephemeral-gha')
     return true
   } else {
-    return (await execBuildless(BuildlessCommand.AGENT_INSTALL, [], [], isLinux)).exitCode === 0
+    return (
+      (await execBuildless(BuildlessCommand.AGENT_INSTALL, [], [], isLinux))
+        .exitCode === 0
+    )
   }
 }
 
