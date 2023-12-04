@@ -46769,7 +46769,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = exports.setActionEffectiveOptions = void 0;
+exports.cleanup = exports.entry = exports.postExecute = exports.install = exports.resolveExistingBinary = exports.buildEffectiveOptions = exports.postInstall = exports.notSupported = void 0;
 const core = __importStar(__nccwpck_require__(6813));
 const io = __importStar(__nccwpck_require__(7053));
 const outputs_1 = __nccwpck_require__(219);
@@ -46791,17 +46791,6 @@ var ActionState;
     ActionState["AGENT_MODE"] = "agentMode";
     ActionState["BINPATH"] = "buildlessBinpath";
 })(ActionState || (ActionState = {}));
-let actionEffectiveOptions;
-function setActionEffectiveOptions(options) {
-    if (actionEffectiveOptions !== null) {
-        throw new Error('Cannot set effective options twice in one execution.');
-    }
-    const stringified = JSON.stringify(options, null, '  ');
-    core.debug(`Effective options: ${stringified}`);
-    actionEffectiveOptions = options;
-    return options;
-}
-exports.setActionEffectiveOptions = setActionEffectiveOptions;
 function stringOption(option, overrideValue, defaultValue) {
     const value = core.getInput(option);
     let valueSrc;
@@ -46886,7 +46875,7 @@ async function postInstall(bin, options) {
 }
 exports.postInstall = postInstall;
 function buildEffectiveOptions(options) {
-    return setActionEffectiveOptions((0, options_1.default)({
+    return (0, options_1.default)({
         version: stringOption(options_1.OptionName.VERSION, options?.version, 'latest'),
         target: stringOption(options_1.OptionName.TARGET, options?.target, 
         /* istanbul ignore next */
@@ -46899,7 +46888,7 @@ function buildEffectiveOptions(options) {
         export_path: booleanOption(options_1.OptionName.EXPORT_PATH, options?.export_path, true),
         token: stringOption(options_1.OptionName.TOKEN, options?.token, process.env.GITHUB_TOKEN),
         custom_url: stringOption(options_1.OptionName.CUSTOM_URL, options?.custom_url)
-    }));
+    });
 }
 exports.buildEffectiveOptions = buildEffectiveOptions;
 async function resolveExistingBinary() {
@@ -47152,7 +47141,6 @@ exports.postExecute = postExecute;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function entry(options) {
-    actionEffectiveOptions = null;
     core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`);
     try {
         await install(options || {}, true);
@@ -47168,7 +47156,6 @@ exports.entry = entry;
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 async function cleanup(options) {
-    actionEffectiveOptions = null;
     core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`);
     try {
         await postExecute(options);
