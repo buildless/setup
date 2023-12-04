@@ -155,14 +155,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86", "Windows"]
+        label: ["Ubuntu", "macOS M1", "Windows"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
           - os: macos-13-xlarge
             label: "macOS M1"
-          - os: macos-latest
-            label: "macOS x86"
           - os: windows-latest
             label: "Windows"
 
@@ -190,14 +188,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86", "Windows"]
+        label: ["Ubuntu", "macOS M1", "Windows"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
           - os: macos-13-xlarge
             label: "macOS M1"
-          - os: macos-latest
-            label: "macOS x86"
           - os: windows-latest
             label: "Windows"
 
@@ -228,14 +224,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86", "Windows"]
+        label: ["Ubuntu", "macOS M1", "Windows"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
           - os: macos-13-xlarge
             label: "macOS M1"
-          - os: macos-latest
-            label: "macOS x86"
           - os: windows-latest
             label: "Windows"
 
@@ -283,14 +277,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86", "Windows"]
+        label: ["Ubuntu", "macOS M1", "Windows"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
           - os: macos-13-xlarge
             label: "macOS M1"
-          - os: macos-latest
-            label: "macOS x86"
           - os: windows-latest
             label: "Windows"
 
@@ -324,14 +316,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86"]
+        label: ["Ubuntu", "macOS M1"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
           - os: macos-13-xlarge
             label: "macOS M1"
-          - os: macos-latest
-            label: "macOS x86"
 
     steps:
       - name: Harden Runner
