@@ -1,5 +1,6 @@
 import fs from 'node:fs'
 import path from 'node:path'
+import * as io from '@actions/io'
 import childProcess, { StdioOptions } from 'node:child_process'
 
 import * as core from '@actions/core'
@@ -30,6 +31,7 @@ interface LowLevelSpawnOptions {
 }
 
 interface SpawnOptions {
+  sudo?: boolean
   background?: boolean
   spawnOptions?: LowLevelSpawnOptions
 }
@@ -95,28 +97,49 @@ async function execBin(
       pid
     }
   } else {
-    core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`)
-    const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs)
-    if (result.exitCode !== 0) {
-      throw new CliError(
-        { ...result, success: false },
-        bin,
-        cmd,
-        args,
-        mainArgs
-      )
+    if (spawnOptions.sudo) {
+      core.debug(`Executing with sudo rights: bin=${bin} args=${effectiveArgs}`)
+      const sudobin = await io.which("sudo")
+      if (!sudobin) {
+        core.notice('Buildless cannot execute the agent service without sudo rights.')
+      }
+      const sudoargs = ["${bin}"]
+      const result = await exec.getExecOutput(sudobin, sudoargs.concat(effectiveArgs))
+      if (result.exitCode !== 0) {
+        throw new CliError(
+          { ...result, success: false },
+          bin,
+          cmd,
+          args,
+          mainArgs
+        )
+      }
+      return { ...result, success: true }
+    } else {
+      core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`)
+      const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs)
+      if (result.exitCode !== 0) {
+        throw new CliError(
+          { ...result, success: false },
+          bin,
+          cmd,
+          args,
+          mainArgs
+        )
+      }
+      return { ...result, success: true }
     }
-    return { ...result, success: true }
   }
 }
 
 export async function execBuildless(
   cmd: BuildlessCommand,
   args: CliArgument[] = [],
-  mainArgs: BuildlessArgument[] = []
+  mainArgs: BuildlessArgument[] = [],
+  sudo: boolean = false,
 ): Promise<ExecResult> {
   // execute and return directly
-  return (await execBin(cmd, args, mainArgs)) as ExecResult
+  return (await execBin(cmd, args, mainArgs, { sudo })) as ExecResult
 }
 
 export async function spawnInBackground(
@@ -202,7 +225,15 @@ export async function agentInstall(): Promise<boolean> {
   } catch (err) {
     console.warn('Failed to query temp path for agent', err)
   }
-  return (await execBuildless(BuildlessCommand.AGENT_INSTALL)).exitCode === 0
+  // if we are running on linux, we need sudo rights
+  const isLinux = (process.platform !== 'win32' && process.platform !== 'darwin')
+  if (isLinux) {
+    // @TODO fix: write a service ID which is temporary
+    fs.writeFileSync('/var/tmp/buildless/buildless-service.id', 'ephemeral-gha')
+    return true
+  } else {
+    return (await execBuildless(BuildlessCommand.AGENT_INSTALL, [], [], isLinux)).exitCode === 0
+  }
 }
 
 /**

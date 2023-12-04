@@ -230,21 +230,43 @@ jobs:
         run: |
           ls -la /tmp/ /var/tmp/buildless/
           test "Agent is installed, running, and ready." = "$(buildless agent status)" || buildless --verbose=true agent status
+          echo "Test passed: agent is running."
+          buildless --verbose=true agent status
 
-      - name: "Diagnostic: Run Agent in Foreground (Linux)"
-        if: (success() || failure()) && matrix.os == 'ubuntu-latest'
+      - name: "Diagnostic: Agent Failure (Linux)"
+        if: failure() && matrix.os == 'ubuntu-latest'
         run: |
+          echo "Agent processes:"
+          ps aux | pgrep buildless
           echo ''
-          ps -aux | pgrep buildless
+          echo "Agent output:"
+          cat /var/tmp/buildless-agent.out || echo "Failed to read agent output"
           echo ''
+          echo "Trying to run in foreground:"
           buildless --verbose=true agent run --no-background
 
-      - name: "Diagnostic: Run Agent in Foreground (macOS)"
-        if: (success() || failure()) && matrix.os == 'macos-13-xlarge'
+      - name: "Diagnostic: Agent Failure (macOS)"
+        if: failure() && matrix.os == 'macos-13-xlarge'
         run: |
-          echo ''
+          echo "Agent processes:"
           ps -A | pgrep buildless
           echo ''
+          echo "Agent output:"
+          cat /var/tmp/buildless-agent.out || echo "Failed to read agent output"
+          echo ''
+          echo "Trying to run in foreground:"
+          buildless --verbose=true agent run --no-background
+
+      - name: "Diagnostic: Agent Failure (Windows)"
+        if: failure() && matrix.os == 'ubuntu-latest'
+        run: |
+          echo "Agent processes:"
+          ps aux | pgrep buildless
+          echo ''
+          echo "Agent output:"
+          cat C:\ProgramData\buildless\buildless-agent.out
+          echo ''
+          echo "Trying to run in foreground:"
           buildless --verbose=true agent run --no-background
 
       - name: "Report: Agent State (Linux)"
@@ -257,7 +279,7 @@ jobs:
               ls -la /var/tmp/buildless
               echo ''
               echo 'Agent process:'
-              ps -aux | pgrep buildless
+              ps aux | pgrep buildless
           else
               echo 'No agent configuration found. Contents of tmp path:'
               ls -la /var/tmp/buildless
@@ -290,13 +312,13 @@ jobs:
               ls -la /c/ProgramData/buildless
               echo ''
               echo 'Agent process:'
-              ps -aux | pgrep buildless
+              ps aux | pgrep buildless
           else
             echo 'No agent configuration found. Contents of tmp path:'
             ls -la /c/ProgramData/buildless
             echo ''
             echo 'Agent process:'
-            ps -aux | pgrep buildless
+            ps aux | pgrep buildless
           fi
 
   test-noagent:
