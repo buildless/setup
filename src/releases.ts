@@ -2,12 +2,20 @@ import * as core from '@actions/core'
 import { Octokit } from 'octokit'
 import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
+import * as http from '@actions/http-client'
 import type { BuildlessSetupActionOptions as Options } from './options'
 import { GITHUB_DEFAULT_HEADERS, OS } from './config'
 import { obtainVersion } from './command'
 
+const cliApiBase = 'https://cli.less.build'
 const downloadBase = 'https://dl.less.build'
 const downloadPathV1 = 'cli'
+const userAgentSegments = ['Buildless/GithubActions/v1']
+const userAgent = userAgentSegments.join(' ')
+const httpClient = new http.HttpClient(userAgent, [], {
+  allowRetries: true,
+  maxRetries: 3
+})
 
 /**
  * Version info resolved for a release of Buildless.
@@ -21,6 +29,29 @@ export type BuildlessVersionInfo = {
 
   // Whether this version is resolved (`false`) or user-provided (`true`).
   userProvided: boolean
+}
+
+type TargetVariantString =
+  | 'darwin-amd64'
+  | 'darwin-arm64'
+  | 'linux-amd64'
+  | 'windows-amd64'
+  | string
+
+/** Shape of information about a single release variant. */
+interface ReleaseVariantInfo {
+  downloadUrl: URL
+  digestUrl: URL
+  digest?: string
+}
+
+/** Shape of JSON version info for a CLI release. */
+interface ReleaseVersionInfo {
+  version: string
+
+  variants: {
+    [key: TargetVariantString]: ReleaseVariantInfo
+  }
 }
 
 /**
@@ -149,29 +180,60 @@ async function unpackRelease(
 export async function resolveLatestVersion(
   token?: string
 ): Promise<BuildlessVersionInfo> {
-  /* istanbul ignore next */
-  const octokit = token ? github.getOctokit(token) : new Octokit({})
-  core.debug(`Fetching latest CLI releases...`)
-  const latest = await octokit.request(
-    'GET /repos/{owner}/{repo}/releases/latest',
-    {
-      owner: 'buildless',
-      repo: 'cli',
-      headers: GITHUB_DEFAULT_HEADERS
-    }
-  )
+  const githubFallback = async (): Promise<BuildlessVersionInfo> => {
+    /* istanbul ignore next */
+    const octokit = token ? github.getOctokit(token) : new Octokit({})
+    core.debug(`Fetching latest CLI releases...`)
+    const latest = await octokit.request(
+      'GET /repos/{owner}/{repo}/releases/latest',
+      {
+        owner: 'buildless',
+        repo: 'cli',
+        headers: GITHUB_DEFAULT_HEADERS
+      }
+    )
 
-  /* istanbul ignore next */
-  if (!latest) {
-    throw new Error('Failed to fetch the latest Buildless version')
+    /* istanbul ignore next */
+    if (!latest) {
+      throw new Error('Failed to fetch the latest Buildless version')
+    }
+    /* istanbul ignore next */
+    const name = latest.data?.name || undefined
+    return {
+      name,
+      tag_name: latest.data.tag_name,
+      userProvided: false
+    }
   }
-  /* istanbul ignore next */
-  const name = latest.data?.name || undefined
-  return {
-    name,
-    tag_name: latest.data.tag_name,
-    userProvided: false
+  try {
+    // try downloading first via CLI API
+    const reqHeaders = {
+      [http.Headers.Accept]: http.MediaTypes.ApplicationJson
+    }
+    const jsonObj = await httpClient.getJson<ReleaseVersionInfo>(
+      `${cliApiBase}/version`,
+      reqHeaders
+    )
+    const info = jsonObj.result
+
+    if (jsonObj.statusCode === 200 && info) {
+      core.debug(`Fetched latest version via CLI API: ${info.version}`)
+      return {
+        tag_name: info.version,
+        userProvided: false
+      }
+    } else {
+      core.debug(
+        `Failed to fetch latest version via CLI API; got status: ${jsonObj.statusCode}.`
+      )
+    }
+  } catch (err) {
+    const msg = (err as Error)?.message || '(none)'
+    core.debug(
+      `Failed to fetch latest version via CLI API; falling back to Github API. Error: "${msg}".`
+    )
   }
+  return githubFallback()
 }
 
 /**
