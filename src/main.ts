@@ -128,6 +128,8 @@ export function notSupported(options: Options): OS | Error {
       return OS.LINUX
     case 'darwin-aarch64':
       return OS.MACOS
+    case 'darwin-amd64':
+      return OS.MACOS
     case 'windows-amd64':
       return OS.WINDOWS
     default:
