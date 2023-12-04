@@ -46126,32 +46126,6 @@ function setActionEffectiveOptions(options) {
     return options;
 }
 exports.setActionEffectiveOptions = setActionEffectiveOptions;
-function jsonOption(option, overrideValue, defaultValue) {
-    try {
-        core.debug(`Decoding JSON option '${option}'`);
-        const jsonValue = core.getInput(option);
-        if (jsonValue) {
-            core.debug(`JSON value: ${jsonValue}`);
-            const value = JSON.parse(jsonValue);
-            let valueSrc;
-            if (overrideValue) {
-                valueSrc = 'override';
-            }
-            else if (value) {
-                valueSrc = 'input';
-            }
-            else {
-                valueSrc = 'default';
-            }
-            core.debug(`Property value: ${option}=${overrideValue || value || defaultValue} (from: ${valueSrc})`);
-            return value || defaultValue || undefined;
-        }
-    }
-    catch (err) {
-        core.debug(`Failed to parse JSON option '${option}': ${err}`);
-    }
-    return undefined;
-}
 function stringOption(option, overrideValue, defaultValue) {
     const value = core.getInput(option);
     let valueSrc;
@@ -46235,7 +46209,6 @@ async function postInstall(bin, options) {
 exports.postInstall = postInstall;
 function buildEffectiveOptions(options) {
     return setActionEffectiveOptions((0, options_1.default)({
-        context: jsonOption(options_1.OptionName.CONTEXT, options?.context, {}),
         version: stringOption(options_1.OptionName.VERSION, options?.version, 'latest'),
         target: stringOption(options_1.OptionName.TARGET, options?.target, 
         /* istanbul ignore next */
@@ -46502,6 +46475,7 @@ exports.postExecute = postExecute;
  */
 async function entry(options) {
     actionEffectiveOptions = null;
+    core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`);
     try {
         await install(options || {}, true);
     }
@@ -46517,6 +46491,7 @@ exports.entry = entry;
  */
 async function cleanup(options) {
     actionEffectiveOptions = null;
+    core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`);
     try {
         await postExecute(options);
     }
@@ -46559,7 +46534,6 @@ var OptionName;
     OptionName["APIKEY"] = "apikey";
     OptionName["AGENT"] = "agent";
     OptionName["FORCE"] = "force";
-    OptionName["CONTEXT"] = "context";
 })(OptionName || (exports.OptionName = OptionName = {}));
 /**
  * Default install prefix on Windows.
@@ -46589,8 +46563,7 @@ exports.defaults = {
     project: undefined,
     os: normalizeOs(process.platform),
     arch: normalizeArch(process.arch),
-    target: defaultTarget,
-    context: {}
+    target: defaultTarget
 };
 /**
  * Normalize the provided OS name or token into a recognized token.
