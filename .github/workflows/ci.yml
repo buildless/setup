@@ -150,12 +150,22 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-action:
-    name: "Test: Install"
+    name: "Test: Install (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge]
+        os: [ubuntu-latest, macos-13-xlarge, macos-latest, windows-latest]
+        label: ["Ubuntu", "macOS (M1)", "macOS (x86)", "Windows"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS (M1)"
+          - os: macos-latest
+            label: "macOS (x86)"
+          - os: windows-latest
+            label: "Windows"
 
     steps:
       - name: Harden Runner
@@ -176,12 +186,21 @@ jobs:
         run: echo "${{ steps.test-action.outputs.path }}"
 
   test-path:
-    name: "Test: Path"
+    name: "Test: Path (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge]
+        label: ["Ubuntu", "macOS (M1)", "macOS (x86)", "Windows"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS (M1)"
+          - os: macos-latest
+            label: "macOS (x86)"
+          - os: windows-latest
+            label: "Windows"
 
     steps:
       - name: Harden Runner
@@ -204,14 +223,116 @@ jobs:
       - name: "Test: Binary on PATH"
         run: buildless --help
 
+  test-smoketest:
+    name: "Test: Smoke Test (${{ matrix.label }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ["Ubuntu", "macOS (M1)", "macOS (x86)", "Windows"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS (M1)"
+          - os: macos-latest
+            label: "macOS (x86)"
+          - os: windows-latest
+            label: "Windows"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Test: Buildless Action"
+        id: test-action
+        uses: ./
+        with:
+          agent: false
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
+      - name: "Test: Help"
+        run: buildless --help
+
+      - name: "Test: Version"
+        run: buildless --version
+
+      - name: "Test: Show"
+        run: buildless --verbose=true show
+
+      - name: "Test: Status"
+        run: buildless --verbose=true status
+
+      - name: "Test: Agent Status"
+        run: buildless --verbose=true status
+
+      - name: "Test: Legal"
+        run: buildless legal
+
+  test-noagent:
+    name: "Test: No Agent (${{ matrix.label }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ["Ubuntu", "macOS (M1)", "macOS (x86)", "Windows"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS (M1)"
+          - os: macos-latest
+            label: "macOS (x86)"
+          - os: windows-latest
+            label: "Windows"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
+
+      - name: "Test: Buildless Action"
+        id: test-action
+        uses: ./
+        with:
+          agent: false
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
+      - name: "Test: Agent Not Installed"
+        run: test "Agent is not installed." = "$(buildless agent status)"
+
   test-agent:
-    name: "Test: Agent"
+    name: "Test: Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
     timeout-minutes: 5
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-13-xlarge]
+        label: ["Ubuntu", "macOS (M1)", "macOS (x86)"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS (M1)"
+          - os: macos-latest
+            label: "macOS (x86)"
 
     steps:
       - name: Harden Runner
@@ -348,83 +469,6 @@ jobs:
             echo 'Agent process:'
             ps aux | pgrep buildless
           fi
-
-  test-noagent:
-    name: "Test: No Agent"
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-13-xlarge]
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
-        with:
-          egress-policy: audit
-
-      - name: "Setup: Checkout"
-        id: checkout
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
-
-      - name: "Test: Buildless Action"
-        id: test-action
-        uses: ./
-        with:
-          agent: false
-
-      - name: "Test: Print Output"
-        id: output
-        run: echo "${{ steps.test-action.outputs.path }}"
-
-      - name: "Test: Agent Not Installed"
-        run: test "Agent is not installed." = "$(buildless agent status)"
-
-  test-smoketest:
-    name: "Test: Smoke Test"
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-13-xlarge]
-
-    steps:
-      - name: Harden Runner
-        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
-        with:
-          egress-policy: audit
-
-      - name: "Setup: Checkout"
-        id: checkout
-        uses: actions/checkout@8ade135a41bc03ea155e62e844d188df1ea18608 # v4.1.0
-
-      - name: "Test: Buildless Action"
-        id: test-action
-        uses: ./
-        with:
-          agent: false
-
-      - name: "Test: Print Output"
-        id: output
-        run: echo "${{ steps.test-action.outputs.path }}"
-
-      - name: "Test: Help"
-        run: buildless --help
-
-      - name: "Test: Version"
-        run: buildless --version
-
-      - name: "Test: Show"
-        run: buildless --verbose=true show
-
-      - name: "Test: Status"
-        run: buildless --verbose=true status
-
-      - name: "Test: Agent Status"
-        run: buildless --verbose=true status
-
-      - name: "Test: Legal"
-        run: buildless legal
 
   check-dist:
     name: "Test: Dist"
