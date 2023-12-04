@@ -264,7 +264,7 @@ jobs:
           ps aux | pgrep buildless
           echo ''
           echo "Agent output:"
-          cat C:\ProgramData\buildless\buildless-agent.out
+          cat C:\\ProgramData\\buildless\\buildless-agent.out
           echo ''
           echo "Trying to run in foreground:"
           buildless --verbose=true agent run --no-background

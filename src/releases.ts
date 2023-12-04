@@ -170,7 +170,7 @@ export async function resolveLatestVersion(
   return {
     name,
     tag_name: latest.data.tag_name,
-    userProvided: !!token
+    userProvided: false
   }
 }
 
