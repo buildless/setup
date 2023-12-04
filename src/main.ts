@@ -38,18 +38,6 @@ enum ActionState {
   BINPATH = 'buildlessBinpath'
 }
 
-let actionEffectiveOptions: Options | null
-
-export function setActionEffectiveOptions(options: Options): Options {
-  if (actionEffectiveOptions !== null) {
-    throw new Error('Cannot set effective options twice in one execution.')
-  }
-  const stringified = JSON.stringify(options, null, '  ')
-  core.debug(`Effective options: ${stringified}`)
-  actionEffectiveOptions = options
-  return options
-}
-
 function stringOption(
   option: string,
   overrideValue: string | null | undefined,
@@ -148,41 +136,39 @@ export async function postInstall(
 }
 
 export function buildEffectiveOptions(options?: Partial<Options>): Options {
-  return setActionEffectiveOptions(
-    buildOptions({
-      version: stringOption(OptionName.VERSION, options?.version, 'latest'),
-      target: stringOption(
-        OptionName.TARGET,
-        options?.target,
-        /* istanbul ignore next */
-        process.env.BIN_HOME || defaults.target
-      ),
-      os: normalizeOs(
-        stringOption(OptionName.OS, options?.os, process.platform) as string
-      ),
-      arch: normalizeArch(
-        stringOption(OptionName.ARCH, options?.arch, process.arch) as string
-      ),
-      agent: booleanOption(OptionName.AGENT, options?.agent, true),
-      force: booleanOption(OptionName.FORCE, options?.force, false),
-      skip_cache: booleanOption(
-        OptionName.SKIP_CACHE,
-        options?.skip_cache,
-        false
-      ),
-      export_path: booleanOption(
-        OptionName.EXPORT_PATH,
-        options?.export_path,
-        true
-      ),
-      token: stringOption(
-        OptionName.TOKEN,
-        options?.token,
-        process.env.GITHUB_TOKEN
-      ),
-      custom_url: stringOption(OptionName.CUSTOM_URL, options?.custom_url)
-    })
-  )
+  return buildOptions({
+    version: stringOption(OptionName.VERSION, options?.version, 'latest'),
+    target: stringOption(
+      OptionName.TARGET,
+      options?.target,
+      /* istanbul ignore next */
+      process.env.BIN_HOME || defaults.target
+    ),
+    os: normalizeOs(
+      stringOption(OptionName.OS, options?.os, process.platform) as string
+    ),
+    arch: normalizeArch(
+      stringOption(OptionName.ARCH, options?.arch, process.arch) as string
+    ),
+    agent: booleanOption(OptionName.AGENT, options?.agent, true),
+    force: booleanOption(OptionName.FORCE, options?.force, false),
+    skip_cache: booleanOption(
+      OptionName.SKIP_CACHE,
+      options?.skip_cache,
+      false
+    ),
+    export_path: booleanOption(
+      OptionName.EXPORT_PATH,
+      options?.export_path,
+      true
+    ),
+    token: stringOption(
+      OptionName.TOKEN,
+      options?.token,
+      process.env.GITHUB_TOKEN
+    ),
+    custom_url: stringOption(OptionName.CUSTOM_URL, options?.custom_url)
+  })
 }
 
 export async function resolveExistingBinary(): Promise<string | null> {
@@ -490,7 +476,6 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function entry(options?: Partial<Options>): Promise<void> {
-  actionEffectiveOptions = null
   core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`)
 
   try {
@@ -508,7 +493,6 @@ export async function entry(options?: Partial<Options>): Promise<void> {
  * @returns {Promise<void>} Resolves when the action is complete.
  */
 export async function cleanup(options?: Partial<Options>): Promise<void> {
-  actionEffectiveOptions = null
   core.debug(`Buildless Action environment:\n${JSON.stringify(process.env)}`)
 
   try {

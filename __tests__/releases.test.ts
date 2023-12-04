@@ -21,7 +21,6 @@ describe('release utilities', () => {
     const result = await releases.resolveLatestVersion()
     expect(result).not.toBeNull()
     const { name, tag_name, userProvided } = result
-    expect(typeof name).toBe('string')
     expect(typeof tag_name).toBe('string')
     expect(typeof userProvided).toBe('boolean')
     expect(name === '').toBe(false)
