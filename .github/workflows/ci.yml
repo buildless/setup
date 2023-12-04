@@ -42,7 +42,7 @@ jobs:
         run: pnpm install && pnpm run gen
       - name: "Check: Linter"
         id: super-linter
-        uses: super-linter/super-linter/slim@3213b9ea991e2d45d760ea8a76aaebad8a2bdb1a # v5.4.0
+        uses: super-linter/super-linter/slim@a8150b40c89574adb5f68bf9502b890a236a06b3 # v5.7.2
         env:
           DEFAULT_BRANCH: main
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
