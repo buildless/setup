@@ -46296,8 +46296,6 @@ exports.agentConfigPathMap = {
     [config_1.OS.LINUX]: '/var/tmp/buildless/buildless-agent.json',
     [config_1.OS.MACOS]: '/var/tmp/buildless/buildless-agent.json'
 };
-let activeAgent;
-let queriedForAgent = false;
 /**
  * Read any available agent configuration for the provided OS, or return `null`.
  *
@@ -46327,11 +46325,7 @@ async function resolveAgentConfig(os) {
  */
 async function agentConfig(target) {
     const os = target || (0, config_1.currentOs)();
-    if (activeAgent === null && !queriedForAgent) {
-        queriedForAgent = true;
-        activeAgent = await resolveAgentConfig(os);
-    }
-    return activeAgent;
+    return await resolveAgentConfig(os);
 }
 exports.agentConfig = agentConfig;
 exports["default"] = {
