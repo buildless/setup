@@ -133,6 +133,72 @@ devDependencies:
 
 packages:
 
+  /@bufbuild/buf-darwin-arm64@1.28.1:
+    resolution: {integrity: sha512-nAyvwKkcd8qQTExCZo5MtSRhXLK7e3vzKFKHjXfkveRakSUST2HFlFZAHfErZimN4wBrPTN0V0hNRU8PPjkMpQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@bufbuild/buf-darwin-x64@1.28.1:
+    resolution: {integrity: sha512-b0eT3xd3vX5a5lWAbo5h7FPuf9MsOJI4I39qs4TZnrlZ8BOuPfqzwzijiFf9UCwaX2vR1NQXexIoQ80Ci+fCHw==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-x64/-/buf-darwin-x64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@bufbuild/buf-linux-aarch64@1.28.1:
+    resolution: {integrity: sha512-p5h9bZCVLMh8No9/7k7ulXzsFx5P7Lu6DiUMjSJ6aBXPMYo6Xl7r/6L2cQkpsZ53HMtIxCgMYS9a7zoS4K8wIw==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-aarch64/-/buf-linux-aarch64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@bufbuild/buf-linux-x64@1.28.1:
+    resolution: {integrity: sha512-fVJ3DiRigIso06jgEl+JNp59Y5t2pxDHd10d3SA4r+14sXbZ2J7Gy/wBqVXPry4x/jW567KKlvmhg7M5ZBgCQQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-x64/-/buf-linux-x64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@bufbuild/buf-win32-arm64@1.28.1:
+    resolution: {integrity: sha512-KJiRJpugQRK/jXC46Xjlb68UydWhCZj2jHdWLIwNtgXd1WTJ3LngChZV7Y6pPK08pwBAVz0JYeVbD5IlTCD4TQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-arm64/-/buf-win32-arm64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@bufbuild/buf-win32-x64@1.28.1:
+    resolution: {integrity: sha512-vMnc+7OVCkmlRWQsgYHgUqiBPRIjD8XeoRyApJ07YZzGs7DkRH4LhvmacJbLd3wORylbn6gLz3pQa8J/M61mzg==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-x64/-/buf-win32-x64-1.28.1.tgz}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /fsevents@2.3.3:
+    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==, tarball: https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz}
+    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /graceful-fs@4.2.11:
+    resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==, tarball: https://registry.npmjs.org/graceful-fs/-/graceful-fs-4.2.11.tgz}
+    dev: true
+
   registry.npmjs.org/@aashutoshrathi/word-wrap@1.2.6:
     resolution: {integrity: sha512-1Yjs2SvM8TflER/OD3cOjhWWOZb58A2t7wpE2S9XfBYTiIl+XFhQG2bjy4Pu1I+EAlCNUzRDYDdFwFYUKvXcIA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@aashutoshrathi/word-wrap/-/word-wrap-1.2.6.tgz}
     name: '@aashutoshrathi/word-wrap'
@@ -790,72 +856,6 @@ packages:
     version: 0.2.3
     dev: true
 
-  registry.npmjs.org/@bufbuild/buf-darwin-arm64@1.28.1:
-    resolution: {integrity: sha512-nAyvwKkcd8qQTExCZo5MtSRhXLK7e3vzKFKHjXfkveRakSUST2HFlFZAHfErZimN4wBrPTN0V0hNRU8PPjkMpQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.28.1.tgz}
-    name: '@bufbuild/buf-darwin-arm64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/@bufbuild/buf-darwin-x64@1.28.1:
-    resolution: {integrity: sha512-b0eT3xd3vX5a5lWAbo5h7FPuf9MsOJI4I39qs4TZnrlZ8BOuPfqzwzijiFf9UCwaX2vR1NQXexIoQ80Ci+fCHw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-x64/-/buf-darwin-x64-1.28.1.tgz}
-    name: '@bufbuild/buf-darwin-x64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/@bufbuild/buf-linux-aarch64@1.28.1:
-    resolution: {integrity: sha512-p5h9bZCVLMh8No9/7k7ulXzsFx5P7Lu6DiUMjSJ6aBXPMYo6Xl7r/6L2cQkpsZ53HMtIxCgMYS9a7zoS4K8wIw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-aarch64/-/buf-linux-aarch64-1.28.1.tgz}
-    name: '@bufbuild/buf-linux-aarch64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/@bufbuild/buf-linux-x64@1.28.1:
-    resolution: {integrity: sha512-fVJ3DiRigIso06jgEl+JNp59Y5t2pxDHd10d3SA4r+14sXbZ2J7Gy/wBqVXPry4x/jW567KKlvmhg7M5ZBgCQQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-x64/-/buf-linux-x64-1.28.1.tgz}
-    name: '@bufbuild/buf-linux-x64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/@bufbuild/buf-win32-arm64@1.28.1:
-    resolution: {integrity: sha512-KJiRJpugQRK/jXC46Xjlb68UydWhCZj2jHdWLIwNtgXd1WTJ3LngChZV7Y6pPK08pwBAVz0JYeVbD5IlTCD4TQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-arm64/-/buf-win32-arm64-1.28.1.tgz}
-    name: '@bufbuild/buf-win32-arm64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  registry.npmjs.org/@bufbuild/buf-win32-x64@1.28.1:
-    resolution: {integrity: sha512-vMnc+7OVCkmlRWQsgYHgUqiBPRIjD8XeoRyApJ07YZzGs7DkRH4LhvmacJbLd3wORylbn6gLz3pQa8J/M61mzg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-x64/-/buf-win32-x64-1.28.1.tgz}
-    name: '@bufbuild/buf-win32-x64'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   registry.npmjs.org/@bufbuild/buf@1.28.1:
     resolution: {integrity: sha512-WRDagrf0uBjfV9s5eyrSPJDcdI4A5Q7JMCA4aMrHRR8fo/TTjniDBjJprszhaguqsDkn/LS4QIu92HVFZCrl9A==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf/-/buf-1.28.1.tgz}
     name: '@bufbuild/buf'
@@ -864,12 +864,12 @@ packages:
     hasBin: true
     requiresBuild: true
     optionalDependencies:
-      '@bufbuild/buf-darwin-arm64': registry.npmjs.org/@bufbuild/buf-darwin-arm64@1.28.1
-      '@bufbuild/buf-darwin-x64': registry.npmjs.org/@bufbuild/buf-darwin-x64@1.28.1
-      '@bufbuild/buf-linux-aarch64': registry.npmjs.org/@bufbuild/buf-linux-aarch64@1.28.1
-      '@bufbuild/buf-linux-x64': registry.npmjs.org/@bufbuild/buf-linux-x64@1.28.1
-      '@bufbuild/buf-win32-arm64': registry.npmjs.org/@bufbuild/buf-win32-arm64@1.28.1
-      '@bufbuild/buf-win32-x64': registry.npmjs.org/@bufbuild/buf-win32-x64@1.28.1
+      '@bufbuild/buf-darwin-arm64': 1.28.1
+      '@bufbuild/buf-darwin-x64': 1.28.1
+      '@bufbuild/buf-linux-aarch64': 1.28.1
+      '@bufbuild/buf-linux-x64': 1.28.1
+      '@bufbuild/buf-win32-arm64': 1.28.1
+      '@bufbuild/buf-win32-x64': 1.28.1
     dev: false
 
   registry.npmjs.org/@bufbuild/protobuf@1.5.0:
@@ -1437,7 +1437,7 @@ packages:
     dependencies:
       '@jridgewell/trace-mapping': registry.npmjs.org/@jridgewell/trace-mapping@0.3.20
       callsites: registry.npmjs.org/callsites@3.1.0
-      graceful-fs: registry.npmjs.org/graceful-fs@4.2.11
+      graceful-fs: 4.2.11
     dev: true
 
   registry.npmjs.org/@jest/test-result@29.7.0:
@@ -1459,7 +1459,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/test-result': registry.npmjs.org/@jest/test-result@29.7.0
-      graceful-fs: registry.npmjs.org/graceful-fs@4.2.11
+      graceful-fs: 4.2.11
       jest-haste-map: registry.npmjs.org/jest-haste-map@29.7.0
       slash: registry.npmjs.org/slash@3.0.0
     dev: true
@@ -2645,7 +2645,7 @@ packages:
       babel-plugin-istanbul: registry.npmjs.org/babel-plugin-istanbul@6.1.1
       babel-preset-jest: registry.npmjs.org/babel-preset-jest@29.6.3(@babel/core@7.23.5)
       chalk: registry.npmjs.org/chalk@4.1.2
-      graceful-fs: registry.npmjs.org/graceful-fs@4.2.11
+      graceful-fs: 4.2.11
       slash: registry.npmjs.org/slash@3.0.0
     transitivePeerDependencies:
       - supports-color
@@ -4215,16 +4215,6 @@ packages:
     version: 1.0.0
     dev: true
 
-  registry.npmjs.org/fsevents@2.3.3:
-    resolution: {integrity: sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz}
-    name: fsevents
-    version: 2.3.3
-    engines: {node: ^8.16.0 || ^10.6.0 || >=11.0.0}
-    os: [darwin]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   registry.npmjs.org/function-bind@1.1.2:
     resolution: {integrity: sha512-7XHNxH7qX9xG5mIwxkhumTox/MIRNcOgDrxWsMt2pAr23WHp6MrRlN7FBSFpCpr+oVO0F744iUgR82nJMfG2SA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/function-bind/-/function-bind-1.1.2.tgz}
     name: function-bind
@@ -5198,7 +5188,7 @@ packages:
       micromatch: registry.npmjs.org/micromatch@4.0.5
       walker: registry.npmjs.org/walker@1.0.8
     optionalDependencies:
-      fsevents: registry.npmjs.org/fsevents@2.3.3
+      fsevents: 2.3.3
     dev: true
 
   registry.npmjs.org/jest-leak-detector@29.7.0:
@@ -5590,7 +5580,7 @@ packages:
     dependencies:
       universalify: registry.npmjs.org/universalify@2.0.1
     optionalDependencies:
-      graceful-fs: registry.npmjs.org/graceful-fs@4.2.11
+      graceful-fs: 4.2.11
     dev: true
 
   registry.npmjs.org/jsonparse@1.3.1:
