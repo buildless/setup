@@ -58,6 +58,28 @@ jobs:
       id-token: write
     uses: elide-dev/build-infra/.github/workflows/lint.action.yml@main
 
+  check-codeql:
+    name: "Check: CodeQL"
+    permissions:
+      contents: read
+    uses: ./.github/workflows/check.codeql-analysis.yml
+    secrets: inherit
+
+  dependency-review:
+    name: "Check: Dependency Review"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: "Setup: Harden Runner"
+        uses: step-security/harden-runner@1b05615854632b887b69ae1be8cbefe72d3ae423 # v2.6.0
+        with:
+          egress-policy: audit
+      - name: "Setup: Checkout"
+        uses: actions/checkout@f43a0e5ff2bd294095638e18286ca9a3d1956744 # v3.6.0
+      - name: "Check: Dependency Review"
+        uses: actions/dependency-review-action@0efb1d1d84fc9633afcdaad14c485cbbc90ef46c # v2.5.1
+
   test-typescript:
     name: "Test: Unit Tests"
     runs-on: ubuntu-latest
