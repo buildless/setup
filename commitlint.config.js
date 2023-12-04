@@ -1,6 +1,6 @@
-module.exports = {
+export default {
   extends: ['@commitlint/config-conventional'],
   rules: {
-    'signed-off-by': [ 2, 'always' ]
+    'signed-off-by': [2, 'always']
   }
 }
