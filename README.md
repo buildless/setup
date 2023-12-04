@@ -1,7 +1,11 @@
 
 # GitHub Action: Setup Buildless
 
+![Latest Release](https://img.shields.io/github/v/release/buildless/setup)
 [![CI](https://github.com/buildless/setup-buildless/actions/workflows/ci.yml/badge.svg)](https://github.com/buildless/setup-buildless/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/buildless/setup/graph/badge.svg?token=TjpSZ2LSpB)](https://codecov.io/gh/buildless/setup)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=buildless_setup&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=buildless_setup)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=buildless_setup&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=buildless_setup)
 
 This repository provides a [GitHub Action][0] to setup [Buildless][1] within your workflows. Supported features:
 
