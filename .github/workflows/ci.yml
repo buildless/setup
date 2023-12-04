@@ -62,6 +62,9 @@ jobs:
     name: "Check: CodeQL"
     permissions:
       contents: read
+      actions: read
+      checks: write
+      security-events: write
     uses: ./.github/workflows/check.codeql-analysis.yml
     secrets: inherit
 
