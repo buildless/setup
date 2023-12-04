@@ -45699,6 +45699,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.setBinpath = exports.obtainVersion = exports.agentStop = exports.agentStart = exports.agentStatus = exports.agentInstall = exports.BuildlessArgument = exports.BuildlessCommand = exports.spawnInBackground = exports.execBuildless = void 0;
 const node_fs_1 = __importDefault(__nccwpck_require__(7561));
 const node_path_1 = __importDefault(__nccwpck_require__(9411));
+const io = __importStar(__nccwpck_require__(7053));
 const node_child_process_1 = __importDefault(__nccwpck_require__(7718));
 const core = __importStar(__nccwpck_require__(6813));
 const exec = __importStar(__nccwpck_require__(2364));
@@ -45752,17 +45753,32 @@ async function execBin(cmd, args = [], mainArgs = [], spawnOptions = {}) {
         };
     }
     else {
-        core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`);
-        const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs);
-        if (result.exitCode !== 0) {
-            throw new CliError({ ...result, success: false }, bin, cmd, args, mainArgs);
+        if (spawnOptions.sudo) {
+            core.debug(`Executing with sudo rights: bin=${bin} args=${effectiveArgs}`);
+            const sudobin = await io.which('sudo');
+            if (!sudobin) {
+                core.notice('Buildless cannot execute the agent service without sudo rights.');
+            }
+            const sudoargs = ['${bin}'];
+            const result = await exec.getExecOutput(sudobin, sudoargs.concat(effectiveArgs));
+            if (result.exitCode !== 0) {
+                throw new CliError({ ...result, success: false }, bin, cmd, args, mainArgs);
+            }
+            return { ...result, success: true };
         }
-        return { ...result, success: true };
+        else {
+            core.debug(`Executing: bin=${bin}, args=${effectiveArgs}`);
+            const result = await exec.getExecOutput(`"${bin}"`, effectiveArgs);
+            if (result.exitCode !== 0) {
+                throw new CliError({ ...result, success: false }, bin, cmd, args, mainArgs);
+            }
+            return { ...result, success: true };
+        }
     }
 }
-async function execBuildless(cmd, args = [], mainArgs = []) {
+async function execBuildless(cmd, args = [], mainArgs = [], sudo = false) {
     // execute and return directly
-    return (await execBin(cmd, args, mainArgs));
+    return (await execBin(cmd, args, mainArgs, { sudo }));
 }
 exports.execBuildless = execBuildless;
 async function spawnInBackground(cmd, args = [], mainArgs = [], spawnOptions = {}) {
@@ -45836,7 +45852,17 @@ async function agentInstall() {
     catch (err) {
         console.warn('Failed to query temp path for agent', err);
     }
-    return (await execBuildless(BuildlessCommand.AGENT_INSTALL)).exitCode === 0;
+    // if we are running on linux, we need sudo rights
+    const isLinux = process.platform !== 'win32' && process.platform !== 'darwin';
+    if (isLinux) {
+        // @TODO fix: write a service ID which is temporary
+        node_fs_1.default.writeFileSync('/var/tmp/buildless/buildless-service.id', 'ephemeral-gha');
+        return true;
+    }
+    else {
+        return ((await execBuildless(BuildlessCommand.AGENT_INSTALL, [], [], isLinux))
+            .exitCode === 0);
+    }
 }
 exports.agentInstall = agentInstall;
 /**
@@ -46766,7 +46792,7 @@ async function resolveLatestVersion(token) {
     return {
         name,
         tag_name: latest.data.tag_name,
-        userProvided: !!token
+        userProvided: false
     };
 }
 exports.resolveLatestVersion = resolveLatestVersion;
