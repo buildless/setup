@@ -26,9 +26,6 @@ export const agentConfigPathMap = {
   [OS.MACOS]: '/var/tmp/buildless/buildless-agent.json'
 }
 
-let activeAgent: AgentConfig | null
-let queriedForAgent = false
-
 /**
  * Read any available agent configuration for the provided OS, or return `null`.
  *
@@ -58,11 +55,7 @@ async function resolveAgentConfig(os: OS): Promise<AgentConfig | null> {
  */
 export async function agentConfig(target?: OS): Promise<AgentConfig | null> {
   const os = target || currentOs()
-  if (activeAgent === null && !queriedForAgent) {
-    queriedForAgent = true
-    activeAgent = await resolveAgentConfig(os)
-  }
-  return activeAgent
+  return await resolveAgentConfig(os)
 }
 
 export default {
