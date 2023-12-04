@@ -58,11 +58,6 @@ inputs:
     description: 'Buildless Project'
     required: false
 
-  context:
-    description: 'Job Context'
-    required: false
-    default: '${{ fromJson(github) }}'
-
 outputs:
   path:
     description: 'Path to Buildless'

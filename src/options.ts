@@ -17,8 +17,7 @@ export enum OptionName {
   PROJECT = 'project',
   APIKEY = 'apikey',
   AGENT = 'agent',
-  FORCE = 'force',
-  CONTEXT = 'context'
+  FORCE = 'force'
 }
 
 /**
@@ -64,9 +63,6 @@ export interface BuildlessSetupActionOptions {
 
   // Custom GitHub token to use, or the workflow's default token, if any.
   token?: string
-
-  // Job context from this execution.
-  context?: any
 }
 
 /**
@@ -102,8 +98,7 @@ export const defaults: BuildlessSetupActionOptions = {
   project: undefined,
   os: normalizeOs(process.platform),
   arch: normalizeArch(process.arch),
-  target: defaultTarget,
-  context: {}
+  target: defaultTarget
 }
 
 /**
