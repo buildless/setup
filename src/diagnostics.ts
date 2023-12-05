@@ -219,15 +219,11 @@ export async function error(err: Error | unknown, fatal = true): Promise<void> {
  * Exit hook for making sure Sentry finishes reporting.
  */
 export async function onExit(): Promise<void> {
-  core.debug('Closing Sentry client')
+  core.debug('Closing resources')
   try {
     httpClient.dispose()
   } catch (err) {
     // Ignore.
   }
-  try {
-    await Sentry.close(2000)
-  } catch (err) {
-    // Ignore.
-  }
+  process.exit(0)
 }
