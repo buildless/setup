@@ -1,4 +1,6 @@
 import * as core from '@actions/core'
+import * as io from '@actions/io'
+import * as exec from '@actions/exec'
 import { Octokit } from 'octokit'
 import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
@@ -59,8 +61,11 @@ interface ReleaseVersionInfo {
  * Release archive type.
  */
 export enum ArchiveType {
-  // Release is compressed with `gzip`.
+  // Release is a tarball compressed with `gzip`.
   GZIP = 'gzip',
+
+  // Release is a tarball compressed with `xz`.
+  XZ = 'xz',
 
   // Release is compressed with `zip`.
   ZIP = 'zip'
@@ -98,19 +103,29 @@ export interface DownloadedToolInfo {
  *
  * @param version Version we are downloading.
  * @param options Effective options.
+ * @param specificArchiveType Type of archive to download.
  * @return URL and archive type to use.
  */
 function buildDownloadUrl(
   options: Options,
-  version: BuildlessVersionInfo
+  version: BuildlessVersionInfo,
+  defaultArchiveType = ArchiveType.GZIP,
 ): { url: URL; archiveType: ArchiveType } {
-  let ext = 'tgz'
-  let archiveType = ArchiveType.GZIP
-  /* istanbul ignore next */
-  if (options.os === OS.WINDOWS) {
-    ext = 'zip'
-    archiveType = ArchiveType.ZIP
+  let archiveType = defaultArchiveType
+  let ext: string
+  switch (archiveType) {
+    case ArchiveType.GZIP:
+      ext = 'tgz'
+      break
+    case ArchiveType.XZ:
+      ext = 'txz'
+      break
+    case ArchiveType.ZIP:
+      ext = 'zip'
+      break
   }
+
+  // fixup: `arm64` -> `aarch64`
   const arch = options.arch.replaceAll('aarch64', 'arm64')
 
   return {
@@ -137,14 +152,13 @@ async function unpackRelease(
   archiveType: ArchiveType,
   options: Options
 ): Promise<string> {
-  let target: string
   try {
     /* istanbul ignore next */
     if (options.os === OS.WINDOWS) {
       core.debug(
         `Extracting as zip on Windows, from: ${archive}, to: ${toolHome}`
       )
-      target = await toolCache.extractZip(archive, toolHome)
+      return await toolCache.extractZip(archive, toolHome)
     } else {
       switch (archiveType) {
         // extract as zip
@@ -153,24 +167,41 @@ async function unpackRelease(
           core.debug(
             `Extracting as zip on Unix or Linux, from: ${archive}, to: ${toolHome}`
           )
-          target = await toolCache.extractZip(archive, toolHome)
-          break
+          return await toolCache.extractZip(archive, toolHome)
+
+        case ArchiveType.XZ:
+          core.debug(
+            `Extracting txz on Unix or Linux, from: ${archive}, to: ${toolHome}`
+          )
+          // decompress with xz, located via `io.where`
+          const xzbin = await io.which('xz', true)
+          if (!xzbin) {
+            console.error('Failed to find `xz` tool: falling back to gzip archive.')
+            throw new Error('INVALID_COMPRESSION_TOOL')
+          }
+
+          // call `exec` on `xz` to decompress the tarball in place
+          await exec.exec(xzbin, ['-vd', archive])
+
+          // now we should have a file at `{name}.tar` instead of `{name}.txz`
+          const tarball = archive.replace(/\.txz$/, '.tar')
+          core.debug(`Extracting decompressed tarball: ${tarball}`)
+          return toolCache.extractTar(tarball, toolHome)
 
         // extract as tgz
         case ArchiveType.GZIP:
           core.debug(
             `Extracting as tgz on Unix or Linux, from: ${archive}, to: ${toolHome}`
           )
-          target = await toolCache.extractTar(archive, toolHome)
-          break
+          return toolCache.extractTar(archive, toolHome)
       }
     }
   } catch (err) {
     /* istanbul ignore next */
     core.warning(`Failed to extract Buildless release: ${err}`)
-    target = toolHome
+    core.setFailed('Failed to extract Buildless release')
   }
-  return target
+  throw new Error('RELEASE_EXTRACT_FAILED')
 }
 
 /**
@@ -247,8 +278,25 @@ async function maybeDownload(
   version: BuildlessVersionInfo,
   options: Options
 ): Promise<BuildlessRelease> {
+  // decide on an archive type
+  let defaultArchiveType = ArchiveType.GZIP  // default
+  if (options.os === OS.WINDOWS) {
+    defaultArchiveType = ArchiveType.ZIP
+  }
+
+  // check for `xz` support, use it if we can, the archives are smaller
+  try {
+    await io.which('xz', true)
+  } catch (err) {
+    /* istanbul ignore next */
+    core.debug(
+      'Tool `xz` is not available on the host system; falling back to gzip archives.'
+    )
+    defaultArchiveType = ArchiveType.GZIP
+  }
+
   // build download URL, use result from cache or disk
-  const { url, archiveType } = buildDownloadUrl(options, version)
+  const { url, archiveType } = buildDownloadUrl(options, version, defaultArchiveType)
   core.info(`Installing from URL: ${url} (type: ${archiveType})`)
 
   let targetBin = `${options.target}/buildless`
