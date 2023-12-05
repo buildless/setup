@@ -195,5 +195,7 @@ export async function event<T extends ActionEventData>(
  * @param err Error to report.
  */
 export async function error(err: Error | unknown): Promise<void> {
+  const errMessage = err instanceof Error ? err.message : String(err)
+  core.debug(`Reporting error to Sentry: ${errMessage}`)
   Sentry.captureException(err)
 }
