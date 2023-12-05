@@ -18,6 +18,9 @@ export enum ActionEventType {
   /** Ping event sent when the action runs an install of the Buildless CLI. */
   INSTALL = 'gha.install',
 
+  /** Internal error reporting event. */
+  ERROR = 'gha.error',
+
   /** Ping sent when the agent is started. */
   START_AGENT = 'gha.startAgent',
 
@@ -193,9 +196,16 @@ export async function event<T extends ActionEventData>(
  * Report an error to Sentry.
  *
  * @param err Error to report.
+ * @param fatal Whether the error is considered fatal; defaults to `true`.
  */
-export async function error(err: Error | unknown): Promise<void> {
+export async function error(err: Error | unknown, fatal: boolean = true): Promise<void> {
   const errMessage = err instanceof Error ? err.message : String(err)
-  core.debug(`Reporting error to Sentry: ${errMessage}`)
+  core.debug(`Reporting error: ${errMessage}`)
+  const req = event(ActionEventType.ERROR, {
+    message: errMessage || 'unknown',
+    fatal,
+  })
   Sentry.captureException(err)
+  const flush = Sentry.flush()
+  await Promise.all([req, flush])
 }
