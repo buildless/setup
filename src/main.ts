@@ -17,6 +17,7 @@ import {
 } from './agent'
 
 import {
+  onExit,
   ActionEventType,
   error as sendError,
   event as sendEvent
@@ -589,6 +590,8 @@ export async function entry(options?: Partial<Options>): Promise<void> {
     core.warning(
       'Buildless failed to install; this build may not be accelerated. Please see CI logs for more information.'
     )
+  } finally {
+    await onExit()
   }
 }
 
@@ -607,5 +610,7 @@ export async function cleanup(options?: Partial<Options>): Promise<void> {
     core.notice(
       'Cleanup stage for the Buildless action failed. Please see CI logs for more information.'
     )
+  } finally {
+    await onExit()
   }
 }
