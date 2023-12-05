@@ -302,6 +302,7 @@ async function setupAgentIfNeeded(
 
   let activeAgent = null
   if (agentEnabled && agentManaged) {
+    core.debug('Agent is active. Preparing state...')
     try {
       activeAgent = await agentConfig(targetOs)
     } catch (err) {
@@ -328,12 +329,15 @@ async function setupAgentIfNeeded(
           `Using existing Buildless Agent (already running at PID ${activeAgent.pid}).`
         )
       }
+      core.debug('Saving agent state value (pid)')
       core.saveState(ActionState.AGENT_PID, activeAgent.pid)
+      core.debug('Saving agent state value (config)')
       core.saveState(ActionState.AGENT_CONFIG, JSON.stringify(activeAgent))
     }
   }
 
   if (agentEnabled && activeAgent) {
+    core.debug('Exporting agent variables...')
     core.exportVariable(
       'BUILDLESS_AGENT',
       agentManaged ? 'MANAGED' : 'UNMANAGED'
@@ -465,6 +469,8 @@ export async function install(
       await setupAgentIfNeeded(effectiveOptions, withinAction, targetOs)
 
     if (withinAction) {
+      core.debug('Setting output variables and state')
+
       // mount outputs
       core.saveState(ActionState.BINPATH, outputs.path)
       core.saveState(
@@ -488,6 +494,7 @@ export async function install(
     } else {
       core.info(`😔 Buildless agent is not enabled.`)
     }
+    core.debug('Buildless action is done')
     return outputs.path
   } catch (error) {
     // Fail the workflow run if an error occurs
