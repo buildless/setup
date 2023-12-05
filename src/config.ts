@@ -101,7 +101,8 @@ const userAgent = userAgentSegments.join(' ')
 
 export const httpClient = new http.HttpClient(userAgent, [], {
   allowRetries: true,
-  maxRetries: 3
+  maxRetries: 3,
+  keepAlive: true
 })
 
 /**
