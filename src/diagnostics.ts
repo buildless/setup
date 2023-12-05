@@ -125,6 +125,7 @@ function buildContext(): Partial<EventContext> {
 
 // Transmit a ready event to the CLI telemetry system.
 async function transmitEvent(event: ActionEvent<any>): Promise<void> {
+  core.debug(`Telemetry event building for type: '${event.event}'`)
   const encoded = JSON.stringify(event)
   const flowToken = await obtainTokenOrFailGracefully()
   const headers = {
