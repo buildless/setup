@@ -62,12 +62,20 @@ type ActionEventData = {
 }
 
 /**
+ * Timestamps for an analytics event.
+ */
+export type EventTimestamps = {
+  occurred: number
+}
+
+/**
  * Specifies the structure of a generic analytics event.
  */
-interface ActionEvent<T extends ActionEventData> {
+export interface ActionEvent<T extends ActionEventData> {
   uuid: string
   event: ActionEventType
   context: Partial<EventContext>
+  timestamps: EventTimestamps
   data: T
 }
 
@@ -150,13 +158,17 @@ function buildEvent<T extends ActionEventData>(
   event: ActionEventType,
   data: T
 ): ActionEvent<T> {
+  const occurred = +new Date()
   const context = buildContext()
   const uuid = uuidv4()
   return {
     uuid,
     event,
     context,
-    data
+    data,
+    timestamps: {
+      occurred
+    }
   }
 }
 
