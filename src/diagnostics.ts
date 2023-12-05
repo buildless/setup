@@ -143,7 +143,7 @@ async function transmitEvent(event: ActionEvent<any>): Promise<void> {
       encoded,
       headers
     )
-    if (res.message.statusCode !== 200 && res.message.statusCode !== 204) {
+    if (res.message.statusCode !== 200 && res.message.statusCode !== 202) {
       core.debug(`Event transmission failed: ${res.message.statusMessage}`)
     } else {
       core.debug(`Event transmission completed (ID: ${event.uuid})`)
@@ -209,6 +209,14 @@ export async function error(err: Error | unknown, fatal = true): Promise<void> {
     fatal
   })
   Sentry.captureException(err)
-  const flush = Sentry.flush()
-  await Promise.all([req, flush])
+  await Promise.all([req])
+}
+
+/**
+ * Exit hook for making sure Sentry finishes reporting.
+ */
+export async function onExit(): Promise<void> {
+  Sentry.close(2000).then(function () {
+    process.exit()
+  })
 }
