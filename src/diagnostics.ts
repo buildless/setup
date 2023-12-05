@@ -128,10 +128,12 @@ async function transmitEvent(event: ActionEvent<any>): Promise<void> {
   core.debug(`Telemetry event building for type: '${event.event}'`)
   const encoded = JSON.stringify(event)
   const flowToken = await obtainTokenOrFailGracefully()
-  const headers = {
+  const headers: any = {
     [http.Headers.Accept]: 'application/json',
-    [http.Headers.ContentType]: 'application/json',
-    Authorization: flowToken ? `Bearer ${flowToken}` : undefined
+    [http.Headers.ContentType]: 'application/json'
+  }
+  if (flowToken) {
+    headers['Authorization'] = `Bearer ${flowToken}`
   }
 
   core.debug(`Transmit event to ${eventEndpoint}: ${encoded}`)
