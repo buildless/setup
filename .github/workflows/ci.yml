@@ -216,7 +216,7 @@ jobs:
   test-no-token:
     name: "Test: No Token"
     runs-on: ubuntu-latest
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     permissions:
       id-token: none
     steps:
@@ -240,7 +240,7 @@ jobs:
   test-action:
     name: "Test: Install (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     permissions:
       id-token: write
     strategy:
@@ -278,7 +278,7 @@ jobs:
   test-path:
     name: "Test: Path (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -317,7 +317,7 @@ jobs:
   test-smoketest:
     name: "Test: Smoke Test (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -373,7 +373,7 @@ jobs:
   test-noagent:
     name: "Test: No Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     strategy:
       fail-fast: false
       matrix:
@@ -414,7 +414,7 @@ jobs:
   test-agent:
     name: "Test: Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == 'false'
+    if: github.event.pull_request.draft == false
     timeout-minutes: 5
     strategy:
       fail-fast: false
