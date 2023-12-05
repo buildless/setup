@@ -227,6 +227,8 @@ export async function resolveLatestVersion(
     if (!latest) {
       throw new Error('Failed to fetch the latest Buildless version')
     }
+    core.info(`Fetched latest version via GitHub API: ${latest.data.tag_name}`)
+
     /* istanbul ignore next */
     const name = latest.data?.name || undefined
     return {
@@ -247,7 +249,7 @@ export async function resolveLatestVersion(
     const info = jsonObj.result
 
     if (jsonObj.statusCode === 200 && info) {
-      core.debug(`Fetched latest version via CLI API: ${info.version}`)
+      core.info(`Fetched latest version via CLI API: ${info.version}`)
       return {
         tag_name: info.version,
         userProvided: false
@@ -381,14 +383,12 @@ async function maybeDownload(
 export async function downloadRelease(
   options: Options
 ): Promise<BuildlessRelease> {
-  core.startGroup(
-    `Resolving Buildless release '${options.version || 'latest'}'`
-  )
+  core.info(`Resolving Buildless release '${options.version || 'latest'}'`)
 
   if (options.custom_url) {
     // if we're using a custom URL, download it based on that token
     try {
-      core.debug(`Downloading custom archive: ${options.custom_url}`)
+      core.info(`Downloading custom archive: ${options.custom_url}`)
       const customArchive = await toolCache.downloadTool(options.custom_url)
 
       // sniff archive type from URL
@@ -437,7 +437,7 @@ export async function downloadRelease(
     // resolve applicable version
     let versionInfo: BuildlessVersionInfo
     if (options.version === 'latest') {
-      core.debug('Resolving latest version via GitHub API')
+      core.info('Resolving latest version via GitHub API')
       versionInfo = await resolveLatestVersion(options.token)
     } else {
       /* istanbul ignore next */

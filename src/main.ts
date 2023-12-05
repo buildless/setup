@@ -254,12 +254,11 @@ async function setupAgentIfNeeded(
     const currentAgentStatus = await agentStatus()
     if (currentAgentStatus) {
       // agent is already installed and running
-      core.debug(
+      core.info(
         'Buildless Agent is already installed and running; skipping installation.'
       )
     } else {
-      core.startGroup('Setting up Buildless Agent...')
-      core.debug('Triggering agent installation...')
+      core.info('Setting up Buildless Agent...')
       let installFailed = false
       let startFailed = false
       try {
@@ -298,7 +297,7 @@ async function setupAgentIfNeeded(
             `Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`
           )
         } else {
-          core.debug(`Agent installed and started at PID: ${pid}.`)
+          core.info(`Agent installed and started at PID: ${pid}.`)
         }
         agentEnabled = true
         agentManaged = true
