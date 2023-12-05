@@ -6,8 +6,15 @@ import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
 import * as http from '@actions/http-client'
 import type { BuildlessSetupActionOptions as Options } from './options'
-import { GITHUB_DEFAULT_HEADERS, OS, BUILDLESS_DOWNLOAD_ENDPOINT as downloadBase, BUILDLESS_CLI_ENDPOINT as cliApiBase } from './config'
 import { obtainVersion } from './command'
+import { error as sendError } from './diagnostics'
+import {
+  GITHUB_DEFAULT_HEADERS,
+  OS,
+  BUILDLESS_DOWNLOAD_ENDPOINT as downloadBase,
+  BUILDLESS_CLI_ENDPOINT as cliApiBase,
+  httpClient
+} from './config'
 
 const downloadPathV1 = 'cli'
 const userAgentSegments = [
@@ -197,6 +204,9 @@ async function unpackRelease(
       }
     }
   } catch (err) {
+    // report the error
+    await sendError(err)
+
     /* istanbul ignore next */
     core.warning(`Failed to extract Buildless release: ${err}`)
     core.setFailed('Failed to extract Buildless release')
@@ -346,10 +356,13 @@ async function maybeDownload(
       /* istanbul ignore next */
       core.error(`Failed to download Buildless release: ${err}`)
       /* istanbul ignore next */
-      if (err instanceof Error)
-        core.setFailed(
-          'Failed to download Buildless release at specified version'
-        )
+      if (err instanceof Error) {
+        // report the error and fail the run
+        await sendError(err)
+      }
+      core.setFailed(
+        'Failed to download Buildless release at specified version'
+      )
       /* istanbul ignore next */
       throw err
     }
@@ -416,8 +429,13 @@ export async function downloadRelease(
     } catch (err) {
       /* istanbul ignore next */
       core.error(`Failed to download custom release: ${err}`)
+
       /* istanbul ignore next */
-      if (err instanceof Error) core.setFailed(err)
+      if (err instanceof Error) {
+        // report the error and fail the workflow
+        await sendError(err)
+        core.setFailed(err)
+      }
       /* istanbul ignore next */
       throw err
     }

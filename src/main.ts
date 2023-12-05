@@ -1,3 +1,4 @@
+import './init'
 import * as core from '@actions/core'
 import * as io from '@actions/io'
 import {
@@ -14,6 +15,8 @@ import {
   agentConfig,
   AgentConfig
 } from './agent'
+
+import { error as sendError } from './diagnostics'
 
 import buildOptions, {
   OptionName,
@@ -237,6 +240,9 @@ async function setupAgentIfNeeded(
           'The Buildless Agent failed to install; please see CI logs for more info.'
         )
         installFailed = true
+
+        // report the error
+        await sendError(err)
       }
       let pid = -1
       if (!installFailed) {
@@ -244,6 +250,12 @@ async function setupAgentIfNeeded(
         try {
           pid = await agentStart()
         } catch (err) {
+          startFailed = true
+
+          // report the error
+          await sendError(err)
+        }
+        if (startFailed || pid === -1) {
           core.notice(
             'The Buildless Agent installed, but failed to start; please see CI logs for more info.'
           )
@@ -280,6 +292,9 @@ async function setupAgentIfNeeded(
           'Existing Buildless Agent could not be contacted; please see CI logs for more info.'
         )
       }
+
+      // report the error
+      await sendError(err)
     }
     if (activeAgent) {
       if (agentManaged) {
@@ -430,7 +445,11 @@ export async function install(
     return outputs.path
   } catch (error) {
     // Fail the workflow run if an error occurs
-    if (error instanceof Error) core.setFailed(error.message)
+    if (error instanceof Error) {
+      // report the error, and fail the workflow
+      await sendError(error)
+      core.setFailed(error.message)
+    }
     throw error
   }
 }
@@ -474,6 +493,9 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
       try {
         await agentStop()
       } catch (err) {
+        // report the error, and fail the workflow
+        await sendError(err)
+
         core.debug(
           `Agent failed to halt in time; killing at PID: '${agentPid}'...`
         )
