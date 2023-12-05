@@ -175,13 +175,16 @@ async function unpackRelease(
           throw new Error('INVALID_COMPRESSION_TOOL')
         }
         // rename it to `.tar.xz` to make xz happy
-        await io.mv(archive, `${archive.replace('txz', '')}.tar.xz`)
+        const archiveBasename = archive.replace(/\.txz$/, '')
+        const targetArchive = `${archiveBasename}.tar.xz`
+        core.debug(`Renaming archive: from=${archive} to=${targetArchive}`)
+        await io.mv(archive, targetArchive)
 
         // call `exec` on `xz` to decompress the tarball in place
-        await exec.exec(xzbin, ['-vd', archive])
+        await exec.exec(xzbin, ['-vd', targetArchive])
 
         // now we should have a file at `{name}.tar` instead of `{name}.txz`
-        const tarball = archive.replace(/\.txz$/, '.tar')
+        const tarball = `${archiveBasename}.tar`
         core.debug(`Extracting decompressed tarball: ${tarball}`)
         return toolCache.extractTar(tarball, toolHome)
       } else if (archiveType === ArchiveType.GZIP) {
