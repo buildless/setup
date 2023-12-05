@@ -155,20 +155,11 @@ jobs:
 
   test-debug:
     name: "Test: Debug"
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        label: ["Ubuntu"]
-        include:
-          - os: ubuntu-latest
-            label: "Ubuntu"
-
+    runs-on: ubuntu-latest
     env:
       NODE_DEBUG: 'http'
       ACTIONS_STEP_DEBUG: 'true'
       ACTIONS_RUNNER_DEBUG: 'true'
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -189,21 +180,9 @@ jobs:
 
   test-no-token:
     name: "Test: No Token"
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     permissions:
       id-token: none
-    strategy:
-      fail-fast: false
-      matrix:
-        label: ["Ubuntu", "macOS M1", "Windows"]
-        include:
-          - os: ubuntu-latest
-            label: "Ubuntu"
-          - os: macos-13-xlarge
-            label: "macOS M1"
-          - os: windows-latest
-            label: "Windows"
-
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
