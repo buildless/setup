@@ -357,7 +357,9 @@ async function maybeDownload(
       toolArchive = await toolCache.downloadTool(url.toString())
     } catch (err) {
       /* istanbul ignore next */
-      core.error(`Failed to download Buildless release: ${err}`)
+      core.debug(
+        `Failed to download Buildless release: ${err} (target: ${url})`
+      )
       /* istanbul ignore next */
       if (err instanceof Error) {
         // report the error and fail the run
