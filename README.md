@@ -17,13 +17,13 @@ This repository provides a [GitHub Action][0] to setup [Buildless][1] within you
 **Install the latest Buildless CLI, add it to the `PATH`, and run the agent**
 ```yaml
   - name: "Setup: Buildless"
-    uses: buildless/setup@v1.0.3
+    uses: buildless/setup@v1.0.2
 ```
 
 **Install the latest Buildless CLI, add it to the `PATH`, without the agent:**
 ```yaml
   - name: "Setup: Buildless"
-    uses: buildless/setup@v1.0.3
+    uses: buildless/setup@v1.0.2
     with:
       agent: false  # you really should use the agent tho
 ```
