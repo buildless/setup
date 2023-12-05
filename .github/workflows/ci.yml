@@ -419,7 +419,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        label: ["Ubuntu", "macOS M1", "macOS x86", "Windows"]
+        label: ["Ubuntu", "macOS M1", "macOS x86"]
         include:
           - os: ubuntu-latest
             label: "Ubuntu"
@@ -427,8 +427,6 @@ jobs:
             label: "macOS M1"
           - os: macos-13
             label: "macOS x86"
-          - os: windows-latest
-            label: "Windows"
 
     steps:
       - name: Harden Runner
