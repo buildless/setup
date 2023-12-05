@@ -153,6 +153,40 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
+  test-debug:
+    name: "Test: Debug (${{ matrix.label }})"
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ["Ubuntu"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+
+    env:
+      NODE_DEBUG: 'http'
+      ACTIONS_STEP_DEBUG: 'true'
+      ACTIONS_RUNNER_DEBUG: 'true'
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: "Test: Buildless Action"
+        id: test-action
+        uses: ./
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
   test-action:
     name: "Test: Install (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
@@ -167,11 +201,6 @@ jobs:
             label: "macOS M1"
           - os: windows-latest
             label: "Windows"
-
-    env:
-      NODE_DEBUG: 'http'
-      ACTIONS_STEP_DEBUG: 'true'
-      ACTIONS_RUNNER_DEBUG: 'true'
 
     steps:
       - name: Harden Runner
