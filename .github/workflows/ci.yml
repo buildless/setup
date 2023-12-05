@@ -180,10 +180,10 @@ jobs:
           echo "${{ steps.test-action.outputs.path }}"
           echo ""
           echo "Agent status:"
-          buildless agent status || $(echo "Failed to check agent status" && exit 1)
+          buildless agent status || (echo "Failed to check agent status" && exit 1)
           echo ""
           echo "Agent output:"
-          cat /var/tmp/buildless-agent.out || $(echo "Failed to read agent output" && exit 1)
+          cat /var/tmp/buildless-agent.out || (echo "Failed to read agent output" && exit 1)
 
   test-debug-noagent:
     name: "Test: Basic (No Agent)"
@@ -474,10 +474,10 @@ jobs:
           echo "${{ steps.test-action.outputs.path }}"
           echo ""
           echo "Agent status:"
-          buildless agent status || $(echo "Failed to check agent status" && exit 1)
+          buildless agent status || (echo "Failed to check agent status" && exit 1)
           echo ""
           echo "Agent output:"
-          cat /var/tmp/buildless-agent.out || $(echo "Failed to read agent output" && exit 1)
+          cat /var/tmp/buildless-agent.out || (echo "Failed to read agent output" && exit 1)
 
       - name: "Test: Agent Running"
         run: |

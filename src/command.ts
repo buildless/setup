@@ -277,7 +277,7 @@ async function spawnDirect(): Promise<number> {
   core.debug('Starting Buildless Agent via background spawn')
   try {
     const outpath = tempPathForOs('buildless-agent.out')
-    const errpath = tempPathForOs('buildless-agent.out')
+    const errpath = tempPathForOs('buildless-agent.err')
     core.debug(`Agent outfiles: out=${outpath} err=${errpath}`)
 
     const out = fs.openSync(outpath, 'a')
