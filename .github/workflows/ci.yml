@@ -154,12 +154,10 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-debug:
-    name: "Test: Debug"
+    name: "Test: Basic"
     runs-on: ubuntu-latest
     env:
-      NODE_DEBUG: 'http'
       ACTIONS_STEP_DEBUG: 'true'
-      ACTIONS_RUNNER_DEBUG: 'true'
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -181,6 +179,7 @@ jobs:
   test-no-token:
     name: "Test: No Token"
     runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == 'false'
     permissions:
       id-token: none
     steps:
@@ -204,6 +203,7 @@ jobs:
   test-action:
     name: "Test: Install (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == 'false'
     permissions:
       id-token: write
     strategy:
@@ -239,6 +239,7 @@ jobs:
   test-path:
     name: "Test: Path (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == 'false'
     strategy:
       fail-fast: false
       matrix:
@@ -275,6 +276,7 @@ jobs:
   test-smoketest:
     name: "Test: Smoke Test (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == 'false'
     strategy:
       fail-fast: false
       matrix:
@@ -328,6 +330,7 @@ jobs:
   test-noagent:
     name: "Test: No Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == 'false'
     strategy:
       fail-fast: false
       matrix:
@@ -366,6 +369,7 @@ jobs:
   test-agent:
     name: "Test: Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    if: github.event.pull_request.draft == 'false'
     timeout-minutes: 5
     strategy:
       fail-fast: false
