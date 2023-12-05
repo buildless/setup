@@ -16,7 +16,11 @@ import {
   AgentConfig
 } from './agent'
 
-import { error as sendError } from './diagnostics'
+import {
+  ActionEventType,
+  error as sendError,
+  event as sendEvent
+} from './diagnostics'
 
 import buildOptions, {
   OptionName,
@@ -130,12 +134,35 @@ export function notSupported(options: Options): OS | Error {
 }
 
 export async function postInstall(
+  start: number,
   bin: string,
+  version: string,
   options: Options
 ): Promise<void> {
+  const finish = +new Date()
+  const duration = finish - start
   const opts = JSON.stringify(options)
+  await sendEvent(ActionEventType.INSTALL, {
+    version,
+    platform: process.platform,
+    arch: process.arch,
+    timing: {
+      start,
+      finish,
+      duration
+    },
+    actionOptions: {
+      agent: options.agent,
+      force: options.force,
+      skip_cache: options.skip_cache,
+      export_path: options.export_path,
+      custom_url: options.custom_url,
+      project: options.project,
+      tenant: options.tenant
+    }
+  })
+
   core.debug(`Installation completed at path: '${bin}' (options: ${opts})`)
-  // nothing yet
 }
 
 export function resolveApiKey(options: Options): string | undefined {
@@ -342,6 +369,7 @@ export async function install(
   options: Partial<Options>,
   withinAction = true
 ): Promise<string> {
+  const begin = +new Date()
   try {
     // resolve effective plugin options
     core.info('Installing Buildless with GitHub Actions')
@@ -370,8 +398,8 @@ export async function install(
         core.debug(
           `Located existing Buildless binary at: '${existing}'. Obtaining version...`
         )
-        await postInstall(existing, effectiveOptions)
         const version = await obtainVersion(existing)
+        await postInstall(begin, existing, version, effectiveOptions)
 
         /* istanbul ignore next */
         if (
@@ -423,8 +451,8 @@ export async function install(
       }
 
       // verify installed version
-      await postInstall(release.path, effectiveOptions)
       const version = await obtainVersion(release.path)
+      await postInstall(begin, release.path, version, effectiveOptions)
 
       /* istanbul ignore next */
       if (version !== release.version.tag_name) {

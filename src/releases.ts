@@ -174,6 +174,9 @@ async function unpackRelease(
           )
           throw new Error('INVALID_COMPRESSION_TOOL')
         }
+        // rename it to `.tar.xz` to make xz happy
+        await io.mv(archive, `${archive.replace('txz', '')}.tar.xz`)
+
         // call `exec` on `xz` to decompress the tarball in place
         await exec.exec(xzbin, ['-vd', archive])
 
