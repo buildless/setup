@@ -14,7 +14,7 @@ const eventEndpoint = `${cliEndpoint}/event`
 /**
  * Enumerates types of events sent for analytics and build telemetry features.
  */
-enum ActionEventType {
+export enum ActionEventType {
   /** Ping event sent when the action runs an install of the Buildless CLI. */
   INSTALL = 'gha.install',
 
