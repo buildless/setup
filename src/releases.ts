@@ -282,6 +282,8 @@ async function maybeDownload(
   // check for `xz` support, use it if we can, the archives are smaller
   try {
     await io.which('xz', true)
+    defaultArchiveType = ArchiveType.XZ
+    core.debug(`Tool 'xz' found; using xz-based archives.`)
   } catch (err) {
     /* istanbul ignore next */
     core.debug(
@@ -296,7 +298,7 @@ async function maybeDownload(
     version,
     defaultArchiveType
   )
-  core.info(`Installing from URL: ${url} (type: ${archiveType})`)
+  core.debug(`Installing from URL: ${url} (type: ${archiveType})`)
 
   let targetBin = `${options.target}/buildless`
 
