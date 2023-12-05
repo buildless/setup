@@ -154,7 +154,7 @@ jobs:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   test-debug:
-    name: "Test: Debug (${{ matrix.label }})"
+    name: "Test: Debug"
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -187,9 +187,46 @@ jobs:
         id: output
         run: echo "${{ steps.test-action.outputs.path }}"
 
+  test-no-token:
+    name: "Test: No Token"
+    runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: none
+    strategy:
+      fail-fast: false
+      matrix:
+        label: ["Ubuntu", "macOS M1", "Windows"]
+        include:
+          - os: ubuntu-latest
+            label: "Ubuntu"
+          - os: macos-13-xlarge
+            label: "macOS M1"
+          - os: windows-latest
+            label: "Windows"
+
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: "Test: Buildless Action"
+        id: test-action
+        uses: ./
+
+      - name: "Test: Print Output"
+        id: output
+        run: echo "${{ steps.test-action.outputs.path }}"
+
   test-action:
     name: "Test: Install (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
+    permissions:
+      id-token: write
     strategy:
       fail-fast: false
       matrix:
