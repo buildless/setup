@@ -4,14 +4,12 @@ import * as toolCache from '@actions/tool-cache'
 import * as github from '@actions/github'
 import * as http from '@actions/http-client'
 import type { BuildlessSetupActionOptions as Options } from './options'
-import { GITHUB_DEFAULT_HEADERS, OS } from './config'
+import { GITHUB_DEFAULT_HEADERS, OS, BUILDLESS_DOWNLOAD_ENDPOINT as downloadBase, BUILDLESS_CLI_ENDPOINT as cliApiBase } from './config'
 import { obtainVersion } from './command'
 
-const cliApiBase = 'https://cli.less.build'
-const downloadBase = 'https://dl.less.build'
 const downloadPathV1 = 'cli'
 const userAgentSegments = [
-  `Buildless/GithubActions/${GITHUB_ACTION_REF || 'v1'}`,
+  `Buildless/GithubActions/${process.env.GITHUB_ACTION_REF || 'v1'}`,
   process.env.GITHUB_REPOSITORY || 'unknown-repo'
 ]
 const userAgent = userAgentSegments.join(' ')
