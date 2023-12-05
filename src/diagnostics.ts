@@ -216,5 +216,5 @@ export async function error(err: Error | unknown, fatal = true): Promise<void> {
  * Exit hook for making sure Sentry finishes reporting.
  */
 export async function onExit(): Promise<void> {
-  await Sentry.close(2000)
+  // Nothing to do.
 }
