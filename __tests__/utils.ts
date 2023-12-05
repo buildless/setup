@@ -1,7 +1,12 @@
 import path from 'node:path'
 import fs from 'node:fs'
+import * as core from '@actions/core'
+import * as exec from '@actions/exec'
+import * as github from '@actions/github'
 import { opendir, access } from 'node:fs/promises'
 import { setBinpath } from '../src/command'
+import { onExit } from '../src/diagnostics'
+import { httpClient } from '../src/config'
 import { install as installBuildless } from '../src/main'
 
 /**
@@ -63,4 +68,56 @@ export async function withTestBinary<R>(
   const binpath = await locateOrSetupTestBinary()
   setBinpath(binpath)
   return await fn(binpath)
+}
+
+export function resetState() {
+  onExit(false)
+}
+
+export function setupCoreMocks(): {
+  debugMock: jest.SpyInstance,
+  errorMock: jest.SpyInstance,
+  getInputMock: jest.SpyInstance,
+  setFailedMock: jest.SpyInstance,
+  setOutputMock: jest.SpyInstance,
+  getJsonMock: jest.SpyInstance,
+  getOctokitMock: jest.SpyInstance,
+  execMock: jest.SpyInstance,
+  clearMocks: () => void,
+  setupMocks: () => void,
+  resetState: () => void,
+} {
+  let debugMock: jest.SpyInstance = jest.spyOn(core, 'debug')
+  let errorMock: jest.SpyInstance = jest.spyOn(core, 'error')
+  let getInputMock: jest.SpyInstance = jest.spyOn(core, 'getInput')
+  let setFailedMock: jest.SpyInstance = jest.spyOn(core, 'setFailed')
+  let setOutputMock: jest.SpyInstance = jest.spyOn(core, 'setOutput')
+  let execMock: jest.SpyInstance = jest.spyOn(exec, 'exec')
+  let getOctokitMock: jest.SpyInstance = jest.spyOn(github, 'getOctokit').mockImplementation()
+  let getJsonMock: jest.SpyInstance = jest.spyOn(httpClient, 'getJson').mockImplementation()
+
+  return {
+    debugMock,
+    errorMock,
+    getInputMock,
+    setFailedMock,
+    setOutputMock,
+    getJsonMock,
+    getOctokitMock,
+    execMock,
+    resetState: () => {
+      resetState()
+    },
+    clearMocks: () => {
+      // Nothing at this time.
+    },
+    setupMocks: () => {
+      execMock = jest.spyOn(exec, 'exec').mockImplementation()
+      debugMock = jest.spyOn(core, 'debug').mockImplementation()
+      errorMock = jest.spyOn(core, 'error').mockImplementation()
+      getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
+      setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
+      setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+    },
+  }
 }

@@ -1,24 +1,20 @@
-import * as core from '@actions/core'
+import { setupCoreMocks } from './utils'
 import * as main from '../src/main'
 import { ActionOutputName } from '../src/outputs'
 
+const { setupMocks, clearMocks, resetState, errorMock, getInputMock, setFailedMock, setOutputMock } = setupCoreMocks()
 const runMock = jest.spyOn(main, 'entry')
-
-let debugMock: jest.SpyInstance
-let errorMock: jest.SpyInstance
-let getInputMock: jest.SpyInstance
-let setFailedMock: jest.SpyInstance
-let setOutputMock: jest.SpyInstance
 
 describe('action entry', () => {
   beforeEach(() => {
     jest.clearAllMocks()
-
-    debugMock = jest.spyOn(core, 'debug').mockImplementation()
-    errorMock = jest.spyOn(core, 'error').mockImplementation()
-    getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
-    setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
-    setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
+    setupMocks()
+  })
+  afterEach(() => {
+    clearMocks()
+  })
+  afterAll(async () => {
+    await resetState()
   })
 
   it('sets the path and version outputs', async () => {
@@ -41,7 +37,7 @@ describe('action entry', () => {
       ActionOutputName.VERSION,
       expect.anything()
     )
-  }, 30000)
+  })
 
   it('sets a failed status', async () => {
     // Set the action's inputs as return values from core.getInput()

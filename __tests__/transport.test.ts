@@ -1,9 +1,15 @@
 import * as transport from '../src/transport'
 import { RpcTransport } from '../src/config'
+import { setupCoreMocks } from './utils'
+
+const { resetState } = setupCoreMocks()
 
 describe('action transport tools', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+  afterAll(async () => {
+    await resetState()
   })
 
   it('can provide a configured rpc transport', async () => {

@@ -1,9 +1,17 @@
 import * as command from '../src/command'
-import { withTestBinary } from './utils'
+import { setupCoreMocks, withTestBinary } from './utils'
+
+const { clearMocks, resetState } = setupCoreMocks()
 
 describe('action transport tools', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+  })
+  afterEach(() => {
+    clearMocks()
+  })
+  afterAll(async () => {
+    await resetState()
   })
 
   it('can obtain the current buildless cli version', async () => {
