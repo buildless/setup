@@ -101,15 +101,14 @@ export interface DownloadedToolInfo {
  *
  * @param version Version we are downloading.
  * @param options Effective options.
- * @param specificArchiveType Type of archive to download.
+ * @param archiveType Type of archive to download.
  * @return URL and archive type to use.
  */
 function buildDownloadUrl(
   options: Options,
   version: BuildlessVersionInfo,
-  defaultArchiveType = ArchiveType.GZIP,
+  archiveType = ArchiveType.GZIP
 ): { url: URL; archiveType: ArchiveType } {
-  let archiveType = defaultArchiveType
   let ext: string
   switch (archiveType) {
     case ArchiveType.GZIP:
@@ -158,40 +157,35 @@ async function unpackRelease(
       )
       return await toolCache.extractZip(archive, toolHome)
     } else {
-      switch (archiveType) {
-        // extract as zip
-        /* istanbul ignore next */
-        case ArchiveType.ZIP:
-          core.debug(
-            `Extracting as zip on Unix or Linux, from: ${archive}, to: ${toolHome}`
+      if (archiveType === ArchiveType.ZIP) {
+        core.debug(
+          `Extracting as zip on Unix or Linux, from: ${archive}, to: ${toolHome}`
+        )
+        return await toolCache.extractZip(archive, toolHome)
+      } else if (archiveType === ArchiveType.XZ) {
+        core.debug(
+          `Extracting txz on Unix or Linux, from: ${archive}, to: ${toolHome}`
+        )
+        // decompress with xz, located via `io.where`
+        const xzbin = await io.which('xz', true)
+        if (!xzbin) {
+          console.error(
+            'Failed to find `xz` tool: falling back to gzip archive.'
           )
-          return await toolCache.extractZip(archive, toolHome)
+          throw new Error('INVALID_COMPRESSION_TOOL')
+        }
+        // call `exec` on `xz` to decompress the tarball in place
+        await exec.exec(xzbin, ['-vd', archive])
 
-        case ArchiveType.XZ:
-          core.debug(
-            `Extracting txz on Unix or Linux, from: ${archive}, to: ${toolHome}`
-          )
-          // decompress with xz, located via `io.where`
-          const xzbin = await io.which('xz', true)
-          if (!xzbin) {
-            console.error('Failed to find `xz` tool: falling back to gzip archive.')
-            throw new Error('INVALID_COMPRESSION_TOOL')
-          }
-
-          // call `exec` on `xz` to decompress the tarball in place
-          await exec.exec(xzbin, ['-vd', archive])
-
-          // now we should have a file at `{name}.tar` instead of `{name}.txz`
-          const tarball = archive.replace(/\.txz$/, '.tar')
-          core.debug(`Extracting decompressed tarball: ${tarball}`)
-          return toolCache.extractTar(tarball, toolHome)
-
-        // extract as tgz
-        case ArchiveType.GZIP:
-          core.debug(
-            `Extracting as tgz on Unix or Linux, from: ${archive}, to: ${toolHome}`
-          )
-          return toolCache.extractTar(archive, toolHome)
+        // now we should have a file at `{name}.tar` instead of `{name}.txz`
+        const tarball = archive.replace(/\.txz$/, '.tar')
+        core.debug(`Extracting decompressed tarball: ${tarball}`)
+        return toolCache.extractTar(tarball, toolHome)
+      } else if (archiveType === ArchiveType.GZIP) {
+        core.debug(
+          `Extracting as tgz on Unix or Linux, from: ${archive}, to: ${toolHome}`
+        )
+        return toolCache.extractTar(archive, toolHome)
       }
     }
   } catch (err) {
@@ -280,7 +274,7 @@ async function maybeDownload(
   options: Options
 ): Promise<BuildlessRelease> {
   // decide on an archive type
-  let defaultArchiveType = ArchiveType.GZIP  // default
+  let defaultArchiveType = ArchiveType.GZIP // default
   if (options.os === OS.WINDOWS) {
     defaultArchiveType = ArchiveType.ZIP
   }
@@ -297,7 +291,11 @@ async function maybeDownload(
   }
 
   // build download URL, use result from cache or disk
-  const { url, archiveType } = buildDownloadUrl(options, version, defaultArchiveType)
+  const { url, archiveType } = buildDownloadUrl(
+    options,
+    version,
+    defaultArchiveType
+  )
   core.info(`Installing from URL: ${url} (type: ${archiveType})`)
 
   let targetBin = `${options.target}/buildless`
