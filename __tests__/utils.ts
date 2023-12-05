@@ -1,7 +1,7 @@
 import path from 'node:path'
 import fs from 'node:fs'
 import * as core from '@actions/core'
-import * as exec from '@actions/exec'
+// import * as exec from '@actions/exec'
 import * as github from '@actions/github'
 import { opendir, access } from 'node:fs/promises'
 import { setBinpath } from '../src/command'
@@ -82,7 +82,7 @@ export function setupCoreMocks(): {
   setOutputMock: jest.SpyInstance
   getJsonMock: jest.SpyInstance
   getOctokitMock: jest.SpyInstance
-  execMock: jest.SpyInstance
+  // execMock: jest.SpyInstance
   clearMocks: () => void
   setupMocks: () => void
   resetState: () => void
@@ -92,7 +92,7 @@ export function setupCoreMocks(): {
   let getInputMock: jest.SpyInstance = jest.spyOn(core, 'getInput')
   let setFailedMock: jest.SpyInstance = jest.spyOn(core, 'setFailed')
   let setOutputMock: jest.SpyInstance = jest.spyOn(core, 'setOutput')
-  let execMock: jest.SpyInstance = jest.spyOn(exec, 'exec')
+  // let execMock: jest.SpyInstance = jest.spyOn(exec, 'exec')
   let getOctokitMock: jest.SpyInstance = jest
     .spyOn(github, 'getOctokit')
     .mockImplementation()
@@ -108,7 +108,7 @@ export function setupCoreMocks(): {
     setOutputMock,
     getJsonMock,
     getOctokitMock,
-    execMock,
+    // execMock,
     resetState: () => {
       resetState()
     },
@@ -116,7 +116,7 @@ export function setupCoreMocks(): {
       // Nothing at this time.
     },
     setupMocks: () => {
-      execMock = jest.spyOn(exec, 'exec').mockImplementation()
+      // execMock = jest.spyOn(exec, 'exec').mockImplementation()
       debugMock = jest.spyOn(core, 'debug').mockImplementation()
       errorMock = jest.spyOn(core, 'error').mockImplementation()
       getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
