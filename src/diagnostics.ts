@@ -198,12 +198,12 @@ export async function event<T extends ActionEventData>(
  * @param err Error to report.
  * @param fatal Whether the error is considered fatal; defaults to `true`.
  */
-export async function error(err: Error | unknown, fatal: boolean = true): Promise<void> {
+export async function error(err: Error | unknown, fatal = true): Promise<void> {
   const errMessage = err instanceof Error ? err.message : String(err)
   core.debug(`Reporting error: ${errMessage}`)
   const req = event(ActionEventType.ERROR, {
     message: errMessage || 'unknown',
-    fatal,
+    fatal
   })
   Sentry.captureException(err)
   const flush = Sentry.flush()
