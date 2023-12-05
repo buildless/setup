@@ -1,3 +1,5 @@
+import * as http from '@actions/http-client'
+
 // Version of the GitHub API to use.
 export const GITHUB_API_VERSION = '2022-11-28'
 
@@ -26,32 +28,32 @@ export const BUILDLESS_DOWNLOAD_ENDPOINT = 'https://dl.less.build'
 
 // Actions Runtime-provided environment material.
 export const actionEnv = {
-  idTokenRequestToken: process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN || null,
-  idTokenRequestUrl: process.env.ACTIONS_ID_TOKEN_REQUEST_URL || null,
-  runtimeToken: process.env.ACTIONS_RUNTIME_TOKEN || null,
-  runtimeTokenUrl: process.env.ACTIONS_RUNTIME_URL || null,
-  githubEnvFile: process.env.GITHUB_ENV || null,
-  githubEventName: process.env.GITHUB_EVENT_NAME || null,
-  githubEventPath: process.env.GITHUB_EVENT_PATH || null,
-  githubJobName: process.env.GITHUB_JOB || null,
-  githubActionRef: process.env.GITHUB_ACTION_REF || null,
-  githubRunId: process.env.GITHUB_RUN_ID || null,
-  githubRunNumber: process.env.GITHUB_RUN_NUMBER || null,
-  githubSha: process.env.GITHUB_SHA || null,
-  githubWorkflow: process.env.GITHUB_WORKFLOW || null,
-  githubWorkflowRef: process.env.GITHUB_WORKFLOW_REF || null,
-  githubWorkflowSha: process.env.GITHUB_WORKFLOW_SHA || null,
-  invocationId: process.env.INVOCATION_ID || null,
-  imageOs: process.env.ImageOS || null,
-  imageVersion: process.env.ImageVersion || null,
-  runnerArch: process.env.RUNNER_ARCH || null,
-  runnerDebug: process.env.RUNNER_DEBUG || null,
-  runnerEnvironment: process.env.RUNNER_ENVIRONMENT || null,
-  runnerName: process.env.RUNNER_NAME || null,
-  runnerOs: process.env.RUNNER_OS || null,
-  runnerTemp: process.env.RUNNER_TEMP || null,
-  runnerUser: process.env.RUNNER_USER || null,
-  runnerWorkspace: process.env.RUNNER_WORKSPACE || null,
+  idTokenRequestToken: process.env.ACTIONS_ID_TOKEN_REQUEST_TOKEN || undefined,
+  idTokenRequestUrl: process.env.ACTIONS_ID_TOKEN_REQUEST_URL || undefined,
+  runtimeToken: process.env.ACTIONS_RUNTIME_TOKEN || undefined,
+  runtimeTokenUrl: process.env.ACTIONS_RUNTIME_URL || undefined,
+  githubEnvFile: process.env.GITHUB_ENV || undefined,
+  githubEventName: process.env.GITHUB_EVENT_NAME || undefined,
+  githubEventPath: process.env.GITHUB_EVENT_PATH || undefined,
+  githubJobName: process.env.GITHUB_JOB || undefined,
+  githubActionRef: process.env.GITHUB_ACTION_REF || undefined,
+  githubRunId: process.env.GITHUB_RUN_ID || undefined,
+  githubRunNumber: process.env.GITHUB_RUN_NUMBER || undefined,
+  githubSha: process.env.GITHUB_SHA || undefined,
+  githubWorkflow: process.env.GITHUB_WORKFLOW || undefined,
+  githubWorkflowRef: process.env.GITHUB_WORKFLOW_REF || undefined,
+  githubWorkflowSha: process.env.GITHUB_WORKFLOW_SHA || undefined,
+  invocationId: process.env.INVOCATION_ID || undefined,
+  imageOs: process.env.ImageOS || undefined,
+  imageVersion: process.env.ImageVersion || undefined,
+  runnerArch: process.env.RUNNER_ARCH || undefined,
+  runnerDebug: process.env.RUNNER_DEBUG === '1',
+  runnerEnvironment: process.env.RUNNER_ENVIRONMENT || undefined,
+  runnerName: process.env.RUNNER_NAME || undefined,
+  runnerOs: process.env.RUNNER_OS || undefined,
+  runnerTemp: process.env.RUNNER_TEMP || undefined,
+  runnerUser: process.env.RUNNER_USER || undefined,
+  runnerWorkspace: process.env.RUNNER_WORKSPACE || undefined
 }
 
 // Transport modes.
@@ -89,6 +91,18 @@ export enum Arch {
 
 // Default transport mode.
 export const TRANSPORT: RpcTransport = RpcTransport.GRPC
+
+const userAgentSegments = [
+  `Buildless/GithubActions/${process.env.GITHUB_ACTION_REF || 'v1'}`,
+  process.env.GITHUB_REPOSITORY || 'unknown-repo'
+]
+
+const userAgent = userAgentSegments.join(' ')
+
+export const httpClient = new http.HttpClient(userAgent, [], {
+  allowRetries: true,
+  maxRetries: 3
+})
 
 /**
  * Resolve the OS instance for the current (host) operating system.

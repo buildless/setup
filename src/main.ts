@@ -138,15 +138,17 @@ export async function postInstall(
   // nothing yet
 }
 
-export function resolveApiKey(
-  options: Options
-): string | undefined {
+export function resolveApiKey(options: Options): string | undefined {
   const checkKeyValue = (key: string | undefined | null): boolean => {
-    return typeof key === 'string' && (
+    return (
+      typeof key === 'string' &&
       key.trim().length > 0 &&
       key.trim() !== 'null' &&
       key.trim() !== 'undefined' &&
-      (key.startsWith('user_') || key.startsWith('org_') || key.startsWith('project_') || key.startsWith('buildless_token_'))
+      (key.startsWith('user_') ||
+        key.startsWith('org_') ||
+        key.startsWith('project_') ||
+        key.startsWith('buildless_token_'))
     )
   }
 
@@ -311,6 +313,17 @@ async function setupAgentIfNeeded(
     }
   }
 
+  if (agentEnabled && activeAgent) {
+    core.exportVariable(
+      'BUILDLESS_AGENT',
+      agentManaged ? 'MANAGED' : 'UNMANAGED'
+    )
+    core.exportVariable('BUILDLESS_AGENT_PID', activeAgent.pid)
+    core.exportVariable('BUILDLESS_AGENT_PORT', activeAgent.port)
+    if (activeAgent.socket) {
+      core.exportVariable('BUILDLESS_AGENT_SOCKET', activeAgent.socket)
+    }
+  }
   return {
     agentEnabled,
     agentManaged,
@@ -335,7 +348,9 @@ export async function install(
     const effectiveOptions: Options = buildEffectiveOptions(options)
     const effectiveApiKey = resolveApiKey(effectiveOptions)
     if (effectiveApiKey) {
-      core.info('Detected Buildless API key in options or environment. CLI is authorized.')
+      core.info(
+        'Detected Buildless API key in options or environment. CLI is authorized.'
+      )
     }
 
     // make sure the requested version, platform, and os triple is supported
