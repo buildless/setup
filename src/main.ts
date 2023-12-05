@@ -372,7 +372,7 @@ export async function install(
   const begin = +new Date()
   try {
     // resolve effective plugin options
-    core.info('Installing Buildless with GitHub Actions')
+    core.startGroup('🚀 Installing Buildless with GitHub Actions...')
     const effectiveOptions: Options = buildEffectiveOptions(options)
     const effectiveApiKey = resolveApiKey(effectiveOptions)
     if (effectiveApiKey) {
@@ -384,6 +384,8 @@ export async function install(
     // make sure the requested version, platform, and os triple is supported
     const targetOs = notSupported(effectiveOptions)
     if (targetOs instanceof Error) {
+      // report the error, and fail the workflow
+      await sendError(targetOs)
       core.setFailed(targetOs.message)
       throw targetOs
     }
@@ -408,7 +410,7 @@ export async function install(
           !effectiveOptions.force
         ) {
           core.info(
-            `Existing Buildless installation at version '${version}' was preserved`
+            `Existing Buildless installation at version '${version}' was preserved.`
           )
           if (withinAction) {
             core.setOutput(ActionOutputName.PATH, existing)
@@ -425,8 +427,7 @@ export async function install(
     if (outputs === null) {
       // download the release tarball (resolving version if needed)
       const release = await downloadRelease(effectiveOptions)
-
-      core.startGroup(
+      core.info(
         `Setting up Buildless (version '${release.version.tag_name}')...`
       )
       core.debug(`Release version: '${release.version.tag_name}'`)
@@ -484,7 +485,16 @@ export async function install(
       core.setOutput(ActionOutputName.PATH, outputs.path)
       core.setOutput(ActionOutputName.VERSION, outputs.version)
     }
-    core.info(`Buildless installed at version ${outputs.version} 🎉`)
+    core.info(`✅ Buildless installed at version ${outputs.version}.`)
+    if (agentEnabled) {
+      if (agentManaged) {
+        core.info(`✅ Buildless Agent installed and running.`)
+      } else {
+        core.info(`✅ Detected existing Buildless Agent.`)
+      }
+    } else {
+      core.info(`😔 Buildless agent is not enabled.`)
+    }
     return outputs.path
   } catch (error) {
     // Fail the workflow run if an error occurs
@@ -508,7 +518,7 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
   if (targetOs instanceof Error) {
     return // not supported, nothing to do
   }
-  core.info(`Cleaning up Buildless Agent and resources...`)
+  core.startGroup(`💨 Cleaning up Buildless Agent and resources...`)
 
   const agentMode = core.getState(ActionState.AGENT_MODE) as
     | AgentManagementMode
@@ -524,7 +534,7 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
       return
     }
     if (agentMode === AgentManagementMode.UNMANAGED) {
-      core.debug('Agent was running when we got here; skipping agent cleanup.')
+      core.info('Agent was running when we got here; skipping agent cleanup.')
       return
     }
 
@@ -539,7 +549,7 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
         // report the error, and fail the workflow
         await sendError(err)
 
-        core.debug(
+        core.info(
           `Agent failed to halt in time; killing at PID: '${agentPid}'...`
         )
         let killFailed = false
@@ -556,12 +566,13 @@ export async function postExecute(options?: Partial<Options>): Promise<void> {
             `Killing agent PID also failed. Giving up. Message: ${errMessage}`
           )
         } else {
-          core.debug('Agent process killed.')
+          core.info('Agent process stopped.')
         }
       }
     } else {
-      core.debug('No active agent; no cleanup to do.')
+      core.info('No active agent; no cleanup to do.')
     }
+    core.endGroup()
   }
 }
 
@@ -592,6 +603,7 @@ export async function cleanup(options?: Partial<Options>): Promise<void> {
 
   try {
     await postExecute(options)
+    core.info(`Thanks for using Buildless. 🎉`)
   } catch (err) {
     core.notice(
       'Cleanup stage for the Buildless action failed. Please see CI logs for more information.'
