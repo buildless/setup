@@ -158,6 +158,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       ACTIONS_STEP_DEBUG: 'true'
+      ACTIONS_RUNNER_DEBUG: 'true'
     steps:
       - name: Harden Runner
         uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
@@ -174,7 +175,43 @@ jobs:
 
       - name: "Test: Print Output"
         id: output
-        run: echo "${{ steps.test-action.outputs.path }}"
+        run: |
+          echo "Binary path:"
+          echo "${{ steps.test-action.outputs.path }}"
+          echo ""
+          echo "Agent status:"
+          buildless agent status || $(echo "Failed to check agent status" && exit 1)
+          echo ""
+          echo "Agent output:"
+          cat /var/tmp/buildless-agent.out || $(echo "Failed to read agent output" && exit 1)
+
+  test-debug-noagent:
+    name: "Test: Basic (No Agent)"
+    runs-on: ubuntu-latest
+    env:
+      ACTIONS_STEP_DEBUG: 'true'
+      ACTIONS_RUNNER_DEBUG: 'true'
+    steps:
+      - name: Harden Runner
+        uses: step-security/harden-runner@eb238b55efaa70779f274895e782ed17c84f2895 # v2.6.1
+        with:
+          egress-policy: audit
+
+      - name: "Setup: Checkout"
+        id: checkout
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+
+      - name: "Test: Buildless Action"
+        id: test-action
+        uses: ./
+        with:
+          agent: false
+
+      - name: "Test: Print Output"
+        id: output
+        run: |
+          echo "Binary path:"
+          echo "${{ steps.test-action.outputs.path }}"
 
   test-no-token:
     name: "Test: No Token"
@@ -432,7 +469,15 @@ jobs:
 
       - name: "Test: Print Output"
         id: output
-        run: echo "${{ steps.test-action.outputs.path }}"
+        run: |
+          echo "Binary path:"
+          echo "${{ steps.test-action.outputs.path }}"
+          echo ""
+          echo "Agent status:"
+          buildless agent status || $(echo "Failed to check agent status" && exit 1)
+          echo ""
+          echo "Agent output:"
+          cat /var/tmp/buildless-agent.out || $(echo "Failed to read agent output" && exit 1)
 
       - name: "Test: Agent Running"
         run: |

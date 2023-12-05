@@ -299,6 +299,7 @@ async function spawnDirect(): Promise<number> {
         `Agent spawn completed but reported failure. Please see logs in debug mode.`
       )
     }
+    await wait(500) // give the agent time to start up
     return spawnedAgent.pid
   } catch (err) {
     await sendError(err)
@@ -311,7 +312,7 @@ async function spawnViaCli(): Promise<number> {
   core.debug('Starting Buildless Agent via CLI')
   const started = await execBuildless(BuildlessCommand.AGENT_START)
   if (started.exitCode === 0) {
-    await wait(2000) // give the agent time to start up
+    await wait(500) // give the agent time to start up
 
     // then resolve config
     const config = await agentConfig()
