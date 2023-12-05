@@ -186,7 +186,7 @@ async function unpackRelease(
         // now we should have a file at `{name}.tar` instead of `{name}.txz`
         const tarball = `${archiveBasename}.tar`
         core.debug(`Extracting decompressed tarball: ${tarball}`)
-        return toolCache.extractTar(tarball, toolHome)
+        return toolCache.extractTar(tarball, toolHome, 'x')
       } else if (archiveType === ArchiveType.GZIP) {
         core.debug(
           `Extracting as tgz on Unix or Linux, from: ${archive}, to: ${toolHome}`
