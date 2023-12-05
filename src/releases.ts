@@ -11,7 +11,7 @@ const cliApiBase = 'https://cli.less.build'
 const downloadBase = 'https://dl.less.build'
 const downloadPathV1 = 'cli'
 const userAgentSegments = [
-  'Buildless/GithubActions/v1',
+  `Buildless/GithubActions/${GITHUB_ACTION_REF || 'v1'}`,
   process.env.GITHUB_REPOSITORY || 'unknown-repo'
 ]
 const userAgent = userAgentSegments.join(' ')
