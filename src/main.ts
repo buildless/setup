@@ -135,6 +135,32 @@ export async function postInstall(
   // nothing yet
 }
 
+export function resolveApiKey(
+  options: Options
+): string | undefined {
+  const checkKeyValue = (key: string | undefined | null): boolean => {
+    return typeof key === 'string' && (
+      key.trim().length > 0 &&
+      key.trim() !== 'null' &&
+      key.trim() !== 'undefined' &&
+      (key.startsWith('user_') || key.startsWith('org_') || key.startsWith('project_') || key.startsWith('buildless_token_'))
+    )
+  }
+
+  if (checkKeyValue(options.apikey)) {
+    return options.apikey
+  } else if (checkKeyValue(process.env.INPUT_APIKEY)) {
+    return process.env.INPUT_APIKEY
+  } else if (checkKeyValue(process.env.BUILDLESS_APIKEY)) {
+    return process.env.BUILDLESS_APIKEY
+  } else if (checkKeyValue(process.env.BUILDLESS_API_KEY)) {
+    return process.env.BUILDLESS_API_KEY
+  } else if (checkKeyValue(process.env.GRADLE_CACHE_PASSWORD)) {
+    return process.env.GRADLE_CACHE_PASSWORD
+  }
+  return undefined
+}
+
 export function buildEffectiveOptions(options?: Partial<Options>): Options {
   return buildOptions({
     version: stringOption(OptionName.VERSION, options?.version, 'latest'),
@@ -292,6 +318,10 @@ export async function install(
     // resolve effective plugin options
     core.info('Installing Buildless with GitHub Actions')
     const effectiveOptions: Options = buildEffectiveOptions(options)
+    const effectiveApiKey = resolveApiKey(effectiveOptions)
+    if (effectiveApiKey) {
+      core.info('Detected Buildless API key in options or environment. CLI is authorized.')
+    }
 
     // make sure the requested version, platform, and os triple is supported
     const targetOs = notSupported(effectiveOptions)
