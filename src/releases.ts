@@ -10,7 +10,10 @@ import { obtainVersion } from './command'
 const cliApiBase = 'https://cli.less.build'
 const downloadBase = 'https://dl.less.build'
 const downloadPathV1 = 'cli'
-const userAgentSegments = ['Buildless/GithubActions/v1']
+const userAgentSegments = [
+  'Buildless/GithubActions/v1',
+  process.env.GITHUB_REPOSITORY || 'unknown-repo'
+]
 const userAgent = userAgentSegments.join(' ')
 const httpClient = new http.HttpClient(userAgent, [], {
   allowRetries: true,
