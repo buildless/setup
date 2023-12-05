@@ -24,7 +24,7 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm run bundle",
+    "build": "pnpm run bundle && pnpm run sentry:sourcemaps",
     "bundle": "pnpm run format:write && pnpm run package",
     "ci-test": "jest",
     "clean": "shx rm -fr dist src/gen",
@@ -34,12 +34,13 @@
     "format:check": "prettier --check **/*.ts",
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
     "package": "pnpm run gen && concurrently 'pnpm run package:main' 'pnpm run package:cleanup'",
-    "package:main": "ncc build src/index.ts --license licenses.txt",
-    "package:cleanup": "ncc build src/cleanup.ts -o dist/cleanup",
+    "package:main": "ncc build src/index.ts --license licenses.txt --minify --source-map --v8-cache",
+    "package:cleanup": "ncc build src/cleanup.ts -o dist/cleanup --minify --source-map --v8-cache",
     "package:watch": "pnpm run package -- --watch",
     "test": "jest",
     "all": "pnpm run format:write && pnpm run lint && pnpm run test && pnpm run coverage && pnpm run package",
-    "commitlint": "commitlint --edit"
+    "commitlint": "commitlint --edit",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org elide --project buildless-setup ./dist && sentry-cli sourcemaps upload --org elide --project buildless-setup ./dist"
   },
   "license": "MIT",
   "jestSonar": {},
@@ -100,6 +101,10 @@
     "@bufbuild/protoc-gen-es": "^1.5.0",
     "@connectrpc/connect": "^1.1.3",
     "@connectrpc/protoc-gen-connect-es": "^1.1.3",
+    "@sentry/cli": "^2.22.3",
+    "@sentry/integrations": "^7.85.0",
+    "@sentry/node": "^7.85.0",
+    "@sentry/profiling-node": "^1.2.6",
     "octokit": "^3.1.2",
     "uuid": "^9.0.1"
   },
@@ -108,6 +113,7 @@
     "@commitlint/config-conventional": "^18.4.3",
     "@connectrpc/connect-node": "^1.1.3",
     "@jest/globals": "^29.7.0",
+    "@sentry/types": "^7.85.0",
     "@types/jest": "^29.5.10",
     "@types/node": "^20.10.3",
     "@types/uuid": "^9.0.7",

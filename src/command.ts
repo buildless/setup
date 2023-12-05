@@ -6,8 +6,9 @@ import { v4 as uuidv4 } from 'uuid'
 
 import * as core from '@actions/core'
 import * as exec from '@actions/exec'
-import wait from './wait'
 import { agentConfig } from './agent'
+import { error as sendError } from './diagnostics'
+import wait from './wait'
 
 // Whether to spawn the agent directly (in Node), or through the CLI.
 const SPAWN_DIRECT = true
@@ -229,6 +230,7 @@ export async function agentInstall(): Promise<boolean> {
     // make sure temporary paths exist
     tempPathForOs('agent.json')
   } catch (err) {
+    await sendError(err)
     console.warn('Failed to query temp path for agent', err)
   }
   // if we are running on linux, we need sudo rights
@@ -252,16 +254,23 @@ export async function agentInstall(): Promise<boolean> {
  */
 export async function agentStatus(): Promise<boolean> {
   core.debug(`Obtaining agent status via CLI`)
-  const result = (await execBuildless(BuildlessCommand.AGENT_STATUS)).stdout
-    .trim()
-    .replaceAll('%0A', '')
-    .includes('installed, running, and ready')
-  if (result) {
-    core.debug('Agent is currently running')
-  } else {
-    core.debug('Agent is not currently running')
+  try {
+    const result = (await execBuildless(BuildlessCommand.AGENT_STATUS)).stdout
+      .trim()
+      .replaceAll('%0A', '')
+      .includes('installed, running, and ready')
+
+    if (result) {
+      core.debug('Agent is currently running')
+    } else {
+      core.debug('Agent is not currently running')
+    }
+    return result
+  } catch (err) {
+    await sendError(err)
+    core.debug(`Failed to obtain agent status: ${err}`)
+    return false
   }
-  return result
 }
 
 async function spawnDirect(): Promise<number> {
@@ -292,8 +301,9 @@ async function spawnDirect(): Promise<number> {
     }
     return spawnedAgent.pid
   } catch (err) {
+    await sendError(err)
     console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err)
-    throw err
+    return -1
   }
 }
 
@@ -328,10 +338,16 @@ async function spawnViaCli(): Promise<number> {
  * @return Promise which resolves to the agent PID.
  */
 export async function agentStart(): Promise<number> {
-  if (SPAWN_DIRECT) {
-    return await spawnDirect()
-  } else {
-    return await spawnViaCli()
+  try {
+    if (SPAWN_DIRECT) {
+      return await spawnDirect()
+    } else {
+      return await spawnViaCli()
+    }
+  } catch (err) {
+    await sendError(err)
+    console.error(`Failed to start agent (direct: ${SPAWN_DIRECT})`, err)
+    return -1
   }
 }
 

@@ -120,3 +120,6 @@ test-report.xml
 
 # Generated code
 src/gen/
+
+# Sentry Config File
+.sentryclirc
