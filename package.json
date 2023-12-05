@@ -24,7 +24,8 @@
     "node": ">=20"
   },
   "scripts": {
-    "build": "pnpm run bundle && pnpm run sentry:sourcemaps",
+    "build": "pnpm run bundle",
+    "release": "pnpm run build && pnpm run sentry:sourcemaps",
     "bundle": "pnpm run format:write && pnpm run package",
     "ci-test": "jest",
     "clean": "shx rm -fr dist src/gen",
@@ -34,8 +35,8 @@
     "format:check": "prettier --check **/*.ts",
     "lint": "npx eslint . -c ./.github/linters/.eslintrc.yml",
     "package": "pnpm run gen && concurrently 'pnpm run package:main' 'pnpm run package:cleanup'",
-    "package:main": "ncc build src/index.ts --license licenses.txt --minify --source-map --v8-cache",
-    "package:cleanup": "ncc build src/cleanup.ts -o dist/cleanup --minify --source-map --v8-cache",
+    "package:main": "ncc build src/index.ts --license licenses.txt --minify --source-map",
+    "package:cleanup": "ncc build src/cleanup.ts -o dist/cleanup --minify --source-map",
     "package:watch": "pnpm run package -- --watch",
     "test": "jest",
     "all": "pnpm run format:write && pnpm run lint && pnpm run test && pnpm run coverage && pnpm run package",
