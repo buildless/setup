@@ -15,8 +15,14 @@ export const BUILDLESS_EDGE_ENDPOINT = 'https://edge.less.build'
 // Global Agent service endpoint.
 export const BUILDLESS_AGENT_ENDPOINT = 'https://agent.less.build'
 
+// Global CLI service endpoint.
+export const BUILDLESS_CLI_ENDPOINT = 'https://cli.less.build'
+
 // Azure CDN cache.
 export const BUILDLESS_AZR_ENDPOINT = 'https://azr.less.build'
+
+// Asset download endpoint.
+export const BUILDLESS_DOWNLOAD_ENDPOINT = 'https://dl.less.build'
 
 // Actions Runtime-provided environment material.
 export const actionEnv = {
