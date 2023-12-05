@@ -182,6 +182,6 @@ export async function event<T extends ActionEventData>(
  *
  * @param err Error to report.
  */
-export async function error(err: Error): Promise<void> {
+export async function error(err: Error | unknown): Promise<void> {
   Sentry.captureException(err)
 }
