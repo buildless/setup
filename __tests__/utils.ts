@@ -75,17 +75,17 @@ export function resetState() {
 }
 
 export function setupCoreMocks(): {
-  debugMock: jest.SpyInstance,
-  errorMock: jest.SpyInstance,
-  getInputMock: jest.SpyInstance,
-  setFailedMock: jest.SpyInstance,
-  setOutputMock: jest.SpyInstance,
-  getJsonMock: jest.SpyInstance,
-  getOctokitMock: jest.SpyInstance,
-  execMock: jest.SpyInstance,
-  clearMocks: () => void,
-  setupMocks: () => void,
-  resetState: () => void,
+  debugMock: jest.SpyInstance
+  errorMock: jest.SpyInstance
+  getInputMock: jest.SpyInstance
+  setFailedMock: jest.SpyInstance
+  setOutputMock: jest.SpyInstance
+  getJsonMock: jest.SpyInstance
+  getOctokitMock: jest.SpyInstance
+  execMock: jest.SpyInstance
+  clearMocks: () => void
+  setupMocks: () => void
+  resetState: () => void
 } {
   let debugMock: jest.SpyInstance = jest.spyOn(core, 'debug')
   let errorMock: jest.SpyInstance = jest.spyOn(core, 'error')
@@ -93,8 +93,12 @@ export function setupCoreMocks(): {
   let setFailedMock: jest.SpyInstance = jest.spyOn(core, 'setFailed')
   let setOutputMock: jest.SpyInstance = jest.spyOn(core, 'setOutput')
   let execMock: jest.SpyInstance = jest.spyOn(exec, 'exec')
-  let getOctokitMock: jest.SpyInstance = jest.spyOn(github, 'getOctokit').mockImplementation()
-  let getJsonMock: jest.SpyInstance = jest.spyOn(httpClient, 'getJson').mockImplementation()
+  let getOctokitMock: jest.SpyInstance = jest
+    .spyOn(github, 'getOctokit')
+    .mockImplementation()
+  let getJsonMock: jest.SpyInstance = jest
+    .spyOn(httpClient, 'getJson')
+    .mockImplementation()
 
   return {
     debugMock,
@@ -118,6 +122,6 @@ export function setupCoreMocks(): {
       getInputMock = jest.spyOn(core, 'getInput').mockImplementation()
       setFailedMock = jest.spyOn(core, 'setFailed').mockImplementation()
       setOutputMock = jest.spyOn(core, 'setOutput').mockImplementation()
-    },
+    }
   }
 }

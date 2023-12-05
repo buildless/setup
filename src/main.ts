@@ -484,7 +484,7 @@ export async function install(
       core.setOutput(ActionOutputName.PATH, outputs.path)
       core.setOutput(ActionOutputName.VERSION, outputs.version)
     }
-    core.info(`✅ Buildless installed at version ${outputs.version}.`)
+    core.info(`✅ Buildless installed at version '${outputs.version}'.`)
     if (agentEnabled) {
       if (agentManaged) {
         core.info(`✅ Buildless Agent installed and running.`)
@@ -586,7 +586,7 @@ export async function entry(options?: Partial<Options>): Promise<void> {
 
   try {
     await install(options || {}, true)
-    await onExit()
+    await onExit(process.env.RUNNER_ENVIRONMENT === 'github-hosted')
   } catch (err) {
     core.warning(
       'Buildless failed to install; this build may not be accelerated. Please see CI logs for more information.'
@@ -605,7 +605,7 @@ export async function cleanup(options?: Partial<Options>): Promise<void> {
   try {
     await postExecute(options)
     core.info(`Thanks for using Buildless. 🎉`)
-    await onExit()
+    await onExit(process.env.RUNNER_ENVIRONMENT === 'github-hosted')
   } catch (err) {
     core.notice(
       'Cleanup stage for the Buildless action failed. Please see CI logs for more information.'

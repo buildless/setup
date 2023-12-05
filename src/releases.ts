@@ -446,7 +446,7 @@ export async function downloadRelease(
     // resolve applicable version
     let versionInfo: BuildlessVersionInfo
     if (options.version === 'latest') {
-      core.info('Resolving latest version via GitHub API')
+      core.info('Resolving latest version...')
       versionInfo = await resolveLatestVersion(options.token)
     } else {
       /* istanbul ignore next */

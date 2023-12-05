@@ -2,8 +2,12 @@ import * as main from '../src/main'
 import { setupCoreMocks } from './utils'
 
 const { clearMocks, resetState } = setupCoreMocks()
-const runMock = jest.spyOn(main, 'entry').mockImplementation(() => Promise.resolve())
-const cleanupMock = jest.spyOn(main, 'cleanup').mockImplementation(() => Promise.resolve())
+const runMock = jest
+  .spyOn(main, 'entry')
+  .mockImplementation(() => Promise.resolve())
+const cleanupMock = jest
+  .spyOn(main, 'cleanup')
+  .mockImplementation(() => Promise.resolve())
 
 describe('index', () => {
   afterEach(() => {
