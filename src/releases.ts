@@ -17,15 +17,6 @@ import {
 } from './config'
 
 const downloadPathV1 = 'cli'
-const userAgentSegments = [
-  `Buildless/GithubActions/${process.env.GITHUB_ACTION_REF || 'v1'}`,
-  process.env.GITHUB_REPOSITORY || 'unknown-repo'
-]
-const userAgent = userAgentSegments.join(' ')
-const httpClient = new http.HttpClient(userAgent, [], {
-  allowRetries: true,
-  maxRetries: 3
-})
 
 /**
  * Version info resolved for a release of Buildless.
