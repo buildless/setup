@@ -18,6 +18,8 @@ import {
 
 const downloadPathV1 = 'cli'
 
+const ENABLE_XZ = false
+
 /**
  * Version info resolved for a release of Buildless.
  */
@@ -287,17 +289,19 @@ async function maybeDownload(
     defaultArchiveType = ArchiveType.ZIP
   }
 
-  // check for `xz` support, use it if we can, the archives are smaller
-  try {
-    await io.which('xz', true)
-    defaultArchiveType = ArchiveType.XZ
-    core.debug(`Tool 'xz' found; using xz-based archives.`)
-  } catch (err) {
-    /* istanbul ignore next */
-    core.debug(
-      'Tool `xz` is not available on the host system; falling back to gzip archives.'
-    )
-    defaultArchiveType = ArchiveType.GZIP
+  if (ENABLE_XZ) {
+    // check for `xz` support, use it if we can, the archives are smaller
+    try {
+      await io.which('xz', true)
+      defaultArchiveType = ArchiveType.XZ
+      core.debug(`Tool 'xz' found; using xz-based archives.`)
+    } catch (err) {
+      /* istanbul ignore next */
+      core.debug(
+        'Tool `xz` is not available on the host system; falling back to gzip archives.'
+      )
+      defaultArchiveType = ArchiveType.GZIP
+    }
   }
 
   // build download URL, use result from cache or disk
