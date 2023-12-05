@@ -292,14 +292,7 @@ async function setupAgentIfNeeded(
         }
       }
       if (!installFailed && !startFailed) {
-        const cfg = await agentConfig()
-        if (!cfg) {
-          console.warn(
-            `Agent started at PID ${pid}, but config failed to resolve. Caching may not work.`
-          )
-        } else {
-          core.info(`Agent installed and started at PID: ${pid}.`)
-        }
+        core.info(`Agent installed and started at PID: ${pid}.`)
         agentEnabled = true
         agentManaged = true
       }
