@@ -2,7 +2,15 @@ import { setupCoreMocks } from './utils'
 import * as main from '../src/main'
 import { ActionOutputName } from '../src/outputs'
 
-const { setupMocks, clearMocks, resetState, errorMock, getInputMock, setFailedMock, setOutputMock } = setupCoreMocks()
+const {
+  setupMocks,
+  clearMocks,
+  resetState,
+  errorMock,
+  getInputMock,
+  setFailedMock,
+  setOutputMock
+} = setupCoreMocks()
 const runMock = jest.spyOn(main, 'entry')
 
 describe('action entry', () => {
