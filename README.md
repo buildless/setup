@@ -45,7 +45,7 @@ The full suite of available options are below.
 | `os`          | `string`     | (Current)                      | OS to target; defaults to current platform   |
 | `arch`        | `string`     | (Current)                      | Arch to target; defaults to current platform |
 | `agent`       | `boolean`    | `true`                         | Install and start the Buildless Agent        |
-| `apikey`      | `string`     | `${{ env.BUILDLESS_API_KEY }}` | Perform a self-test after installing         |
+| `apikey`      | `string`     | `${{ env.BUILDLESS_APIKEY }}` | Perform a self-test after installing         |
 | `token`       | `string`     | `${{ env.GITHUB_TOKEN }}`      | GitHub token to use for fetching assets      |
 | `export_path` | `boolean`    | `true`                         | Whether to install Buildless onto the `PATH` |
 
