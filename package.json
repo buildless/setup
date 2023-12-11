@@ -114,7 +114,7 @@
     "@jest/globals": "^29.7.0",
     "@sentry/cli": "^2.22.3",
     "@sentry/types": "^7.85.0",
-    "@types/jest": "^29.5.10",
+    "@types/jest": "^29.5.11",
     "@types/node": "^20.10.3",
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6.13.2",
