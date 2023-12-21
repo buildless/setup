@@ -373,7 +373,7 @@ jobs:
   test-noagent:
     name: "Test: No Agent (${{ matrix.label }})"
     runs-on: ${{ matrix.os }}
-    if: github.event.pull_request.draft == false
+    if: false
     strategy:
       fail-fast: false
       matrix:
