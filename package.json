@@ -133,7 +133,7 @@
     "jest-sonar-reporter": "^2.0.0",
     "make-coverage-badge": "^1.2.0",
     "prettier": "^3.1.0",
-    "prettier-eslint": "^16.1.2",
+    "prettier-eslint": "^16.2.0",
     "shx": "^0.3.4",
     "ts-jest": "^29.1.1",
     "typescript": "^5.3.3"
