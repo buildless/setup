@@ -30,17 +30,17 @@ dependencies:
     specifier: ^1.28.1
     version: registry.npmjs.org/@bufbuild/buf@1.28.1
   '@bufbuild/protobuf':
-    specifier: ^1.5.0
-    version: registry.npmjs.org/@bufbuild/protobuf@1.5.0
+    specifier: ^1.6.0
+    version: 1.6.0
   '@bufbuild/protoc-gen-es':
-    specifier: ^1.5.0
-    version: registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0)
+    specifier: ^1.6.0
+    version: 1.6.0(@bufbuild/protobuf@1.6.0)
   '@connectrpc/connect':
     specifier: ^1.1.4
-    version: registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.5.0)
+    version: registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.6.0)
   '@connectrpc/protoc-gen-connect-es':
     specifier: ^1.1.4
-    version: registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.4(@bufbuild/protoc-gen-es@1.5.0)(@connectrpc/connect@1.1.4)
+    version: registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.4(@bufbuild/protoc-gen-es@1.6.0)(@connectrpc/connect@1.1.4)
   '@sentry/node':
     specifier: ^7.90.0
     version: 7.90.0
@@ -60,7 +60,7 @@ devDependencies:
     version: registry.npmjs.org/@commitlint/config-conventional@18.4.3
   '@connectrpc/connect-node':
     specifier: ^1.1.4
-    version: registry.npmjs.org/@connectrpc/connect-node@1.1.4(@bufbuild/protobuf@1.5.0)(@connectrpc/connect@1.1.4)
+    version: registry.npmjs.org/@connectrpc/connect-node@1.1.4(@bufbuild/protobuf@1.6.0)(@connectrpc/connect@1.1.4)
   '@jest/globals':
     specifier: ^29.7.0
     version: registry.npmjs.org/@jest/globals@29.7.0
@@ -195,6 +195,39 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@bufbuild/protobuf@1.5.0:
+    resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.5.0.tgz}
+    dev: false
+
+  /@bufbuild/protobuf@1.6.0:
+    resolution: {integrity: sha512-hp19vSFgNw3wBBcVBx5qo5pufCqjaJ0Cfk5H/pfjNOfNWU+4/w0QVOmfAOZNRrNWRrVuaJWxcN8P2vhOkkzbBQ==, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.6.0.tgz}
+
+  /@bufbuild/protoc-gen-es@1.6.0(@bufbuild/protobuf@1.6.0):
+    resolution: {integrity: sha512-m0akOPWeD5UBfGdZyudrbnmdjI8l/ZHlP8TyEIcj7qMCR4kh68tMtGvrjRzj5ynIpavrr6G7P06XP9F9f2MDRw==, tarball: https://registry.npmjs.org/@bufbuild/protoc-gen-es/-/protoc-gen-es-1.6.0.tgz}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protobuf': 1.6.0
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+    dependencies:
+      '@bufbuild/protobuf': 1.6.0
+      '@bufbuild/protoplugin': 1.6.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@bufbuild/protoplugin@1.6.0:
+    resolution: {integrity: sha512-o53ZsvojHQkAPoC9v5sJifY2OfXdRU8DO3QpPoJ+QuvYcfB9Zb3DZkNMQRyfEbF4TVYiaQ0mZzZl1mESDdyCxA==, tarball: https://registry.npmjs.org/@bufbuild/protoplugin/-/protoplugin-1.6.0.tgz}
+    dependencies:
+      '@bufbuild/protobuf': 1.6.0
+      '@typescript/vfs': 1.5.0
+      typescript: 4.5.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.55.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==, tarball: https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz}
@@ -602,6 +635,14 @@ packages:
       '@typescript-eslint/types': 6.17.0
       eslint-visitor-keys: 3.4.3
     dev: true
+
+  /@typescript/vfs@1.5.0:
+    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==, tarball: https://registry.npmjs.org/@typescript/vfs/-/vfs-1.5.0.tgz}
+    dependencies:
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /acorn-jsx@5.3.2(acorn@8.11.2):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==, tarball: https://registry.npmjs.org/acorn-jsx/-/acorn-jsx-5.3.2.tgz}
@@ -1624,6 +1665,12 @@ packages:
       is-typed-array: 1.1.12
     dev: true
 
+  /typescript@4.5.2:
+    resolution: {integrity: sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==, tarball: https://registry.npmjs.org/typescript/-/typescript-4.5.2.tgz}
+    engines: {node: '>=4.2.0'}
+    hasBin: true
+    dev: false
+
   /unbox-primitive@1.0.2:
     resolution: {integrity: sha512-61pPlCD9h51VoreyJ0BReideM3MDKMKnh6+V9L08331ipq6Q8OFXZYiqP6n/tbHx4s5I9uRhcye6BrbkizkBDw==, tarball: https://registry.npmjs.org/unbox-primitive/-/unbox-primitive-1.0.2.tgz}
     dependencies:
@@ -2354,38 +2401,14 @@ packages:
       '@bufbuild/buf-win32-x64': 1.28.1
     dev: false
 
-  registry.npmjs.org/@bufbuild/protobuf@1.5.0:
-    resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.5.0.tgz}
-    name: '@bufbuild/protobuf'
-    version: 1.5.0
-
-  registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0):
-    resolution: {integrity: sha512-6dPFlw7jhKPNoJUb5+0MPDTMEEbym4AAQZP2sCo4/0J+T2SlAzq5kbuNx92x+SFkOI5V7/iNoPHrxr0TZZ9b2g==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoc-gen-es/-/protoc-gen-es-1.5.0.tgz}
-    id: registry.npmjs.org/@bufbuild/protoc-gen-es/1.5.0
-    name: '@bufbuild/protoc-gen-es'
-    version: 1.5.0
-    engines: {node: '>=14'}
-    hasBin: true
-    peerDependencies:
-      '@bufbuild/protobuf': 1.5.0
-    peerDependenciesMeta:
-      '@bufbuild/protobuf':
-        optional: true
-    dependencies:
-      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
-      '@bufbuild/protoplugin': registry.npmjs.org/@bufbuild/protoplugin@1.5.0
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
-
   registry.npmjs.org/@bufbuild/protoplugin@1.5.0:
     resolution: {integrity: sha512-b07uxUfWUHm91PrN7dMMSmO+2RH21kPo+EhczGDR3PDh2t80e4XCZhf3Z/6SM/+ajhVpbl/WNK+z645jsSnGPg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoplugin/-/protoplugin-1.5.0.tgz}
     name: '@bufbuild/protoplugin'
     version: 1.5.0
     dependencies:
-      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
-      '@typescript/vfs': registry.npmjs.org/@typescript/vfs@1.5.0
-      typescript: registry.npmjs.org/typescript@4.5.2
+      '@bufbuild/protobuf': 1.5.0
+      '@typescript/vfs': 1.5.0
+      typescript: 4.5.2
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2590,7 +2613,7 @@ packages:
       chalk: registry.npmjs.org/chalk@4.1.2
     dev: true
 
-  registry.npmjs.org/@connectrpc/connect-node@1.1.4(@bufbuild/protobuf@1.5.0)(@connectrpc/connect@1.1.4):
+  registry.npmjs.org/@connectrpc/connect-node@1.1.4(@bufbuild/protobuf@1.6.0)(@connectrpc/connect@1.1.4):
     resolution: {integrity: sha512-1Pv4PSTh7k6+c8kNjVx9wZiWm8dChexsq+hW4EKcYItjSqvyKpmTfLBTl12y6W+RBQ9vCuFCu3xT79outhNY9g==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/connect-node/-/connect-node-1.1.4.tgz}
     id: registry.npmjs.org/@connectrpc/connect-node/1.1.4
     name: '@connectrpc/connect-node'
@@ -2600,12 +2623,12 @@ packages:
       '@bufbuild/protobuf': ^1.4.2
       '@connectrpc/connect': 1.1.4
     dependencies:
-      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
-      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.5.0)
+      '@bufbuild/protobuf': 1.6.0
+      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.6.0)
       undici: registry.npmjs.org/undici@5.28.2
     dev: true
 
-  registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.5.0):
+  registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.6.0):
     resolution: {integrity: sha512-kFiOi3jsEyOuL4gGW55LgNCqQBNA0Z/GLXrfeJO4r6pI/f8L9rqnjrFZTCeyrvzu1TuqEtL51cR+c46KMCposw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/connect/-/connect-1.1.4.tgz}
     id: registry.npmjs.org/@connectrpc/connect/1.1.4
     name: '@connectrpc/connect'
@@ -2613,9 +2636,9 @@ packages:
     peerDependencies:
       '@bufbuild/protobuf': ^1.4.2
     dependencies:
-      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
+      '@bufbuild/protobuf': 1.6.0
 
-  registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.4(@bufbuild/protoc-gen-es@1.5.0)(@connectrpc/connect@1.1.4):
+  registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.4(@bufbuild/protoc-gen-es@1.6.0)(@connectrpc/connect@1.1.4):
     resolution: {integrity: sha512-q+leRn9Bd1FzEbthN1qWHwYaGYGc84rLXy/hEkDlMCiWrqz2zxb4Ijy37gOMlE8eRfwYRwn08XcEhV+Y/1jlyA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@connectrpc/protoc-gen-connect-es/-/protoc-gen-connect-es-1.1.4.tgz}
     id: registry.npmjs.org/@connectrpc/protoc-gen-connect-es/1.1.4
     name: '@connectrpc/protoc-gen-connect-es'
@@ -2631,10 +2654,10 @@ packages:
       '@connectrpc/connect':
         optional: true
     dependencies:
-      '@bufbuild/protobuf': registry.npmjs.org/@bufbuild/protobuf@1.5.0
-      '@bufbuild/protoc-gen-es': registry.npmjs.org/@bufbuild/protoc-gen-es@1.5.0(@bufbuild/protobuf@1.5.0)
+      '@bufbuild/protobuf': 1.6.0
+      '@bufbuild/protoc-gen-es': 1.6.0(@bufbuild/protobuf@1.6.0)
       '@bufbuild/protoplugin': registry.npmjs.org/@bufbuild/protoplugin@1.5.0
-      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.5.0)
+      '@connectrpc/connect': registry.npmjs.org/@connectrpc/connect@1.1.4(@bufbuild/protobuf@1.6.0)
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -3554,16 +3577,6 @@ packages:
       - supports-color
       - typescript
     dev: true
-
-  registry.npmjs.org/@typescript/vfs@1.5.0:
-    resolution: {integrity: sha512-AJS307bPgbsZZ9ggCT3wwpg3VbTKMFNHfaY/uF0ahSkYYrPF2dSSKDNIDIQAHm9qJqbLvCsSJH7yN4Vs/CsMMg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@typescript/vfs/-/vfs-1.5.0.tgz}
-    name: '@typescript/vfs'
-    version: 1.5.0
-    dependencies:
-      debug: 4.3.4
-    transitivePeerDependencies:
-      - supports-color
-    dev: false
 
   registry.npmjs.org/@ungap/structured-clone@1.2.0:
     resolution: {integrity: sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@ungap/structured-clone/-/structured-clone-1.2.0.tgz}
@@ -7583,14 +7596,6 @@ packages:
     version: 0.8.1
     engines: {node: '>=8'}
     dev: true
-
-  registry.npmjs.org/typescript@4.5.2:
-    resolution: {integrity: sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/typescript/-/typescript-4.5.2.tgz}
-    name: typescript
-    version: 4.5.2
-    engines: {node: '>=4.2.0'}
-    hasBin: true
-    dev: false
 
   registry.npmjs.org/typescript@5.3.3:
     resolution: {integrity: sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/typescript/-/typescript-5.3.3.tgz}
