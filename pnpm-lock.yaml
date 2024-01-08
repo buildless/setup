@@ -56,8 +56,8 @@ devDependencies:
     specifier: ^18.4.3
     version: registry.npmjs.org/@commitlint/cli@18.4.3(typescript@5.3.3)
   '@commitlint/config-conventional':
-    specifier: ^18.4.3
-    version: registry.npmjs.org/@commitlint/config-conventional@18.4.3
+    specifier: ^18.4.4
+    version: 18.4.4
   '@connectrpc/connect-node':
     specifier: ^1.1.4
     version: registry.npmjs.org/@connectrpc/connect-node@1.1.4(@bufbuild/protobuf@1.6.0)(@connectrpc/connect@1.1.4)
@@ -228,6 +228,13 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /@commitlint/config-conventional@18.4.4:
+    resolution: {integrity: sha512-Bz3sPQSboBN+Et/KyZrR+OJ3z9PrHDw7Bls0/hv94PmuHBtMq1dCGxS9XzTGzxeMNlytCC4kxF083tbhPljl3Q==, tarball: https://registry.npmjs.org/@commitlint/config-conventional/-/config-conventional-18.4.4.tgz}
+    engines: {node: '>=v18'}
+    dependencies:
+      conventional-changelog-conventionalcommits: 7.0.2
+    dev: true
 
   /@eslint-community/eslint-utils@4.4.0(eslint@8.55.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==, tarball: https://registry.npmjs.org/@eslint-community/eslint-utils/-/eslint-utils-4.4.0.tgz}
@@ -699,6 +706,10 @@ packages:
       is-array-buffer: 3.0.2
     dev: true
 
+  /array-ify@1.0.0:
+    resolution: {integrity: sha512-c5AMf34bKdvPhQ7tBGhqkgKNUzMr4WUs+WDtC2ZUGOUncbxKMTvqxYctiseW3+L4bA8ec+GcZ6/A/FW4m8ukng==, tarball: https://registry.npmjs.org/array-ify/-/array-ify-1.0.0.tgz}
+    dev: true
+
   /array-includes@3.1.7:
     resolution: {integrity: sha512-dlcsNBIiWhPkHdOEEKnehA+RNUWDc4UqFtnIXU4uuYDPtA4LDkr7qip2p0VvFAEXNDr0yWZ9PJyIRiGjRLQzwQ==, tarball: https://registry.npmjs.org/array-includes/-/array-includes-3.1.7.tgz}
     engines: {node: '>= 0.4'}
@@ -794,8 +805,22 @@ packages:
       set-function-length: 1.1.1
     dev: true
 
+  /compare-func@2.0.0:
+    resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==, tarball: https://registry.npmjs.org/compare-func/-/compare-func-2.0.0.tgz}
+    dependencies:
+      array-ify: 1.0.0
+      dot-prop: 5.3.0
+    dev: true
+
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==, tarball: https://registry.npmjs.org/concat-map/-/concat-map-0.0.1.tgz}
+
+  /conventional-changelog-conventionalcommits@7.0.2:
+    resolution: {integrity: sha512-NKXYmMR/Hr1DevQegFB4MwfM5Vv0m4UIxKZTTYuD98lpTknaZlSRrDOG4X7wIXpGkfsYxZTghUN+Qq+T0YQI7w==, tarball: https://registry.npmjs.org/conventional-changelog-conventionalcommits/-/conventional-changelog-conventionalcommits-7.0.2.tgz}
+    engines: {node: '>=16'}
+    dependencies:
+      compare-func: 2.0.0
+    dev: true
 
   /debug@3.2.7:
     resolution: {integrity: sha512-CFjzYYAi4ThfiQvizrFQevTTXHtnCqWfe7x1AhgEscTz6ZbLbfoLRLPugTQyBth6f8ZERVUSyWHFD/7Wu4t1XQ==, tarball: https://registry.npmjs.org/debug/-/debug-3.2.7.tgz}
@@ -849,6 +874,13 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       esutils: 2.0.3
+    dev: true
+
+  /dot-prop@5.3.0:
+    resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==, tarball: https://registry.npmjs.org/dot-prop/-/dot-prop-5.3.0.tgz}
+    engines: {node: '>=8'}
+    dependencies:
+      is-obj: 2.0.0
     dev: true
 
   /es-abstract@1.22.3:
@@ -1355,6 +1387,11 @@ packages:
   /is-number@7.0.0:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==, tarball: https://registry.npmjs.org/is-number/-/is-number-7.0.0.tgz}
     engines: {node: '>=0.12.0'}
+    dev: true
+
+  /is-obj@2.0.0:
+    resolution: {integrity: sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==, tarball: https://registry.npmjs.org/is-obj/-/is-obj-2.0.0.tgz}
+    engines: {node: '>=8'}
     dev: true
 
   /is-regex@1.1.4:
@@ -2570,15 +2607,6 @@ packages:
       yargs: registry.npmjs.org/yargs@17.7.2
     transitivePeerDependencies:
       - typescript
-    dev: true
-
-  registry.npmjs.org/@commitlint/config-conventional@18.4.3:
-    resolution: {integrity: sha512-729eRRaNta7JZF07qf6SAGSghoDEp9mH7yHU0m7ff0q89W97wDrWCyZ3yoV3mcQJwbhlmVmZPTkPcm7qiAu8WA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@commitlint/config-conventional/-/config-conventional-18.4.3.tgz}
-    name: '@commitlint/config-conventional'
-    version: 18.4.3
-    engines: {node: '>=v18'}
-    dependencies:
-      conventional-changelog-conventionalcommits: registry.npmjs.org/conventional-changelog-conventionalcommits@7.0.2
     dev: true
 
   registry.npmjs.org/@commitlint/config-validator@18.4.3:
@@ -3836,12 +3864,6 @@ packages:
       dequal: registry.npmjs.org/dequal@2.0.3
     dev: true
 
-  registry.npmjs.org/array-ify@1.0.0:
-    resolution: {integrity: sha512-c5AMf34bKdvPhQ7tBGhqkgKNUzMr4WUs+WDtC2ZUGOUncbxKMTvqxYctiseW3+L4bA8ec+GcZ6/A/FW4m8ukng==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/array-ify/-/array-ify-1.0.0.tgz}
-    name: array-ify
-    version: 1.0.0
-    dev: true
-
   registry.npmjs.org/arrify@1.0.1:
     resolution: {integrity: sha512-3CYzex9M9FGQjCGMGyi6/31c8GJbgb0qGyrx5HWxPd0aCwh4cB2YjMb2Xf9UuoogrMrlO9cTqnB5rI5GHZTcUA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/arrify/-/arrify-1.0.1.tgz}
     name: arrify
@@ -4197,15 +4219,6 @@ packages:
     engines: {node: '>=4.0.0'}
     dev: true
 
-  registry.npmjs.org/compare-func@2.0.0:
-    resolution: {integrity: sha512-zHig5N+tPWARooBnb0Zx1MFcdfpyJrfTJ3Y5L+IFvUm8rM74hHz66z0gw0x4tijh5CorKkKUCnW82R2vmpeCRA==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/compare-func/-/compare-func-2.0.0.tgz}
-    name: compare-func
-    version: 2.0.0
-    dependencies:
-      array-ify: registry.npmjs.org/array-ify@1.0.0
-      dot-prop: registry.npmjs.org/dot-prop@5.3.0
-    dev: true
-
   registry.npmjs.org/concurrently@8.2.2:
     resolution: {integrity: sha512-1dP4gpXFhei8IOtlXRE/T/4H88ElHgTiUzh71YUmtjTEHMSRS2Z/fgOxHSxxusGHogsRfxNq1vyAwxSC+EVyDg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/concurrently/-/concurrently-8.2.2.tgz}
     name: concurrently
@@ -4230,16 +4243,7 @@ packages:
     version: 7.0.0
     engines: {node: '>=16'}
     dependencies:
-      compare-func: registry.npmjs.org/compare-func@2.0.0
-    dev: true
-
-  registry.npmjs.org/conventional-changelog-conventionalcommits@7.0.2:
-    resolution: {integrity: sha512-NKXYmMR/Hr1DevQegFB4MwfM5Vv0m4UIxKZTTYuD98lpTknaZlSRrDOG4X7wIXpGkfsYxZTghUN+Qq+T0YQI7w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/conventional-changelog-conventionalcommits/-/conventional-changelog-conventionalcommits-7.0.2.tgz}
-    name: conventional-changelog-conventionalcommits
-    version: 7.0.2
-    engines: {node: '>=16'}
-    dependencies:
-      compare-func: registry.npmjs.org/compare-func@2.0.0
+      compare-func: 2.0.0
     dev: true
 
   registry.npmjs.org/conventional-commits-parser@5.0.0:
@@ -4454,15 +4458,6 @@ packages:
     engines: {node: '>=6.0.0'}
     dependencies:
       esutils: 2.0.3
-    dev: true
-
-  registry.npmjs.org/dot-prop@5.3.0:
-    resolution: {integrity: sha512-QM8q3zDe58hqUqjraQOmzZ1LIH9SWQJTlEKCH4kJ2oQvLZk7RbQXvtDM2XEq3fwkV9CCvvH4LA0AV+ogFsBM2Q==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/dot-prop/-/dot-prop-5.3.0.tgz}
-    name: dot-prop
-    version: 5.3.0
-    engines: {node: '>=8'}
-    dependencies:
-      is-obj: registry.npmjs.org/is-obj@2.0.0
     dev: true
 
   registry.npmjs.org/ecdsa-sig-formatter@1.0.11:
@@ -5351,13 +5346,6 @@ packages:
     resolution: {integrity: sha512-cOZFQQozTha1f4MxLFzlgKYPTyj26picdZTx82hbc/Xf4K/tZOOXSCkMvU4pKioRXGDLJRn0GM7Upe7kR721yg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/is-map/-/is-map-2.0.2.tgz}
     name: is-map
     version: 2.0.2
-    dev: true
-
-  registry.npmjs.org/is-obj@2.0.0:
-    resolution: {integrity: sha512-drqDG3cbczxxEJRoOXcOjtdp1J/lyp1mNn0xaznRs8+muBhgQcrnbspox5X5fOw0HnMnbfDzvnEMEtqDEJEo8w==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/is-obj/-/is-obj-2.0.0.tgz}
-    name: is-obj
-    version: 2.0.0
-    engines: {node: '>=8'}
     dev: true
 
   registry.npmjs.org/is-path-inside@3.0.3:
