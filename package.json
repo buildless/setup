@@ -109,7 +109,7 @@
   },
   "devDependencies": {
     "@commitlint/cli": "^18.4.3",
-    "@commitlint/config-conventional": "^18.4.3",
+    "@commitlint/config-conventional": "^18.4.4",
     "@connectrpc/connect-node": "^1.1.4",
     "@jest/globals": "^29.7.0",
     "@sentry/cli": "^2.23.1",
