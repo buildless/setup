@@ -68,8 +68,8 @@ devDependencies:
     specifier: ^2.25.0
     version: 2.25.0
   '@sentry/types':
-    specifier: ^7.91.0
-    version: 7.91.0
+    specifier: ^7.98.0
+    version: 7.98.0
   '@types/jest':
     specifier: ^29.5.11
     version: registry.npmjs.org/@types/jest@29.5.11
@@ -398,8 +398,8 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
-  /@sentry/types@7.91.0:
-    resolution: {integrity: sha512-bcQnb7J3P3equbCUc+sPuHog2Y47yGD2sCkzmnZBjvBT0Z1B4f36fI/5WjyZhTjLSiOdg3F2otwvikbMjmBDew==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.91.0.tgz}
+  /@sentry/types@7.98.0:
+    resolution: {integrity: sha512-pc034ziM0VTETue4bfBcBqTWGy4w0okidtoZJjGVrYAfE95ObZnUGVj/XYIQ3FeCYWIa7NFN2MvdsCS0buwivQ==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.98.0.tgz}
     engines: {node: '>=8'}
     dev: true
 
