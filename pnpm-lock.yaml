@@ -68,8 +68,8 @@ devDependencies:
     specifier: ^2.25.0
     version: 2.25.0
   '@sentry/types':
-    specifier: ^7.91.0
-    version: 7.91.0
+    specifier: ^7.100.1
+    version: 7.100.1
   '@types/jest':
     specifier: ^29.5.11
     version: registry.npmjs.org/@types/jest@29.5.11
@@ -393,15 +393,15 @@ packages:
       - supports-color
     dev: false
 
+  /@sentry/types@7.100.1:
+    resolution: {integrity: sha512-fLM+LedHuKzOd8IhXBqaQuym+AA519MGjeczBa5kGakes/BbAsUMwsNfjsKQedp7Kh44RgYF99jwoRPK2oDrXw==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.100.1.tgz}
+    engines: {node: '>=8'}
+    dev: true
+
   /@sentry/types@7.90.0:
     resolution: {integrity: sha512-dA0Mtba5jYlcQ6xBsGILZuFq4NGrWLfr2ys036z2JE4H1+3PxOVERlD3Di7p+WKYM5gjFw10Hn3EgUV979E3dA==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.90.0.tgz}
     engines: {node: '>=8'}
     dev: false
-
-  /@sentry/types@7.91.0:
-    resolution: {integrity: sha512-bcQnb7J3P3equbCUc+sPuHog2Y47yGD2sCkzmnZBjvBT0Z1B4f36fI/5WjyZhTjLSiOdg3F2otwvikbMjmBDew==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.91.0.tgz}
-    engines: {node: '>=8'}
-    dev: true
 
   /@sentry/utils@7.90.0:
     resolution: {integrity: sha512-6BpqAzONm/HQbdlL4TY2W2vBSmaG/eVvwUaHoz0wB49EkWwpF6j/SO9Kb/XkiA/qp9GoJVXpnGBFQLPx7kv/Yw==, tarball: https://registry.npmjs.org/@sentry/utils/-/utils-7.90.0.tgz}
