@@ -42,8 +42,8 @@ dependencies:
     specifier: ^1.1.4
     version: registry.npmjs.org/@connectrpc/protoc-gen-connect-es@1.1.4(@bufbuild/protoc-gen-es@1.6.0)(@connectrpc/connect@1.1.4)
   '@sentry/node':
-    specifier: ^7.90.0
-    version: 7.90.0
+    specifier: ^7.101.1
+    version: 7.101.1
   octokit:
     specifier: ^3.1.2
     version: registry.npmjs.org/octokit@3.1.2
@@ -277,13 +277,13 @@ packages:
     engines: {node: ^12.20.0 || ^14.18.0 || >=16.0.0}
     dev: true
 
-  /@sentry-internal/tracing@7.90.0:
-    resolution: {integrity: sha512-74jEtpdio9aRkiVBcrY1ZJXek0oFMqxDJK6BkJNCA+aUK1z96V9viehANRk3Nbxm01rWjmH1U4e1siuo9FhjuQ==, tarball: https://registry.npmjs.org/@sentry-internal/tracing/-/tracing-7.90.0.tgz}
+  /@sentry-internal/tracing@7.101.1:
+    resolution: {integrity: sha512-ihjWG8x4x0ozx6t+EHoXLKbsPrgzYLCpeBLWyS+M6n3hn6cmHM76c8nZw3ldhUQi5UYL3LFC/JZ50b4oSxtlrg==, tarball: https://registry.npmjs.org/@sentry-internal/tracing/-/tracing-7.101.1.tgz}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/core': 7.90.0
-      '@sentry/types': 7.90.0
-      '@sentry/utils': 7.90.0
+      '@sentry/core': 7.101.1
+      '@sentry/types': 7.101.1
+      '@sentry/utils': 7.101.1
     dev: false
 
   /@sentry/cli-darwin@2.25.0:
@@ -372,29 +372,26 @@ packages:
       - supports-color
     dev: true
 
-  /@sentry/core@7.90.0:
-    resolution: {integrity: sha512-HolpdHjULCwehKPWHR6IPQM0NBjmORhlBU7FtCh/e8TtSkZ9ztPsuofNBomMS1+mdbL+yxOIc9KUYEl0zRfeAQ==, tarball: https://registry.npmjs.org/@sentry/core/-/core-7.90.0.tgz}
+  /@sentry/core@7.101.1:
+    resolution: {integrity: sha512-XSmXXeYT1d4O14eDF3OXPJFUgaN2qYEeIGUztqPX9nBs9/ij8y/kZOayFqlIMnfGvjOUM+63sy/2xDBOpFn6ug==, tarball: https://registry.npmjs.org/@sentry/core/-/core-7.101.1.tgz}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/types': 7.90.0
-      '@sentry/utils': 7.90.0
+      '@sentry/types': 7.101.1
+      '@sentry/utils': 7.101.1
     dev: false
 
-  /@sentry/node@7.90.0:
-    resolution: {integrity: sha512-VjDI2MCkidoFEzrMa1gqmwYt1sUhYnu+zoFF5P5jgapTVVJ5xc2b7k/lS62U6IsfxHNrIdTtQHsrbCS5+s0GvQ==, tarball: https://registry.npmjs.org/@sentry/node/-/node-7.90.0.tgz}
+  /@sentry/node@7.101.1:
+    resolution: {integrity: sha512-iXSxUT6Zbt/KUY0+fRcW5II6Tgp2zdTfhBW+fQuDt/UUZt7Ypvb+6n4U2oom3LJfttmD7mdjQuT4+vsNImDjTQ==, tarball: https://registry.npmjs.org/@sentry/node/-/node-7.101.1.tgz}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry-internal/tracing': 7.90.0
-      '@sentry/core': 7.90.0
-      '@sentry/types': 7.90.0
-      '@sentry/utils': 7.90.0
-      https-proxy-agent: 5.0.1
-    transitivePeerDependencies:
-      - supports-color
+      '@sentry-internal/tracing': 7.101.1
+      '@sentry/core': 7.101.1
+      '@sentry/types': 7.101.1
+      '@sentry/utils': 7.101.1
     dev: false
 
-  /@sentry/types@7.90.0:
-    resolution: {integrity: sha512-dA0Mtba5jYlcQ6xBsGILZuFq4NGrWLfr2ys036z2JE4H1+3PxOVERlD3Di7p+WKYM5gjFw10Hn3EgUV979E3dA==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.90.0.tgz}
+  /@sentry/types@7.101.1:
+    resolution: {integrity: sha512-bwtkQvrCZ6JGc7vqX7TEAKBgkbQFORt84FFS3JQQb8G3efTt9fZd2ReY4buteKQdlALl8h1QWVngTLmI+kyUuw==, tarball: https://registry.npmjs.org/@sentry/types/-/types-7.101.1.tgz}
     engines: {node: '>=8'}
     dev: false
 
@@ -403,11 +400,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
-  /@sentry/utils@7.90.0:
-    resolution: {integrity: sha512-6BpqAzONm/HQbdlL4TY2W2vBSmaG/eVvwUaHoz0wB49EkWwpF6j/SO9Kb/XkiA/qp9GoJVXpnGBFQLPx7kv/Yw==, tarball: https://registry.npmjs.org/@sentry/utils/-/utils-7.90.0.tgz}
+  /@sentry/utils@7.101.1:
+    resolution: {integrity: sha512-Nrg0nrEI3nrOCd9SLJ/WGzxS5KMQE4cryLOvrDcHJRWpsSyGBF1hLLerk84Nsw/0myMsn7zTYU+xoq7idNsX5A==, tarball: https://registry.npmjs.org/@sentry/utils/-/utils-7.101.1.tgz}
     engines: {node: '>=8'}
     dependencies:
-      '@sentry/types': 7.90.0
+      '@sentry/types': 7.101.1
     dev: false
 
   /@types/json-schema@7.0.15:
@@ -699,6 +696,7 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /array-buffer-byte-length@1.0.0:
     resolution: {integrity: sha512-LPuwb2P+NrQw3XhxGc36+XSvuBPopovXYTR9Ew++Du9Yb/bx5AzBfrIsBoj0EZUifjQU+sHL21sseZ3jerWO/A==, tarball: https://registry.npmjs.org/array-buffer-byte-length/-/array-buffer-byte-length-1.0.0.tgz}
@@ -1307,6 +1305,7 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+    dev: true
 
   /ignore@5.3.0:
     resolution: {integrity: sha512-g7dmpshy+gD7mh88OC9NwSGTKoc3kyLAZQRU1mt53Aw/vnvfXnbC+F/7F7QoYVKbV+KNvJx8wArewKy1vXMtlg==, tarball: https://registry.npmjs.org/ignore/-/ignore-5.3.0.tgz}
