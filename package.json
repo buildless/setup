@@ -113,7 +113,7 @@
     "@connectrpc/connect-node": "^1.1.4",
     "@jest/globals": "^29.7.0",
     "@sentry/cli": "^2.25.0",
-    "@sentry/types": "^7.91.0",
+    "@sentry/types": "^7.101.1",
     "@types/jest": "^29.5.11",
     "@types/node": "^20.10.6",
     "@types/uuid": "^9.0.7",
