@@ -27,8 +27,8 @@ dependencies:
     specifier: ^2.0.1
     version: registry.npmjs.org/@actions/tool-cache@2.0.1
   '@bufbuild/buf':
-    specifier: ^1.28.1
-    version: registry.npmjs.org/@bufbuild/buf@1.28.1
+    specifier: ^1.30.0
+    version: 1.30.0
   '@bufbuild/protobuf':
     specifier: ^1.7.1
     version: 1.7.1
@@ -142,8 +142,8 @@ devDependencies:
 
 packages:
 
-  /@bufbuild/buf-darwin-arm64@1.28.1:
-    resolution: {integrity: sha512-nAyvwKkcd8qQTExCZo5MtSRhXLK7e3vzKFKHjXfkveRakSUST2HFlFZAHfErZimN4wBrPTN0V0hNRU8PPjkMpQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.28.1.tgz}
+  /@bufbuild/buf-darwin-arm64@1.30.0:
+    resolution: {integrity: sha512-EUhh/hiazZPyf6I0HcQHf/ODZAq2js+PdIbemEWm8WQV29rqhY/stRxKDF755gG5xNr4xwhraQXYTizG3MZV5A==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-arm64/-/buf-darwin-arm64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [darwin]
@@ -151,8 +151,8 @@ packages:
     dev: false
     optional: true
 
-  /@bufbuild/buf-darwin-x64@1.28.1:
-    resolution: {integrity: sha512-b0eT3xd3vX5a5lWAbo5h7FPuf9MsOJI4I39qs4TZnrlZ8BOuPfqzwzijiFf9UCwaX2vR1NQXexIoQ80Ci+fCHw==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-x64/-/buf-darwin-x64-1.28.1.tgz}
+  /@bufbuild/buf-darwin-x64@1.30.0:
+    resolution: {integrity: sha512-ID9G93hlpvy3KwYqu1UFZCFHaQ7KDESH3OmL33ASpdCojtQbD7EtKCQe8vwIW2raim7lSocSHLyZuLCUAvWoUw==, tarball: https://registry.npmjs.org/@bufbuild/buf-darwin-x64/-/buf-darwin-x64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [darwin]
@@ -160,8 +160,8 @@ packages:
     dev: false
     optional: true
 
-  /@bufbuild/buf-linux-aarch64@1.28.1:
-    resolution: {integrity: sha512-p5h9bZCVLMh8No9/7k7ulXzsFx5P7Lu6DiUMjSJ6aBXPMYo6Xl7r/6L2cQkpsZ53HMtIxCgMYS9a7zoS4K8wIw==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-aarch64/-/buf-linux-aarch64-1.28.1.tgz}
+  /@bufbuild/buf-linux-aarch64@1.30.0:
+    resolution: {integrity: sha512-VTp5YnfsHtCmRNqGAgzSm18fCTVw8ErK0Lk506CWtqqGhPJ+lWuVkxgAAzG+qoK4LZXIpX9dXxkoqdb+L1NTkg==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-aarch64/-/buf-linux-aarch64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [linux]
@@ -169,8 +169,8 @@ packages:
     dev: false
     optional: true
 
-  /@bufbuild/buf-linux-x64@1.28.1:
-    resolution: {integrity: sha512-fVJ3DiRigIso06jgEl+JNp59Y5t2pxDHd10d3SA4r+14sXbZ2J7Gy/wBqVXPry4x/jW567KKlvmhg7M5ZBgCQQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-x64/-/buf-linux-x64-1.28.1.tgz}
+  /@bufbuild/buf-linux-x64@1.30.0:
+    resolution: {integrity: sha512-XBasj1Baf/lJIiJbX40RDjM8OLS3eVIiilnDqQ7ZL3WOCn6gROYr9lLjlUg9GYox9On5LCFp3536zfr3hNqQwg==, tarball: https://registry.npmjs.org/@bufbuild/buf-linux-x64/-/buf-linux-x64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [linux]
@@ -178,8 +178,8 @@ packages:
     dev: false
     optional: true
 
-  /@bufbuild/buf-win32-arm64@1.28.1:
-    resolution: {integrity: sha512-KJiRJpugQRK/jXC46Xjlb68UydWhCZj2jHdWLIwNtgXd1WTJ3LngChZV7Y6pPK08pwBAVz0JYeVbD5IlTCD4TQ==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-arm64/-/buf-win32-arm64-1.28.1.tgz}
+  /@bufbuild/buf-win32-arm64@1.30.0:
+    resolution: {integrity: sha512-1C18Abq2GpBeGP54VOr9ABzSobynH/q8pUkbY6ftp7JIYdrCvKfJmianEpvTHJWl5kwe3UP9xYYgr5Yt+Y/8Yw==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-arm64/-/buf-win32-arm64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [arm64]
     os: [win32]
@@ -187,14 +187,28 @@ packages:
     dev: false
     optional: true
 
-  /@bufbuild/buf-win32-x64@1.28.1:
-    resolution: {integrity: sha512-vMnc+7OVCkmlRWQsgYHgUqiBPRIjD8XeoRyApJ07YZzGs7DkRH4LhvmacJbLd3wORylbn6gLz3pQa8J/M61mzg==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-x64/-/buf-win32-x64-1.28.1.tgz}
+  /@bufbuild/buf-win32-x64@1.30.0:
+    resolution: {integrity: sha512-uRc05jpbvdUxKSHpUj6RfNR3yJTIdSYccgtupgc6qPoDXE+KveyqjbA0CqIqXhgJmgyggBcYLEbX+tdtz5LRhA==, tarball: https://registry.npmjs.org/@bufbuild/buf-win32-x64/-/buf-win32-x64-1.30.0.tgz}
     engines: {node: '>=12'}
     cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: false
     optional: true
+
+  /@bufbuild/buf@1.30.0:
+    resolution: {integrity: sha512-SImlJJA+9uDccWzt6SFXJwRQE/6fGv2cIKyXqDJCWthYMMYw9/QOdM/pXg5JZx1XJrHiEvzZ0y+ump7Q08/FPw==, tarball: https://registry.npmjs.org/@bufbuild/buf/-/buf-1.30.0.tgz}
+    engines: {node: '>=12'}
+    hasBin: true
+    requiresBuild: true
+    optionalDependencies:
+      '@bufbuild/buf-darwin-arm64': 1.30.0
+      '@bufbuild/buf-darwin-x64': 1.30.0
+      '@bufbuild/buf-linux-aarch64': 1.30.0
+      '@bufbuild/buf-linux-x64': 1.30.0
+      '@bufbuild/buf-win32-arm64': 1.30.0
+      '@bufbuild/buf-win32-x64': 1.30.0
+    dev: false
 
   /@bufbuild/protobuf@1.5.0:
     resolution: {integrity: sha512-0Jg+B7Vl8YGCi7c3iZ8/38iTbZrwdU7or6QZlsA9lhSrhumaXOTMsGO8gqwDuus/THEkTiY3Uxn+PEJwgsLt0w==, tarball: https://registry.npmjs.org/@bufbuild/protobuf/-/protobuf-1.5.0.tgz}
@@ -2566,22 +2580,6 @@ packages:
     name: '@bcoe/v8-coverage'
     version: 0.2.3
     dev: true
-
-  registry.npmjs.org/@bufbuild/buf@1.28.1:
-    resolution: {integrity: sha512-WRDagrf0uBjfV9s5eyrSPJDcdI4A5Q7JMCA4aMrHRR8fo/TTjniDBjJprszhaguqsDkn/LS4QIu92HVFZCrl9A==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/buf/-/buf-1.28.1.tgz}
-    name: '@bufbuild/buf'
-    version: 1.28.1
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    optionalDependencies:
-      '@bufbuild/buf-darwin-arm64': 1.28.1
-      '@bufbuild/buf-darwin-x64': 1.28.1
-      '@bufbuild/buf-linux-aarch64': 1.28.1
-      '@bufbuild/buf-linux-x64': 1.28.1
-      '@bufbuild/buf-win32-arm64': 1.28.1
-      '@bufbuild/buf-win32-x64': 1.28.1
-    dev: false
 
   registry.npmjs.org/@bufbuild/protoplugin@1.5.0:
     resolution: {integrity: sha512-b07uxUfWUHm91PrN7dMMSmO+2RH21kPo+EhczGDR3PDh2t80e4XCZhf3Z/6SM/+ajhVpbl/WNK+z645jsSnGPg==, registry: https://npm.pkg.st/, tarball: https://registry.npmjs.org/@bufbuild/protoplugin/-/protoplugin-1.5.0.tgz}
