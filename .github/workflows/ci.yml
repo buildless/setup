@@ -25,7 +25,7 @@ jobs:
           egress-policy: audit
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Setup: PNPM"
         uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
@@ -86,7 +86,7 @@ jobs:
         with:
           egress-policy: audit
       - name: "Setup: Checkout"
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - name: "Check: Dependency Review"
         uses: actions/dependency-review-action@4901385134134e04cec5fbe5ddfe3b2c5bd5d976 # v4.0.0
 
@@ -102,7 +102,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Setup: PNPM"
         uses: pnpm/action-setup@d882d12c64e032187b2edb46d3a0d003b7a43598 # v2.4.0
@@ -167,7 +167,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -199,7 +199,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -227,7 +227,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -265,7 +265,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -301,7 +301,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -340,7 +340,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -396,7 +396,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Test: Buildless Action"
         id: test-action
@@ -436,7 +436,7 @@ jobs:
 
       - name: "Setup: Checkout"
         id: checkout
-        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
+        uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
 
       - name: "Fixup: Directory (Linux/macOS)"
         shell: bash
