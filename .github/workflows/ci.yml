@@ -88,7 +88,7 @@ jobs:
       - name: "Setup: Checkout"
         uses: actions/checkout@9bb56186c3b09b4f86b1c65136769dd318469633 # v4.1.2
       - name: "Check: Dependency Review"
-        uses: actions/dependency-review-action@733dd5d4a5203f238c33806593ec0f5fc5343d8c # v4.2.4
+        uses: actions/dependency-review-action@72eb03d02c7872a771aacd928f3123ac62ad6d3a # v4.3.3
 
   test-typescript:
     name: "Test: Unit Tests"
